@@ -1,3 +1,7 @@
+
+
+
+# load packages
 if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
 require(here)
 if (!requireNamespace("RSQLite", quietly = TRUE)) install.packages("RSQLite")
@@ -9,13 +13,12 @@ require(reshape)
 if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
 require(sf)
 
+# load the arcgis license
 arc.check_product()
-
 
 # Set input paths ----
 databasename <- "E:/coa2/coa_bridgetest.sqlite" 
-working_directory <- "E:/coa2/COA/COA_WebToolDemo"
-
+#working_directory <- "E:/coa2/COA/COA_WebToolDemo"   # replace with here()
 
 # function to grab the rightmost characters
 substrRight <- function(x, n){
