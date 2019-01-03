@@ -3,3 +3,15 @@
 .RData
 .Ruserdata
 *.Rproj
+*.gdbindexes
+sws.gdb/a00000001.gdbtable
+*.atx
+sws.gdb/a00000006.gdbtable
+*.gdbtablx
+*.spx
+*.gdbtable
+_data/sws/sws.gdb/gdb
+*.lock
+_data/sws/sws.gdb/timestamps
+sws.gdb/timestamps
+sws.gdb/gdb

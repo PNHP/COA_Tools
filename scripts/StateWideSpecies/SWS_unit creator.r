@@ -1,4 +1,6 @@
 
+# this script requires a geodatabase to be placed in the "" directory called "sws.gdb".  This gdb should two feature classes contained within it ("_huc08" and "_county")
+
 
 
 # load packages
@@ -9,16 +11,12 @@ require(RSQLite)
 if (!requireNamespace("arcgisbinding", quietly = TRUE)) install.packages("arcgisbinding")
 require(arcgisbinding)
 if (!requireNamespace("reshape", quietly = TRUE)) install.packages("reshape")
-require(reshape)
+require(reshape2)
 if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
 require(sf)
 
 # load the arcgis license
 arc.check_product()
-
-# Set input paths ----
-databasename <- "E:/coa2/coa_bridgetest.sqlite" 
-#working_directory <- "E:/coa2/COA/COA_WebToolDemo"   # replace with here()
 
 # function to grab the rightmost characters
 substrRight <- function(x, n){
@@ -28,32 +26,47 @@ substrRight <- function(x, n){
 # set options   
 options(useFancyQuotes = FALSE)
 
-db <- dbConnect(SQLite(), dbname = databasename)
+# Set input paths ----
+databasename <- "E:/coa2/coa_bridgetest.sqlite" 
+#working_directory <- "E:/coa2/COA/COA_WebToolDemo"   # replace with here()
 
+
+
+
+db <- dbConnect(SQLite(), dbname = databasename)
+# get the SGCN by planning unit data
 SQLquery <- paste("SELECT unique_id, ELSeason, OccProb"," FROM lu_sgcnXpu_all ")
 data_sgcnXpu <- dbGetQuery(db, statement = SQLquery)
-
+# get the county data
 SQLquery_county <- paste("SELECT COUNTY_NAM, FIPS_COUNT"," FROM lu_CountyName ")
 data_countyname <- dbGetQuery(db, statement = SQLquery_county )
-
+# get the HUC08 data
 SQLquery_luNatBound <- paste("SELECT unique_id, HUC08"," FROM lu_NaturalBoundaries ")
 data_NaturalBoundaries <- dbGetQuery(db, statement = SQLquery_luNatBound )
 
+# disconnect the db
+dbDisconnect(db)
+
+# merge the data into a single dataframe
 sws <- merge(data_sgcnXpu,data_NaturalBoundaries,by="unique_id",all.x=TRUE)
+rm(data_NaturalBoundaries)
 
-# get the county FIPS code
+# get the county FIPS code and join the county names from the other table
 sws$county_FIPS <- substr(sws$unique_id,1,3)
-
 sws <- merge(sws,data_countyname,by.x="county_FIPS",by.y="FIPS_COUNT", all.x=TRUE)
-# get the season
+rm(data_countyname, data_sgcnXpu)
+
+# extract the season code from the ELSeason
 sws$season <- substrRight(sws$ELSeason, 1)
-# get the ELCODE
+
+# extract the ELCODE from ELSeason and rname ELSeason to ELCODE
 sws$ELSeason <- substr(sws$ELSeason,1,10)
 names(sws)[names(sws)=='ELSeason'] <- 'ELCODE'
 
-# rearrange
+# rearrange into a more sensible list
 sws <- sws[c("unique_id","HUC08","COUNTY_NAM","ELCODE","season","OccProb")]
-# make a table of the count of PUs by HUC08
+
+# make a table of the count of PUs by HUC08 just for informational purposes
 PU_huc08 <- as.data.frame(table(sws$HUC08))
 PU_county <- as.data.frame(table(sws$COUNTY_NAM))
 
@@ -75,7 +88,7 @@ sws_huc08agg_cast$m <- ifelse(sws_huc08agg_cast$m_prop>0, "yes", NA)
 sws_huc08agg_cast$w <- ifelse(sws_huc08agg_cast$w_prop>0, "yes", NA)
 sws_huc08agg_cast$y <- ifelse(sws_huc08agg_cast$y_prop>0, "yes", NA)
 # load the huc08 basemap
-huc08_shp <- arc.open("e:/coa2/StateWideSpecies/sws.gdb/_huc08")
+huc08_shp <- arc.open("E:/COA_Tools/_data/sws/sws.gdb/_huc08")
 huc08_shp <- arc.select(huc08_shp)
 huc08_shp <- arc.data2sf(huc08_shp)
 huc08_shp <- huc08_shp[c("OBJECTID","HUC8","NAME")]
@@ -108,7 +121,7 @@ sws_countyagg_cast$m <- ifelse(sws_countyagg_cast$m_prop>0, "yes", NA)
 sws_countyagg_cast$w <- ifelse(sws_countyagg_cast$w_prop>0, "yes", NA)
 sws_countyagg_cast$y <- ifelse(sws_countyagg_cast$y_prop>0, "yes", NA)
 # load the county basemap
-county_shp <- arc.open("e:/coa2/StateWideSpecies/sws.gdb/_county")
+county_shp <- arc.open("E:/COA_Tools/_data/sws/sws.gdb/_county")
 county_shp <- arc.select(county_shp)
 county_shp <- arc.data2sf(county_shp)
 county_shp <- county_shp[c("OBJECTID","COUNTY_NAM","COUNTY_NUM","FIPS_COUNT")]
