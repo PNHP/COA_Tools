@@ -137,3 +137,18 @@ for(i in 1:length(sgcnlist)){
 
 
 ###################################
+# combined data for COA tool
+huc08agg <- sws_huc08agg_cast
+
+huc08agg_all <- merge(huc08_shp,huc08agg,by.x="HUC8",by.y="HUC08")
+arc.write(file.path("sws.gdb","_HUC08_SGCN"),huc08agg_all ,overwrite=TRUE)
+
+
+
+countyagg <- sws_countyagg_cast
+
+countyagg_all <- merge(county_shp,countyagg,by="COUNTY_NAM")
+arc.write(file.path("sws.gdb","_county_SGCN"),countyagg_all ,overwrite=TRUE)
+
+
+
