@@ -20,3 +20,13 @@ _data/output/sws/sws.gdb/gdb
 *.sqlite
 _data/input/lu_muni_names.csv
 *.csv
+*.xml
+COA_Update.gdb/a00000009.freelist
+*.freelist
+COA_Update.gdb/timestamps
+*.dir
+Index/COA_Update/_2.cfs
+*.gen
+Index/COA_Update/log.txt
+*.aprx
+*.tbx
