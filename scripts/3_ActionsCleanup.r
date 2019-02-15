@@ -19,8 +19,6 @@ require(RSQLite)
 # Set input paths ----
 databasename <- "coa_bridgetest.sqlite" 
 databasename <- here("_data","output",databasename)
-# connect to the database
-db <- dbConnect(SQLite(), dbname=databasename)
 
 #get the threats template
 COA_actions_file <- list.files(path=here("_data/input"), pattern=".xlsx$")  # --- make sure your excel file is not open.
@@ -47,8 +45,10 @@ COA_actions <- read.xlsx(xlsxFile=COA_actions_file, sheet=COA_actions_sheets[n],
 names(COA_actions)[names(COA_actions) == ''] <- 'SpeciesID'
 names(COA_actions)[names(COA_actions) == 'Reference#'] <- 'ReferenceID'
 
-# write the output to the sqlite db
-dbWriteTable(db, "lu_actionsLevel2", COA_actions, overwrite=TRUE)
+db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
+dbWriteTable(db, "lu_actionsLevel2", COA_actions, overwrite=TRUE) # write the output to the sqlite db
+dbDisconnect(db) # disconnect the db
+rm(COA_actions)
 
 ## References for the actions
 # Enter the references sheet (eg. "lu_BPreference") 
@@ -62,11 +62,23 @@ names(COA_references)[names(COA_references) == 'REFERENCE.NAME'] <- 'REF_NAME'
 COA_references$ActionCategory1 <- NULL
 COA_references$ActionCategory2 <- NULL
 
-# write the output to the sqlite db
-dbWriteTable(db, "BPreference", COA_references, overwrite=TRUE)
+db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
+dbWriteTable(db, "BPreference", COA_references, overwrite=TRUE) # write the output to the sqlite db
+dbDisconnect(db) # disconnect the db
+rm(COA_references)
 
-# disconnect the db
-dbDisconnect(db)
+## research needs
+SGCNresearch <- read.csv(here("_data","input","lu_SGCNresearch.csv"), stringsAsFactors=FALSE)
 
+db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
+dbWriteTable(db, "lu_SGCNresearch", SGCNresearch, overwrite=TRUE) # write the table to the sqlite
+dbDisconnect(db) # disconnect the db
+
+## survey needs
+SGCNsurvey <- read.csv(here("_data","input","lu_SGCNsurvey.csv"), stringsAsFactors=FALSE)
+
+db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
+dbWriteTable(db, "lu_SGCNsurvey", SGCNsurvey, overwrite=TRUE) # write the table to the sqlite
+dbDisconnect(db) # disconnect the db
 
 
