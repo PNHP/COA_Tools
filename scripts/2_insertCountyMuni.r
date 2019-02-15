@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------
-# Name:        1_insertSGCN.r
-# Purpose:     Create an empty, new COA databases
+# Name:        2_insertCountyMuni.r
+# Purpose:     
 # Author:      Christopher Tracey
 # Created:     2019-02-14
 # Updated:     2019-02-14
@@ -18,24 +18,21 @@ require(RSQLite)
 databasename <- "coa_bridgetest.sqlite" 
 databasename <- here("_data","output",databasename)
 
-## Read SGCN list in
-SGCN <- read.csv(here("_data","input","lu_sgcn.csv"), stringsAsFactors=FALSE) # read in the SGCN list
-drops <- c("OBJECTID","GlobalID","created_user","created_date","last_edited_user","last_edited_date") # delete unneeded columns
-SGCN <- SGCN[ , !(names(SGCN) %in% drops)]
-rm(drops)
-
+## county names
+CountyName <- read.csv(here("_data","input","lu_CountyName.csv"), stringsAsFactors=FALSE)
+CountyName <- CountyName[order(CountyName$COUNTY_NAM),]
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
-dbWriteTable(db, "lu_SGCN", SGCN, overwrite=TRUE) # write the table to the sqlite
+dbWriteTable(db, "lu_CountyName", CountyName, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
 
-rm(SGCN)
+rm(CountyName)
 
-## Taxa Group import
-taxagrp <- read.csv(here("_data","input","lu_taxagrp.csv"), stringsAsFactors=FALSE)
-taxagrp$OID <- NULL
+## municipal names
+MuniName <- read.csv(here("_data","input","lu_muni_names.csv"), stringsAsFactors=FALSE)
+MuniName <- MuniName[order(MuniName$Name_Proper_Type),]
 
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
-dbWriteTable(db, "lu_taxgrp", taxagrp, overwrite=TRUE) # write the table to the sqlite
+dbWriteTable(db, "lu_muni_names", MuniName, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
 
-rm(taxagrp)
+rm(MuniName)
