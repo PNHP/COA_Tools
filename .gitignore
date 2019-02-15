@@ -15,3 +15,8 @@ _data/sws/sws.gdb/gdb
 _data/sws/sws.gdb/timestamps
 sws.gdb/timestamps
 sws.gdb/gdb
+*.xlsx
+_data/output/sws/sws.gdb/gdb
+*.sqlite
+_data/input/lu_muni_names.csv
+*.csv
