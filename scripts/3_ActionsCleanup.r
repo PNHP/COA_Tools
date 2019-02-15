@@ -32,8 +32,6 @@ COA_actions_file <- here("_data/input",COA_actions_file[n])
 COA_actions_sheets <- getSheetNames(COA_actions_file)
 #look at the output and choose which excel sheet you want to load
 
-# cleanup
-rm(COA_actions_file,COA_actions_sheets,n)
 
 ## Actions
 # Enter the actions sheet (eg. "lu_actionsLevel2") 
@@ -44,6 +42,10 @@ COA_actions <- read.xlsx(xlsxFile=COA_actions_file, sheet=COA_actions_sheets[n],
 # rename two problematic fields
 names(COA_actions)[names(COA_actions) == ''] <- 'SpeciesID'
 names(COA_actions)[names(COA_actions) == 'Reference#'] <- 'ReferenceID'
+
+# cleanup
+rm(COA_actions_file,COA_actions_sheets,n)
+
 
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
 dbWriteTable(db, "lu_actionsLevel2", COA_actions, overwrite=TRUE) # write the output to the sqlite db
