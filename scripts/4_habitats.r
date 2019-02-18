@@ -18,7 +18,6 @@ require(RSQLite)
 databasename <- "coa_bridgetest.sqlite" 
 databasename <- here("_data","output",databasename)
 
-
 ## Specific Habitat Requirements
 SpecificHabitatReq <- read.csv(here("_data","input","lu_SpecificHabitatReq.csv"), stringsAsFactors=FALSE)
 SpecificHabitatReq <- SpecificHabitatReq[c("ELSEASON","SNAME","SCOMNAME","Group","SpecificHabitatRequirements" )]
@@ -32,6 +31,8 @@ write.csv(SpecificHabitatReq_NeedInfo, here("_data","output","needInfo_SpecificH
 write.csv(as.data.frame(table(SpecificHabitatReq_NeedInfo$Group)), here("_data","output","needInfo_SpecificHabSpecies.csv"), row.names=FALSE)
 
 rm(SpecificHabitatReq, SpecificHabitatReq_NeedInfo)
+
+
 
 ## Habitat Names
 HabitatName <- read.csv(here("_data","input","lu_HabitatName.csv"), stringsAsFactors=FALSE)
@@ -54,7 +55,7 @@ db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
 dbWriteTable(db, "lu_LoticData", HabLotic, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
 
-## Terrestrial Habitat Layer
+## Special Habitats - caves and seasonal pools
 HabSpecial <- read.csv(here("_data","input","lu_SpecialHabitats.csv"), stringsAsFactors=FALSE)
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
 dbWriteTable(db, "lu_SpecialHabitats", HabSpecial, overwrite=TRUE) # write the table to the sqlite
