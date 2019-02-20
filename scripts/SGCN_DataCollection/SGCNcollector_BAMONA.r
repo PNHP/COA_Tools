@@ -16,7 +16,8 @@
 # To Do List/Future Ideas:
 # * check projection
 # * write bibtex
-#-------
+# * Migrant, Unknown, Stray, Temporary Colonist, Nonresident filter
+#---------------------------------------------------------------------------------------------
 
 # load packages
 if (!requireNamespace("arcgisbinding", quietly = TRUE)) install.packages("arcgisbinding")
