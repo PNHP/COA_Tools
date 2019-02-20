@@ -1,6 +1,6 @@
 #---------------------------------------------------------------------------------------------
-# Name: SGCNcollector_BAMONA.R
-# Purpose: 
+# Name: SGCNcollector_BAMONA.r
+# Purpose: https://www.butterfliesandmoths.org/
 # Author: Christopher Tracey
 # Created: 2017-07-10
 # Updated: 
@@ -11,6 +11,7 @@
 #                added the complete list of SGCN to load from a text file;
 #                figured out how to remove records where no occurences we found;
 #                make a shapefile of the results  
+# * 2019-02-19 - rewrite and update
 #
 # To Do List/Future Ideas:
 # * check projection
@@ -20,58 +21,54 @@
 # * might be a good idea to create seperate reports with obscured records
 #-------
 
-setwd("C:/Users/ctracey/Dropbox (PNHP @ WPC)/coa/COA/SGCN_DataCollection")
+# load packages
+if (!requireNamespace("arcgisbinding", quietly = TRUE)) install.packages("arcgisbinding")
+require(arcgisbinding)
+if (!requireNamespace("lubridate", quietly = TRUE)) install.packages("lubridate")
+require(lubridate)
+if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
+require(here)
+if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
+require(sf)
 
-library('plyr')
-library('data.table')
-library('rgdal')  # for vector work; sp package should always load with rgdal. 
-library('raster')   # for metadata/attributes- vectors or rasters
-library('lubridate')
+arc.check_product() # load the arcgis license
 
+# read in SGCN data
+sgcn <- arc.open(here("COA_Update.gdb","lu_sgcn")) # need to figure out how to reference a server
+sgcn <- arc.select(sgcn, c("ELSeason", "SNAME", "SCOMNAME", "TaxaGroup" ), where_clause="ELSeason LIKE 'IILE%'")
 
-# read in the SGCn lookup
-lu_sgcn <- read.csv("lu_sgcn.csv")
-# add a field for ELSEASON
-lu_sgcn$ELSEASON <- paste(lu_sgcn$ELCODE,lu_sgcn$SeasonCode,sep="-")
+# read in BAMONA data
+bamona <- read.csv(here("_data","input","SGCN_data","bamona_data_02_19_2019.csv"), stringsAsFactors=FALSE)
+bamona_citation <- "Lotts, Kelly and Thomas Naberhaus, coordinators. 2017. Butterflies and Moths of North America. http://www.butterfliesandmoths.org/ (Version MMDDYYYY)"
 
-# subset to the species group one wants to query
-sgcn_query <- lu_sgcn[which(lu_sgcn$TaxaGroup=="inv_buttsk"|lu_sgcn$TaxaGroup=="inv_mothcw"|lu_sgcn$TaxaGroup=="inv_mother"|lu_sgcn$TaxaGroup=="inv_mothdg"|lu_sgcn$TaxaGroup=="inv_mothsi"|lu_sgcn$TaxaGroup=="inv_mothnc"|lu_sgcn$TaxaGroup=="inv_mothcw"|lu_sgcn$TaxaGroup=="inv_mothnt"|lu_sgcn$TaxaGroup=="inv_mothot"|lu_sgcn$TaxaGroup=="inv_mothpa"|lu_sgcn$TaxaGroup=="inv_mothsa"|lu_sgcn$TaxaGroup=="inv_mothte"|lu_sgcn$TaxaGroup=="inv_mothtg"|lu_sgcn$TaxaGroup=="IILEX0B"|lu_sgcn$TaxaGroup=="IILEU"|lu_sgcn$TaxaGroup=="IILEQ" |lu_sgcn$TaxaGroup=="IILEY7P"),]
-splist <- factor(sgcn_query$SNAME) # generate a species list to query gbif
+# prune bad data from master BAMONA
+bamona <- bamona[which(!is.na(bamona$Longitude)),]
+bamona$year <- year(parse_date_time(bamona$Observation.Date,"mdy"))
+bamona <- bamona[which(!is.na(bamona$year)),]
+bamona <- bamona[which(bamona$year>=(year(Sys.Date())-25)),]
 
-bamona_moths <- read.csv("SpeciesData/BAMONA_PA_moths.csv")
-bamona_butterflies <- read.csv("SpeciesData/BAMONA_PA_butterflies.csv")
-bamona <- rbind(bamona_butterflies,bamona_moths)
+#subset BAMONA data by SGCN
+bamona1 <- bamona[bamona$Scientific.Name %in% sgcn$SNAME,]
+print(paste(length(unique(bamona1$Scientific.Name)),"of the", length(unique(sgcn$SNAME)) ,"lep SGCN were found in the BAMONA database"), sep=" ")
 
-selectedRows <- (bamona$Scientific.Name %in% splist )
-bamonaReduced <- bamona[selectedRows,]
-bamonaReduced <- bamonaReduced[which(bamonaReduced$County.Centroid!="county record"),] # removes the county level records
+# get a list of SGCN not found in the bamona database
+NotInBamona <- setdiff(sgcn$SNAME, bamona1$Scientific.Name)
 
-bamonaReduced$LASTOBS <- parse_date_time(bamonaReduced$Date.of.Observation, "mdY")
-
-bamonaReduced$DataSource <- "BAMONA"
-bamonaReduced$SeasonCode <- "y"
-setnames(bamonaReduced, "Scientific.Name", "SNAME")
-setnames(bamonaReduced, "Common.Name", "SCOMNAME")
-setnames(bamonaReduced, "BAMONA.Record.Number", "DataID")
-setnames(bamonaReduced, "Long.EPSG.4326", "Longitude")
-setnames(bamonaReduced, "Lat.EPSG.4326", "Latitude")
+# add additonal fields 
+bamona1$DataSource <- "BAMONA"
+bamona1$SeasonCode <- "y"
+bamona1$OccProb <- "k"
+names(bamona1)[names(bamona1)=='Scientific.Name'] <- 'SNAME'
+names(bamona1)[names(bamona1)=='Common.Name'] <- 'SCOMNAME'
+names(bamona1)[names(bamona1)=='Record.Number'] <- 'DataID'
+names(bamona1)[names(bamona1)=='Lat.Long'] <- 'Latitude'
+names(bamona1)[names(bamona1)=='Observation.Date'] <- 'LastObs'
 
 # delete the colums we don't need from the BAMONA dataset
-keeps <- c("SNAME","DataID","DataSource","Longitude","Latitude","LASTOBS","SeasonCode")
-bamonaReduced <- bamonaReduced[keeps]
+bamona1 <- bamona1[c("DataSource","DataID","SNAME","Longitude","Latitude","OccProb","LastObs","SeasonCode")]
 
-# delete the columns from the lu_sgcn layer and 
-keeps <- c("SNAME","SCOMNAME","ELCODE","TaxaGroup","Environment")
-sgcn_query <- sgcn_query[keeps]
+#add in the SGCN fields
+bamona1 <- merge(bamona1, sgcn, by="SNAME", all.x=TRUE)
 
-# join the data to the sgcn lookup info
-bamona <-  join(bamonaReduced,sgcn_query,by=c('SNAME'))
-
-# create a shapefile
-# based on http://neondataskills.org/R/csv-to-shapefile-R/
-# note that the easting and northing columns are in columns 5 and 6
-SGCNbamona <- SpatialPointsDataFrame(bamona[,4:5],bamona,,proj4string <- CRS("+init=epsg:4326"))   # assign a CRS, proj4string = utm18nCR  #https://www.nceas.ucsb.edu/~frazier/RSpatialGuides/OverviewCoordinateReferenceSystems.pdf; the two commas in a row are important due to the slots feature
-plot(SGCNbamona,main="Map of SGCN Locations")
-# write a shapefile
-writeOGR(SGCNbamona, getwd(),"SGCN_FromBAMONA", driver="ESRI Shapefile")
-
+# create a spatial layer
+bamona_sf <- st_as_sf(bamona1, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
