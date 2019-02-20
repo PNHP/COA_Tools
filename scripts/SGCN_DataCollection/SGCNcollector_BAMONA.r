@@ -3,7 +3,7 @@
 # Purpose: https://www.butterfliesandmoths.org/
 # Author: Christopher Tracey
 # Created: 2017-07-10
-# Updated: 
+# Updated: 2019-02-19
 #
 # Updates:
 # insert date and info
@@ -15,10 +15,7 @@
 #
 # To Do List/Future Ideas:
 # * check projection
-# * wkt integration
-# * filter the occ_search results on potential data flags -- looks like its pulling 
-#   the coordinates from iNat that are obscured.  
-# * might be a good idea to create seperate reports with obscured records
+# * write bibtex
 #-------
 
 # load packages
@@ -72,3 +69,5 @@ bamona1 <- merge(bamona1, sgcn, by="SNAME", all.x=TRUE)
 
 # create a spatial layer
 bamona_sf <- st_as_sf(bamona1, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+
+rm(bamona, bamona1, sgcn)
