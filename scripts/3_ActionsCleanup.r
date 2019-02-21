@@ -3,8 +3,11 @@
 # Purpose:     Cleann up and format the actions spreadsheet for the COA tool.
 # Author:      Christopher Tracey
 # Created:     2018-11-01
-# Updated:     2019-02-13
+# Updated:     2019-02-20
 #
+# Updates:
+# * 2019-02-13 - recode everything
+# * 2019-02-20 - fix some rm issues
 # To Do List/Future ideas:
 #
 #-------------------------------------------------------------------------------
@@ -44,11 +47,11 @@ names(COA_actions)[names(COA_actions) == ''] <- 'SpeciesID'
 names(COA_actions)[names(COA_actions) == 'Reference#'] <- 'ReferenceID'
 
 # cleanup
-rm(COA_actions_file,COA_actions_sheets,n)
+rm(n)
 
 
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
-dbWriteTable(db, "lu_actionsLevel2", COA_actions, overwrite=TRUE) # write the output to the sqlite db
+  dbWriteTable(db, "lu_actionsLevel2", COA_actions, overwrite=TRUE) # write the output to the sqlite db
 dbDisconnect(db) # disconnect the db
 rm(COA_actions)
 
@@ -73,14 +76,14 @@ rm(COA_references)
 SGCNresearch <- read.csv(here("_data","input","lu_SGCNresearch.csv"), stringsAsFactors=FALSE)
 
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
-dbWriteTable(db, "lu_SGCNresearch", SGCNresearch, overwrite=TRUE) # write the table to the sqlite
+  dbWriteTable(db, "lu_SGCNresearch", SGCNresearch, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
 
 ## survey needs
 SGCNsurvey <- read.csv(here("_data","input","lu_SGCNsurvey.csv"), stringsAsFactors=FALSE)
 
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
-dbWriteTable(db, "lu_SGCNsurvey", SGCNsurvey, overwrite=TRUE) # write the table to the sqlite
+  dbWriteTable(db, "lu_SGCNsurvey", SGCNsurvey, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
 
 

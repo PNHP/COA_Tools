@@ -30,3 +30,13 @@ Index/COA_Update/_2.cfs
 Index/COA_Update/log.txt
 *.aprx
 *.tbx
+*.ini
+COA_Update.gdb/gdb
+*.jpg
+*.del
+Index/COA_Update/_3.cfs
+Index/COA_Update/segments_5
+_data/output/sws/sws.gdb/timestamps
+*.pdf
+*.txt
+*.sqlite-journal

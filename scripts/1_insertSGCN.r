@@ -6,7 +6,7 @@
 # Updated:     2019-02-14
 #
 # To Do List/Future ideas:
-#
+# * modify to run off the lu_sgcn data on the arc server
 #-------------------------------------------------------------------------------
 
 if (!requireNamespace("here", quietly=TRUE)) install.packages("here")
@@ -35,7 +35,7 @@ taxagrp <- read.csv(here("_data","input","lu_taxagrp.csv"), stringsAsFactors=FAL
 taxagrp$OID <- NULL
 
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
-dbWriteTable(db, "lu_taxgrp", taxagrp, overwrite=TRUE) # write the table to the sqlite
+dbWriteTable(db, "lu_taxagrp", taxagrp, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
 
 rm(taxagrp)
