@@ -1,12 +1,10 @@
 #-------------------------------------------------------------------------------
-# Name:        2_insertCountyMuni.r
+# Name:        5_ProtectedLandAgencies.r
 # Purpose:     
 # Author:      Christopher Tracey
-# Created:     2019-02-14
-# Updated:     2019-02-20
+# Created:     2019-02-20
 #
 # Updates:
-# * 2019-02-20 - added municipalities
 #
 # To Do List/Future ideas:
 #
@@ -21,26 +19,23 @@ require(RSQLite)
 databasename <- "coa_bridgetest.sqlite" 
 databasename <- here("_data","output",databasename)
 
-## county names
-CountyName <- read.csv(here("_data","input","lu_CountyName.csv"), stringsAsFactors=FALSE)
-CountyName <- CountyName[order(CountyName$COUNTY_NAM),]
+## Protected Land
+ProtectedLands <- read.csv(here("_data","input","lu_ProtectedLands_25.csv"), stringsAsFactors=FALSE)
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
-  dbWriteTable(db, "lu_CountyName", CountyName, overwrite=TRUE) # write the table to the sqlite
+  dbWriteTable(db, "lu_ProtectedLands_25", ProtectedLands, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
-rm(CountyName)
+rm(ProtectedLands)
 
-## municipal names
-MuniName <- read.csv(here("_data","input","lu_muni_names.csv"), stringsAsFactors=FALSE)
-MuniName <- MuniName[order(MuniName$Name_Proper_Type),]
+## Agency Districts
+AgencyDistricts <- read.csv(here("_data","input","lu_AgencyDistricts.csv"), stringsAsFactors=FALSE)
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
-dbWriteTable(db, "lu_muni_names", MuniName, overwrite=TRUE) # write the table to the sqlite
+  dbWriteTable(db, "lu_AgencyDistricts", AgencyDistricts, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
-rm(MuniName)
+rm(AgencyDistricts)
 
-## municipalities
-Muni <- read.csv(here("_data","input","lu_muni.csv"), stringsAsFactors=FALSE)
+## PGC Regions
+PGC_RegionName <- read.csv(here("_data","input","lu_PGC_RegionName.csv"), stringsAsFactors=FALSE)
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
-dbWriteTable(db, "lu_muni", Muni, overwrite=TRUE) # write the table to the sqlite
+dbWriteTable(db, "lu_PGC_RegionName", PGC_RegionName, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
-rm(Muni)
-
+rm(PGC_RegionName)
