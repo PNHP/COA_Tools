@@ -46,7 +46,7 @@ sgcn_clean <- sgcn_clean[!sgcn_clean %in% "Anas discors"] # species not in the e
 fileList <- dir(path=here("_data","input","SGCN_data","eBird"), pattern = ".txt$")
 fileList
 #look at the output and choose which shapefile you want to run. enter its location in the list (first = 1, second = 2, etc)
-n <- 2
+n <- 3
 
 auk_set_ebd_path(here("_data","input","SGCN_data","eBird"), overwrite=TRUE)
 
