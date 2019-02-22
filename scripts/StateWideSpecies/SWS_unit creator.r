@@ -1,7 +1,16 @@
+#---------------------------------------------------------------------------------------------
+# Name: SWS_unit)creator.r
+# Purpose: 
+# Author: Christopher Tracey
+# Created: 2019-02-21
+# Updated: 2019
+#
+# Updates:
+#
+# To Do List/Future Ideas:
+#---------------------------------------------------------------------------------------------
 
 # this script requires a geodatabase to be placed in the "" directory called "sws.gdb".  This gdb should two feature classes contained within it ("_huc08" and "_county")
-
-
 
 # load packages
 if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
@@ -29,9 +38,6 @@ options(useFancyQuotes = FALSE)
 # Set input paths ----
 databasename <- "E:/coa2/coa_bridgetest.sqlite" 
 #working_directory <- "E:/coa2/COA/COA_WebToolDemo"   # replace with here()
-
-
-
 
 db <- dbConnect(SQLite(), dbname = databasename)
 # get the SGCN by planning unit data
