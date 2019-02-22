@@ -46,7 +46,7 @@ sgcn_clean <- sgcn_clean[!sgcn_clean %in% "Anas discors"] # species not in the e
 fileList <- dir(path=here("_data","input","SGCN_data","eBird"), pattern = ".txt$")
 fileList
 #look at the output and choose which shapefile you want to run. enter its location in the list (first = 1, second = 2, etc)
-n <- 1
+n <- 2
 
 auk_set_ebd_path(here("_data","input","SGCN_data","eBird"), overwrite=TRUE)
 
@@ -55,15 +55,15 @@ f_in <- here("_data","input","SGCN_data","eBird",fileList[[n]]) #"C:/Users/dyean
 f_out <- "ebd_filtered_SGCN.txt"
 ebd <- auk_ebd(f_in)
 ebd_filters <- auk_species(ebd, species=sgcn_clean, taxonomy_version=2017)
-ebd_filtered <- auk_filter(ebd_filters, file=f_out)
+ebd_filtered <- auk_filter(ebd_filters, file=f_out, overwrite=TRUE)
 ebd_df <- read_ebd(ebd_filtered)
 ebd_df_backup <- ebd_df
 
 # gets rid of the bad data lines
 ebd_df$lat <- as.numeric(as.character(ebd_df$latitude))
 ebd_df$lon <- as.numeric(as.character(ebd_df$longitude))
-# ebd_df <- ebd_df[!is.na(as.numeric(as.character(ebd_df$lat))),]
-# ebd_df <- ebd_df[!is.na(as.numeric(as.character(ebd_df$lon))),]
+ebd_df <- ebd_df[!is.na(as.numeric(as.character(ebd_df$latitude))),]
+ebd_df <- ebd_df[!is.na(as.numeric(as.character(ebd_df$longitude))),]
 
 ### Filter out unsuitable protocols (e.g. Traveling, etc.) and keep only suitable protocols (e.g. Stationary, etc.)
 ebd_df <- ebd_df[which(ebd_df$locality_type=="P"|ebd_df$locality_type=="H"),]
@@ -99,10 +99,8 @@ names(ebd_df)[names(ebd_df)=='observation_date'] <- 'LastObs'
 ebd_df$year <- year(parse_date_time(ebd_df$LastObs,"ymd"))
 ebd_df <- ebd_df[which(!is.na(ebd_df$year)),] # deletes one without a year
 
-ebd_df$UseCOA <- "n"
-#ebd_df$UseCOA[which(ebd_df$year>=(year(Sys.Date())-25)),] <- "y"
+ebd_df$UseCOA <- NA
 cutoffYear <- year(Sys.Date())-25
-ebd_df <- within(ebd_df, ebd_df$UseCOA[which(ebd_df$year >= cutoffYear ),] <- 'y')
 ebd_df$UseCOA <- with(ebd_df, ifelse(ebd_df$year >= cutoffYear, "y", "n"))
 
 # drops the unneeded columns. 

@@ -43,7 +43,6 @@ bamona_citation <- "Lotts, Kelly and Thomas Naberhaus, coordinators. 2017. Butte
 bamona <- bamona[which(!is.na(bamona$Longitude)),]
 bamona$year <- year(parse_date_time(bamona$Observation.Date,"mdy"))
 bamona <- bamona[which(!is.na(bamona$year)),]
-bamona <- bamona[which(bamona$year>=(year(Sys.Date())-25)),]
 
 #subset BAMONA data by SGCN
 bamona1 <- bamona[bamona$Scientific.Name %in% sgcn$SNAME,]
@@ -51,6 +50,11 @@ print(paste(length(unique(bamona1$Scientific.Name)),"of the", length(unique(sgcn
 
 # get a list of SGCN not found in the bamona database
 NotInBamona <- setdiff(sgcn$SNAME, bamona1$Scientific.Name)
+
+# add in useCOA
+bamona1$UseCOA <- NA
+cutoffYear <- year(Sys.Date())-25
+bamona1$UseCOA <- with(bamona1, ifelse(bamona1$year >= cutoffYear, "y", "n"))
 
 # add additonal fields 
 bamona1$DataSource <- "BAMONA"
@@ -63,12 +67,14 @@ names(bamona1)[names(bamona1)=='Lat.Long'] <- 'Latitude'
 names(bamona1)[names(bamona1)=='Observation.Date'] <- 'LastObs'
 
 # delete the colums we don't need from the BAMONA dataset
-bamona1 <- bamona1[c("DataSource","DataID","SNAME","Longitude","Latitude","OccProb","LastObs","SeasonCode")]
+bamona1 <- bamona1[c("DataSource","DataID","SNAME","Longitude","Latitude","OccProb","LastObs","SeasonCode","UseCOA")]
 
 #add in the SGCN fields
 bamona1 <- merge(bamona1, sgcn, by="SNAME", all.x=TRUE)
 
 # create a spatial layer
 bamona_sf <- st_as_sf(bamona1, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
-
+# write a shapefile
+st_write(bamona_sf, dsn=here("_data","output","data4gis"), layer="bamona", driver="ESRI Shapefile")
+# clean up
 rm(bamona, bamona1, sgcn)
