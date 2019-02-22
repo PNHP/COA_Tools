@@ -40,3 +40,7 @@ _data/output/sws/sws.gdb/timestamps
 *.pdf
 *.txt
 *.sqlite-journal
+*.dbf
+*.prj
+*.shp
+*.shx
