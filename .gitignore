@@ -46,3 +46,4 @@ _data/output/sws/sws.gdb/timestamps
 *.shx
 _data/output/sws/sws_new.gdb/gdb
 *.mxd
+*.cfs

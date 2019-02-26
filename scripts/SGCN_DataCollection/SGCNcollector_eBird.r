@@ -34,21 +34,35 @@ arc.check_product() # load the arcgis license
 
 # read in SGCN data
 sgcn <- arc.open(here("COA_Update.gdb","lu_sgcn")) # need to figure out how to reference a server
-sgcn <- arc.select(sgcn, c("ELSeason", "SNAME", "SCOMNAME", "TaxaGroup" ), where_clause="ELSeason LIKE 'AB%'")
+sgcn <- arc.select(sgcn, c("ELCODE", "SNAME", "SCOMNAME", "TaxaGroup","ELSeason" ), where_clause="ELCODE LIKE 'AB%'")
 
 sgcn_clean <- unique(sgcn$SNAME)
 sgcn_clean <- sgcn_clean[!sgcn_clean %in% "Anas discors"] # species not in the ebird dataset
 
+auk_set_ebd_path(here("_data","input","SGCN_data","eBird"), overwrite=TRUE)
 
-# read in eBird data
-
+# 2016 eBird data ##############################################
 #get a list of what's in the directory
 fileList <- dir(path=here("_data","input","SGCN_data","eBird"), pattern = ".txt$")
 fileList
 #look at the output and choose which shapefile you want to run. enter its location in the list (first = 1, second = 2, etc)
-n <- 3
+n <- 1
 
-auk_set_ebd_path(here("_data","input","SGCN_data","eBird"), overwrite=TRUE)
+# read in the file using auk
+f_in <- here("_data","input","SGCN_data","eBird",fileList[[n]]) #"C:/Users/dyeany/Documents/R/eBird/ebd.txt"
+f_out <- "ebd_filtered_SGCN.txt"
+ebd <- auk_ebd(f_in)
+ebd_filters <- auk_species(ebd, species=sgcn_clean, taxonomy_version=2016)
+ebd_filtered <- auk_filter(ebd_filters, file=f_out, overwrite=TRUE)
+ebd_df2016 <- read_ebd(ebd_filtered)
+ebd_df2016_backup <- ebd_df2016
+
+# 2018 eBird data ##############################################
+#get a list of what's in the directory
+fileList <- dir(path=here("_data","input","SGCN_data","eBird"), pattern = ".txt$")
+fileList
+#look at the output and choose which shapefile you want to run. enter its location in the list (first = 1, second = 2, etc)
+n <- 2
 
 # read in the file using auk
 f_in <- here("_data","input","SGCN_data","eBird",fileList[[n]]) #"C:/Users/dyeany/Documents/R/eBird/ebd.txt"
@@ -56,25 +70,54 @@ f_out <- "ebd_filtered_SGCN.txt"
 ebd <- auk_ebd(f_in)
 ebd_filters <- auk_species(ebd, species=sgcn_clean, taxonomy_version=2017)
 ebd_filtered <- auk_filter(ebd_filters, file=f_out, overwrite=TRUE)
-ebd_df <- read_ebd(ebd_filtered)
-ebd_df_backup <- ebd_df
+ebd_df2018 <- read_ebd(ebd_filtered)
+ebd_df2018_backup <- ebd_df2018
+# Combine 2016 and 2018 data ##################################
+setdiff(names(ebd_df2016), names(ebd_df2018))
+
+names(ebd_df2018)[names(ebd_df2018)=='state'] <- 'state_province'
+names(ebd_df2018)[names(ebd_df2018)=='state_code'] <- 'subnational1_code'
+names(ebd_df2018)[names(ebd_df2018)=='county_code'] <- 'subnational2_code'
+names(ebd_df2018)[names(ebd_df2018)=='state'] <- 'state_province'
+ebd_df2016$first_name <- NULL
+ebd_df2016$last_name <- NULL
+ebd_df2018$last_edited_date <- NULL
+ebd_df2018$breeding_bird_atlas_category <- NULL
+ebd_df2018$usfws_code <- NULL
+ebd_df2018$protocol_code <- NULL
+ebd_df2018$has_media <- NULL
+sortorder <- names(ebd_df2016)
+ebd_df2018 <- ebd_df2018[sortorder]
+# merge the multiple years together
+ebd_df <- rbind(ebd_df2016,ebd_df2018)
 
 # gets rid of the bad data lines
-ebd_df$lat <- as.numeric(as.character(ebd_df$latitude))
-ebd_df$lon <- as.numeric(as.character(ebd_df$longitude))
+ebd_df$latitude <- as.numeric(as.character(ebd_df$latitude))
+ebd_df$longitude <- as.numeric(as.character(ebd_df$longitude))
 ebd_df <- ebd_df[!is.na(as.numeric(as.character(ebd_df$latitude))),]
 ebd_df <- ebd_df[!is.na(as.numeric(as.character(ebd_df$longitude))),]
 
 ### Filter out unsuitable protocols (e.g. Traveling, etc.) and keep only suitable protocols (e.g. Stationary, etc.)
 ebd_df <- ebd_df[which(ebd_df$locality_type=="P"|ebd_df$locality_type=="H"),]
-ebd_df <- ebd_df[which(ebd_df$protocol_type=="Incidental"|ebd_df$protocol_type=="Stationary"|ebd_df$protocol_type=="Rusty Blackbird Spring Migration Blitz"|ebd_df$protocol_type=="Banding"|ebd_df$protocol_type=="International Shorebird Survey (ISS)"),]
-
+ebd_df <- ebd_df[which(ebd_df$protocol_type=="Banding"|
+           ebd_df$protocol_type=="Stationary"|
+           ebd_df$protocol_type=="eBird - Stationary Count"|
+           ebd_df$protocol_type=="Incidental"|
+           ebd_df$protocol_type=="eBird - Casual Observation"|
+           ebd_df$protocol_type=="eBird--Rusty Blackbird Blitz"|
+           ebd_df$protocol_type=="Rusty Blackbird Spring Migration Blitz"|
+           ebd_df$protocol_type=="International Shorebird Survey (ISS)"|
+           ebd_df$protocol_type=="eBird--Heron Stationary Count"|
+           ebd_df$protocol_type=="Random"|
+           ebd_df$protocol_type=="eBird Random Location Count"|
+          ebd_df$protocol_type=="Historical"),]
 ### Next filter out records by Focal Season for each SGCN using day-of-year
 # library(lubridate)
 ebd_df$dayofyear <- yday(ebd_df$observation_date) ## Add day of year to eBird dataset based on the observation date.
 birdseason <- read.csv(here("scripts","SGCN_DataCollection","SGCNcollector_eBird_birdseason.csv"), colClasses = c("character","character","integer","integer"),stringsAsFactors=FALSE)
 
 ### assign a migration date to each ebird observation.
+ebd_df$season <- NA
 for(i in 1:nrow(birdseason)){
   comname<-birdseason[i,1]
   season<-birdseason[i,2]
@@ -96,21 +139,36 @@ names(ebd_df)[names(ebd_df)=='lon'] <- 'Longitude'
 names(ebd_df)[names(ebd_df)=='lat'] <- 'Latitude'
 names(ebd_df)[names(ebd_df)=='observation_date'] <- 'LastObs'
 
+
+
 ebd_df$year <- year(parse_date_time(ebd_df$LastObs,"ymd"))
 ebd_df <- ebd_df[which(!is.na(ebd_df$year)),] # deletes one without a year
 
-ebd_df$UseCOA <- NA
+ebd_df$useCOA <- NA
 cutoffYear <- year(Sys.Date())-25
-ebd_df$UseCOA <- with(ebd_df, ifelse(ebd_df$year >= cutoffYear, "y", "n"))
+ebd_df$useCOA <- with(ebd_df, ifelse(ebd_df$year >= cutoffYear, "y", "n"))
+
+
 
 # drops the unneeded columns. 
-ebd_df <- ebd_df[c("SNAME","DataID","Longitude","Latitude","LastObs","year","UseCOA","DataSource","OccProb","season")]
+ebd_df <- ebd_df[c("SNAME","DataID","longitude","latitude","LastObs","year","useCOA","DataSource","OccProb","season")]
 
 #add in the SGCN fields
 ebd_df <- merge(ebd_df, sgcn, by="SNAME", all.x=TRUE)
 
+
+ebd_df$ELSeason <- paste(ebd_df$ELCODE,substr(ebd_df$season,1,1),sep="_")
+
+sgcnfinal <- sgcn$ELSeason
+
+ebd_df1 <- ebd_df[which(ebd_df$ELSeason %in% sgcnfinal),]
+# pull out the most recent date for each speces, long, and lat combo and only keep the most recent
+##ebd_df2 <- aggregate(year ~ ELSeason + longitude + latitude, data = ebd_df1, FUN = max)
+
+#ebd_final <- merge(ebd_df2, )
+
 # create a spatial layer
-ebird_sf <- st_as_sf(ebd_df, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+ebird_sf <- st_as_sf(ebd_df1, coords=c("longitude","latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
 
 # delete unneeded stuff
 rm(birdseason, sgcn, ebd, ebd_df_backup, ebd_filtered, ebd_filters)
