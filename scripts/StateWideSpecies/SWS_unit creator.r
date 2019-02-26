@@ -23,6 +23,8 @@ if (!requireNamespace("reshape", quietly = TRUE)) install.packages("reshape")
 require(reshape2)
 if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
 require(sf)
+if (!requireNamespace("stringr", quietly = TRUE)) install.packages("stringr")
+require(stringr)
 
 # load the arcgis license
 arc.check_product()
@@ -36,7 +38,7 @@ substrRight <- function(x, n){
 options(useFancyQuotes = FALSE)
 
 # Set input paths ----
-databasename <- "E:/coa2/coa_bridgetest.sqlite" 
+databasename <- here("_data","output","coa_bridgetest.sqlite") 
 #working_directory <- "E:/coa2/COA/COA_WebToolDemo"   # replace with here()
 
 db <- dbConnect(SQLite(), dbname = databasename)
@@ -69,6 +71,9 @@ sws$season <- substrRight(sws$ELSeason, 1)
 sws$ELSeason <- substr(sws$ELSeason,1,10)
 names(sws)[names(sws)=='ELSeason'] <- 'ELCODE'
 
+sws$HUC08 <- as.character(sws$HUC08)
+sws$HUC08 <- str_pad(sws$HUC08, width=8, pad="0")
+
 # rearrange into a more sensible list
 sws <- sws[c("unique_id","HUC08","COUNTY_NAM","ELCODE","season","OccProb")]
 
@@ -94,7 +99,7 @@ sws_huc08agg_cast$m <- ifelse(sws_huc08agg_cast$m_prop>0, "yes", NA)
 sws_huc08agg_cast$w <- ifelse(sws_huc08agg_cast$w_prop>0, "yes", NA)
 sws_huc08agg_cast$y <- ifelse(sws_huc08agg_cast$y_prop>0, "yes", NA)
 # load the huc08 basemap
-huc08_shp <- arc.open("E:/COA_Tools/_data/sws/sws.gdb/_huc08")
+huc08_shp <- arc.open(here("_data","output","sws","sws_new.gdb", "_huc08"))
 huc08_shp <- arc.select(huc08_shp)
 huc08_shp <- arc.data2sf(huc08_shp)
 huc08_shp <- huc08_shp[c("OBJECTID","HUC8","NAME")]
@@ -105,7 +110,7 @@ sgcnlist <- gsub("\r\n","",sgcnlist)
 for(i in 1:length(sgcnlist)){
   sws_huc08_1 <- sws_huc08agg_cast[which(sws_huc08agg_cast$ELCODE==sgcnlist[i]),]
   sws_huc08_1a <- merge(huc08_shp,sws_huc08_1,by.x="HUC8",by.y="HUC08")
-  arc.write(file.path("sws.gdb",paste("huc08",sgcnlist[i],sep="_")),sws_huc08_1a ,overwrite=TRUE)
+  arc.write(file.path(here("_data","output","sws","sws_new.gdb",paste("huc08",sgcnlist[i],sep="_"))),sws_huc08_1a ,overwrite=TRUE)
 }
 
 
@@ -127,7 +132,7 @@ sws_countyagg_cast$m <- ifelse(sws_countyagg_cast$m_prop>0, "yes", NA)
 sws_countyagg_cast$w <- ifelse(sws_countyagg_cast$w_prop>0, "yes", NA)
 sws_countyagg_cast$y <- ifelse(sws_countyagg_cast$y_prop>0, "yes", NA)
 # load the county basemap
-county_shp <- arc.open("E:/COA_Tools/_data/sws/sws.gdb/_county")
+county_shp <- arc.open(here("_data","output","sws","sws_new.gdb", "_county")) 
 county_shp <- arc.select(county_shp)
 county_shp <- arc.data2sf(county_shp)
 county_shp <- county_shp[c("OBJECTID","COUNTY_NAM","COUNTY_NUM","FIPS_COUNT")]
@@ -147,14 +152,12 @@ for(i in 1:length(sgcnlist)){
 huc08agg <- sws_huc08agg_cast
 
 huc08agg_all <- merge(huc08_shp,huc08agg,by.x="HUC8",by.y="HUC08")
-arc.write(file.path("sws.gdb","_HUC08_SGCN"),huc08agg_all ,overwrite=TRUE)
-
-
+arc.write(file.path("sws_new.gdb","_HUC08_SGCN"),huc08agg_all ,overwrite=TRUE)
 
 countyagg <- sws_countyagg_cast
 
 countyagg_all <- merge(county_shp,countyagg,by="COUNTY_NAM")
-arc.write(file.path("sws.gdb","_county_SGCN"),countyagg_all ,overwrite=TRUE)
+arc.write(file.path("sws_new.gdb","_county_SGCN"),countyagg_all ,overwrite=TRUE)
 
 
 
