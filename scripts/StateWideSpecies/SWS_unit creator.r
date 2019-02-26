@@ -51,6 +51,10 @@ data_countyname <- dbGetQuery(db, statement = SQLquery_county )
 # get the HUC08 data
 SQLquery_luNatBound <- paste("SELECT unique_id, HUC08"," FROM lu_NaturalBoundaries ")
 data_NaturalBoundaries <- dbGetQuery(db, statement = SQLquery_luNatBound )
+# get SGCN data
+SQLquery <- paste("SELECT ELCODE, SCOMNAME, SNAME, USESA, SPROT, PBSSTATUS"," FROM lu_sgcn ")
+data_sgcn <- dbGetQuery(db, statement = SQLquery)
+data_sgcn <- unique(data_sgcn)
 
 # disconnect the db
 dbDisconnect(db)
@@ -110,6 +114,7 @@ sgcnlist <- gsub("\r\n","",sgcnlist)
 for(i in 1:length(sgcnlist)){
   sws_huc08_1 <- sws_huc08agg_cast[which(sws_huc08agg_cast$ELCODE==sgcnlist[i]),]
   sws_huc08_1a <- merge(huc08_shp,sws_huc08_1,by.x="HUC8",by.y="HUC08")
+  sws_huc08_1a <- merge(sws_huc08_1a,data_sgcn,by="ELCODE", all.x=TRUE)
   arc.write(file.path(here("_data","output","sws","sws_new.gdb",paste("huc08",sgcnlist[i],sep="_"))),sws_huc08_1a ,overwrite=TRUE)
 }
 
