@@ -13,7 +13,7 @@ sws.gdb/a00000006.gdbtable
 _data/sws/sws.gdb/gdb
 *.lock
 _data/sws/sws.gdb/timestamps
-sws.gdb/timestamps
+*timestamps
 sws.gdb/gdb
 *.xlsx
 _data/output/sws/sws.gdb/gdb
@@ -47,3 +47,21 @@ _data/output/sws/sws.gdb/timestamps
 _data/output/sws/sws_new.gdb/gdb
 *.mxd
 *.cfs
+
+sws_azure.gdb/gdb
+sws_azure.gdb/timestamps
+*.cpg
+_data/input/SGCN_data/PFBC_BrookTrout/PA_WildTrout_BrookTroutOnly_NR_Mar2016Export.sbx
+*.sbn
+_tmp/range_maps/SGCNrange_huc08_2018_12.gdb/timestamps
+_data/output/sws/sws_new1.gdb/timestamps
+_data/output/sws/sws_new1.gdb - Copy/timestamps
+_data/output/sws/sws_new1.gdb/gdb
+sws_new1.gdb/gdb
+sws_new1.gdb/timestamps
+_data/input/SGCN_data/PFBC_BrookTrout/PFBC_BrookTrout/Default.gdb/gdb
+_data/input/SGCN_data/PFBC_BrookTrout/PFBC_BrookTrout/Index/PFBC_BrookTrout/segments_2
+_data/output/sws/sws_new1.gdb - Copy/gdb
+_data/*
+Index/*
+*gdb*
