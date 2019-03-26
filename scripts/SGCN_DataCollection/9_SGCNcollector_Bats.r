@@ -28,3 +28,21 @@ source(here::here("scripts","SGCN_DataCollection","0_PathsAndSettings.r"))
 sgcn <- arc.open(here("COA_Update.gdb","lu_sgcn")) # need to figure out how to reference a server
 sgcn <- arc.select(sgcn, c("ELCODE", "SNAME", "SCOMNAME", "TaxaGroup", "SeasonCode","ELSeason" ))
 
+# read in the bat data 
+# note that this is partially processed bat data, and not raw bat data from PGC
+eptefusc <- read.csv(here("_data","input","SGCN_data","PGC_bats","EptesicusFuscus","BigBrownBat.csv"), stringsAsFactors=FALSE)
+tricollb <- read.csv(here("_data","input","SGCN_data","PGC_bats","TriColoredLittleBrownBats","TriColored_LittleBrownBats.csv"), stringsAsFactors=FALSE)
+
+names(eptefusc)
+names(tricollb)
+
+names(eptefusc)[names(eptefusc)=='sname'] <- 'SNAME'
+names(eptefusc)[names(eptefusc)=='scomname'] <- 'SCOMNAME'
+names(eptefusc)[names(eptefusc)=='SOURCE'] <- 'DataSource'
+names(tricollb)[names(tricollb)=='sname'] <- 'SNAME'
+names(tricollb)[names(tricollb)=='scomname'] <- 'SCOMNAME'
+tricollb$DataSource  <- "PGC"
+
+# dates
+eptefusc$LastObs <- year(ymd(eptefusc$Date))
+tricollb$LastObs <- year(mdy(tricollb$SURVEYDATE))
