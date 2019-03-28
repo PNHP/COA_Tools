@@ -49,6 +49,10 @@ brooktrout$useCOA <- "y"
 
 brooktrout <- brooktrout[final_fields]
 
+brooktrout <- st_transform(brooktrout, crs=customalbers)
+
+brooktrout <- st_buffer(brooktrout, 50)
+
 # write a feature class to the gdb
 arc.write(path=here("_data/output/SGCN.gdb","final_brooktrout"), brooktrout, overwrite=TRUE)
 
