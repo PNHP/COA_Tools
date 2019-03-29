@@ -75,11 +75,13 @@ gbifdata <- datdf # just changing the name so it backs up
 
 gbifdata$Notes <- paste("gbifid=",datdf$key,"; Basis of Record=",datdf$basisOfRecord)
 gbifdata$DataSource <- "GBIF"
-names(gbifdata)[names(gbifdata)=='name'] <- 'SNAME'
+names(gbifdata)[names(gbifdata)=='scientificName'] <- 'SNAME'
 names(gbifdata)[names(gbifdata)=='key'] <- 'DataID'
 names(gbifdata)[names(gbifdata)=='decimalLongitude'] <- 'Longitude'
 names(gbifdata)[names(gbifdata)=='decimalLatitude'] <- 'Latitude'
 
+
+gbifdata1 <- gbifdata[which(gbifdata$coordinateUncertaintyInMeters<=200),]
 
 
 keeps <- c("SNAME","DataID","DataSource","Notes","Longitude","Latitude")
