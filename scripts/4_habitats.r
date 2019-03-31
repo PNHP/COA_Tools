@@ -13,9 +13,9 @@
 #-------------------------------------------------------------------------------
 
 if (!requireNamespace("here", quietly=TRUE)) install.packages("here")
-require(here)
+  require(here)
 if (!requireNamespace("RSQLite", quietly=TRUE)) install.packages("RSQLite")
-require(RSQLite)
+  require(RSQLite)
 
 # Set input paths ----
 databasename <- "coa_bridgetest.sqlite" 
