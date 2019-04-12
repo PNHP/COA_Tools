@@ -29,10 +29,12 @@ if (!requireNamespace("rgbif", quietly = TRUE)) install.packages("rgbif")
 source(here::here("scripts","SGCN_DataCollection","0_PathsAndSettings.r"))
 
 # read in SGCN data
-sgcn <- arc.open(here("COA_Update.gdb","lu_sgcn")) # need to figure out how to reference a server
-sgcn <- arc.select(sgcn, c("ELCODE", "SNAME", "SCOMNAME", "TaxaGroup", "Environment","SeasonCode","ELSeason" ))
+db <- dbConnect(SQLite(), dbname = databasename)
+SQLquery <- paste("SELECT ELCODE, SNAME, SCOMNAME, TaxaGroup, SeasonCode, ELSeason"," FROM lu_sgcn ")
+lu_sgcn <- dbGetQuery(db, statement = SQLquery)
+dbDisconnect(db) # disconnect the db
 
-splist <- sgcn$SNAME
+splist <- lu_sgcn$SNAME
 
 # species already in Biotics
 sgcnBioticsCPP <- read.csv("SGCN_bioticsCPP.csv", stringsAsFactors=FALSE)

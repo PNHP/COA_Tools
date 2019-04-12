@@ -29,11 +29,15 @@ require(here)
 if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
 require(sf)
 
-arc.check_product() # load the arcgis license
+source(here::here("scripts","SGCN_DataCollection","0_PathsAndSettings.r"))
 
 # read in SGCN data
-sgcn <- arc.open(here("COA_Update.gdb","lu_sgcn")) # need to figure out how to reference a server
-sgcn <- arc.select(sgcn, c("ELSeason", "SNAME", "SCOMNAME", "TaxaGroup" ), where_clause="ELSeason LIKE 'IILE%'")
+db <- dbConnect(SQLite(), dbname = databasename)
+SQLquery <- paste("SELECT ELCODE, SNAME, SCOMNAME, TaxaGroup, ELSeason"," FROM lu_sgcn ")
+lu_sgcn <- dbGetQuery(db, statement = SQLquery)
+lu_sgcn <- lu_sgcn[which(substr(lu_sgcn$ELSeason,1,4)=="IILE"),]
+dbDisconnect(db) # disconnect the db
+
 
 # read in BAMONA data
 bamona <- read.csv(here("_data","input","SGCN_data","bamona","bamona_data_02_19_2019.csv"), stringsAsFactors=FALSE)
@@ -45,11 +49,11 @@ bamona$year <- year(parse_date_time(bamona$Observation.Date,"mdy"))
 bamona <- bamona[which(!is.na(bamona$year)),]
 
 #subset BAMONA data by SGCN
-bamona1 <- bamona[bamona$Scientific.Name %in% sgcn$SNAME,]
-print(paste(length(unique(bamona1$Scientific.Name)),"of the", length(unique(sgcn$SNAME)) ,"lep SGCN were found in the BAMONA database"), sep=" ")
+bamona1 <- bamona[bamona$Scientific.Name %in% lu_sgcn$SNAME,]
+print(paste(length(unique(bamona1$Scientific.Name)),"of the", length(unique(lu_sgcn$SNAME)) ,"lep SGCN were found in the BAMONA database"), sep=" ")
 
 # get a list of SGCN not found in the bamona database
-NotInBamona <- setdiff(sgcn$SNAME, bamona1$Scientific.Name)
+NotInBamona <- setdiff(lu_sgcn$SNAME, bamona1$Scientific.Name)
 
 # subset to leps that are not in Biotics
 SGCN_bioticsCPP <- read.csv("SGCN_bioticsCPP.csv", stringsAsFactors=FALSE)
@@ -74,7 +78,7 @@ names(bamona1)[names(bamona1)=='Observation.Date'] <- 'LastObs'
 bamona1 <- bamona1[c("DataSource","DataID","SNAME","Longitude","Latitude","OccProb","LastObs","SeasonCode","UseCOA")]
 
 #add in the SGCN fields
-bamona1 <- merge(bamona1, sgcn, by="SNAME", all.x=TRUE)
+bamona1 <- merge(bamona1, lu_sgcn, by="SNAME", all.x=TRUE)
 
 # create a spatial layer
 bamona_sf <- st_as_sf(bamona1, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
@@ -86,4 +90,4 @@ bamona_sf <- st_buffer(bamona_sf, dist=100)
 arc.write(path=here("_data/output/SGCN.gdb","final_BAMONA"), bamona_sf, overwrite=TRUE)
 
 # clean up
-rm(bamona, bamona1, sgcn, SGCN_bioticsCPP)
+rm(bamona, bamona1, lu_sgcn, SGCN_bioticsCPP)

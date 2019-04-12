@@ -29,11 +29,14 @@ require(here)
 if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
 require(sf)
 
-arc.check_product() # load the arcgis license
+source(here::here("scripts","SGCN_DataCollection","0_PathsAndSettings.r"))
 
 # read in SGCN data
-sgcn <- arc.open(here("COA_Update.gdb","lu_sgcn")) # need to figure out how to reference a server
-sgcn <- arc.select(sgcn, c("ELSeason", "SNAME", "SCOMNAME", "TaxaGroup" ), where_clause="ELSeason LIKE 'IILE%'")
+db <- dbConnect(SQLite(), dbname = databasename)
+SQLquery <- paste("SELECT ELCODE, SNAME, SCOMNAME, TaxaGroup, ELSeason"," FROM lu_sgcn ")
+lu_sgcn <- dbGetQuery(db, statement = SQLquery)
+lu_sgcn <- lu_sgcn[which(lu_sgcn$TaxaGroup=="AF"),]
+dbDisconnect(db) # disconnect the db
 
 
 # get SGCN data
@@ -42,14 +45,6 @@ db <- dbConnect(SQLite(), dbname = databasename)
 SQLquery <- paste("SELECT ELCODE, SCOMNAME, SNAME, USESA, SPROT, PBSSTATUS, TaxaDisplay"," FROM lu_sgcn ")
 lu_sgcn <- dbGetQuery(db, statement = SQLquery)
 dbDisconnect(db) # disconnect the db
-
-# subset to fish only
-lu_sgcn <- lu_sgcn[which(lu_sgcn$TaxaDisplay=="Fish"),]
-
-# subset to fish that are not in Biotics
-SGCN_bioticsCPP <- read.csv("SGCN_bioticsCPP.csv", stringsAsFactors=FALSE)
-lu_sgcn1 <- lu_sgcn[which(!lu_sgcn$SNAME %in% SGCN_bioticsCPP$x),]
-
 
 # read in SGCN data
 fishdata <- read.csv(here("_data/input/SGCN_data/PFBC_FishDPF","UpdatedFishDataFromDoug.csv"), stringsAsFactors=FALSE)

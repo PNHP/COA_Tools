@@ -126,19 +126,19 @@ rm(unitconv)
 # rename or develop the SGCN_database fields
 srcf_pt_sf$DataID <- srcf_pt_sf$EO_ID # this sets the COA dataID field to the EO_ID
 srcf_pt_sf$DataSource <- "PNHP Biotics"
-srcf_pt_sf$OccProb <- "K"
+srcf_pt_sf$OccProb <- "k"
 srcf_pt_sf$LastObs <- srcf_pt_sf$LASTOBS_YR
 srcf_pt_sf$useCOA <- NA
 ### Do this for the lines as well
 srcf_ln_sf$DataID <- srcf_ln_sf$EO_ID # this sets the COA dataID field to the EO_ID
 srcf_ln_sf$DataSource <- "PNHP Biotics"
-srcf_ln_sf$OccProb <- "K"
+srcf_ln_sf$OccProb <- "k"
 srcf_ln_sf$LastObs <- srcf_ln_sf$LASTOBS_YR
 srcf_ln_sf$useCOA <- NA
 ### Do this for the polygons as well
 srcf_py_sf$DataID <- srcf_py_sf$EO_ID # this sets the COA dataID field to the EO_ID
 srcf_py_sf$DataSource <- "PNHP Biotics"
-srcf_py_sf$OccProb <- "K"
+srcf_py_sf$OccProb <- "k"
 srcf_py_sf$LastObs <- srcf_py_sf$LASTOBS_YR
 srcf_py_sf$useCOA <- NA
 
@@ -163,6 +163,12 @@ rm(srcf_pt_sf1,srcf_ln_sf1,srcf_py_sf1)
 # merge into one
 srcf_combined <- rbind(srcf_pt_sf1buf,srcf_ln_sf1buf,srcf_py_sf1buf)
 srcf_combined$useCOA <- ifelse(srcf_combined$LASTOBS_YR>=cutoffyear & srcf_combined$buffer<1000, "y", "n")
+
+# replace bad season codes
+sf_y2b <- c("Podilymbus podiceps","Botaurus lentiginosus","Ixobrychus exilis","Ardea alba","Nycticorax nycticorax","Nyctanassa violacea","Anas crecca","Anas rubripes","Anas discors","Pandion haliaetus","Haliaeetus leucocephalus","Circus cyaneus","Accipiter striatus","Accipiter gentilis","Buteo platypterus","Falco sparverius","Falco peregrinus","Bonasa umbellus","Rallus elegans","Rallus limicola","Porzana carolina","Gallinula galeata","Fulica americana","Charadrius melodus","Actitis macularius","Bartramia longicauda","Gallinago delicata","Scolopax minor","Sterna hirundo","Chlidonias niger","Tyto alba","Asio otus","Asio flammeus","Aegolius acadicus","Chordeiles minor","Antrostomus vociferus","Chaetura pelagica","Melanerpes erythrocephalus","Contopus cooperi","Empidonax flaviventris","Empidonax traillii","Progne subis","Riparia riparia","Certhia americana","Troglodytes hiemalis","Cistothorus platensis","Cistothorus palustris","Catharus ustulatus","Hylocichla mustelina","Dumetella carolinensis","Lanius ludovicianus","Vermivora cyanoptera","Vermivora chrysoptera","Oreothlypis ruficapilla","Setophaga caerulescens","Setophaga virens","Setophaga discolor","Setophaga striata","Setophaga cerulea","Mniotilta varia","Protonotaria citrea","Parkesia noveboracensis","Parkesia motacilla","Geothlypis formosa","Cardellina canadensis","Icteria virens","Piranga rubra","Piranga olivacea","Spiza americana","Spizella pusilla","Pooecetes gramineus","Passerculus sandwichensis","Ammodramus savannarum","Ammodramus henslowii","Zonotrichia albicollis","Dolichonyx oryzivorus","Sturnella magna","Loxia curvirostra","Spinus pinus")  
+srcf_combined[which(srcf_combined$SNAME %in% sf_y2b),]$SeasonCode <- "b"
+
+
 srcf_combined$ELSeason <- paste(srcf_combined$ELCODE,srcf_combined$SeasonCode,sep="_")
 
 # clean up
@@ -173,6 +179,14 @@ final_srcf_combined <- srcf_combined[which(!srcf_combined$EO_ID %in% cppCore_sf$
 
 # get attributes for the CPPs
 att_for_cpp <- srcf_combined[which(srcf_combined$EO_ID %in% cppCore_sf$EO_ID),] 
+
+# replace bad season codes
+cpp_y2b <- c("Podilymbus podiceps","Botaurus lentiginosus","Ixobrychus exilis","Ardea alba","Nycticorax nycticorax","Nyctanassa violacea","Anas crecca","Anas rubripes","Anas discors","Pandion haliaetus","Haliaeetus leucocephalus","Circus cyaneus","Accipiter striatus","Accipiter gentilis","Buteo platypterus","Falco sparverius","Falco peregrinus","Bonasa umbellus","Rallus elegans","Rallus limicola","Porzana carolina","Gallinula galeata","Fulica americana","Charadrius melodus","Actitis macularius","Bartramia longicauda","Gallinago delicata","Scolopax minor","Sterna hirundo","Chlidonias niger","Tyto alba","Asio otus","Asio flammeus","Aegolius acadicus","Chordeiles minor","Antrostomus vociferus","Chaetura pelagica","Melanerpes erythrocephalus","Contopus cooperi","Empidonax flaviventris","Empidonax traillii","Progne subis","Riparia riparia","Certhia americana","Troglodytes hiemalis","Cistothorus platensis","Cistothorus palustris","Catharus ustulatus","Hylocichla mustelina","Dumetella carolinensis","Lanius ludovicianus","Vermivora cyanoptera","Vermivora chrysoptera","Oreothlypis ruficapilla","Setophaga caerulescens","Setophaga virens","Setophaga discolor","Setophaga striata","Setophaga cerulea","Mniotilta varia","Protonotaria citrea","Parkesia noveboracensis","Parkesia motacilla","Geothlypis formosa","Cardellina canadensis","Icteria virens","Piranga rubra","Piranga olivacea","Spiza americana","Spizella pusilla","Pooecetes gramineus","Passerculus sandwichensis","Ammodramus savannarum","Ammodramus henslowii","Zonotrichia albicollis","Dolichonyx oryzivorus","Sturnella magna","Loxia curvirostra","Spinus pinus")       
+att_for_cpp[which(att_for_cpp$SNAME %in% cpp_y2b),]$SeasonCode <- "b"
+cpp_b2y <- c("Lithobates pipiens","Lithobates sphenocephalus utricularius","Plestiodon anthracinus anthracinus","Sorex palustris albibarbis","Virginia pulchra")
+att_for_cpp[which(att_for_cpp$SNAME %in% cpp_b2y),]$SeasonCode <- "y"
+
+att_for_cpp$ELSeason <- paste(att_for_cpp$ELCODE, att_for_cpp$SeasonCode,sep="_")
 
 # clean up
 rm(srcf_combined)
@@ -229,3 +243,10 @@ SGCN_bioticsCPP <- unique(c(SGCN_biotics, SGCN_cpp))
 rm(SGCN_biotics, SGCN_cpp)
 
 write.csv(SGCN_bioticsCPP, "SGCN_bioticsCPP.csv", row.names=FALSE)
+
+
+a <- setdiff(unique(cppCore_sf_final$ELCODE), unique(lu_sgcn$ELCODE))
+b <- setdiff(unique(lu_sgcn$ELCODE), unique(cppCore_sf_final$ELCODE))
+a <- table(cppCore_sf_final$SNAME,cppCore_sf_final$SeasonCode)
+b <- table(final_srcf_combined$SNAME, final_srcf_combined$SeasonCode)
+
