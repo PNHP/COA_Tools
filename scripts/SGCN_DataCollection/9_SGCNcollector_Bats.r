@@ -25,8 +25,10 @@ require(sf)
 source(here::here("scripts","SGCN_DataCollection","0_PathsAndSettings.r"))
 
 # read in SGCN data
-sgcn <- arc.open(here("COA_Update.gdb","lu_sgcn")) # need to figure out how to reference a server
-sgcn <- arc.select(sgcn, c("ELCODE", "SNAME", "SCOMNAME", "TaxaGroup", "Environment","SeasonCode","ELSeason" ))
+db <- dbConnect(SQLite(), dbname = databasename)
+SQLquery <- paste("SELECT ELCODE, SNAME, SCOMNAME, TaxaGroup, SeasonCode, ELSeason"," FROM lu_sgcn ")
+lu_sgcn <- dbGetQuery(db, statement = SQLquery)
+dbDisconnect(db) # disconnect the db
 
 # read in the bat data 
 # note that this is partially processed bat data, and not raw bat data from PGC
@@ -65,8 +67,8 @@ eptefusc$useCOA <- with(eptefusc, ifelse(eptefusc$LastObs >= cutoffyear, "y", "n
 tricollb$useCOA <- with(tricollb, ifelse(tricollb$LastObs >= cutoffyear, "y", "n"))
 
 # ELCODE
-eptefusc <- merge(eptefusc, unique(sgcn[c("SNAME", "ELCODE")]), by="SNAME", all.x=TRUE)
-tricollb <- merge(tricollb, unique(sgcn[c("SNAME", "ELCODE")]), by="SNAME", all.x=TRUE)
+eptefusc <- merge(eptefusc, unique(lu_sgcn[c("SNAME", "ELCODE")]), by="SNAME", all.x=TRUE)
+tricollb <- merge(tricollb, unique(lu_sgcn[c("SNAME", "ELCODE")]), by="SNAME", all.x=TRUE)
 eptefusc$ELSeason <- paste(eptefusc$ELCODE, eptefusc$SeasonCode, sep="_")
 tricollb$ELSeason <- paste(tricollb$ELCODE, tricollb$SeasonCode, sep="_")
 

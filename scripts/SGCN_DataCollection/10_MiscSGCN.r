@@ -25,8 +25,10 @@ require(sf)
 source(here::here("scripts","SGCN_DataCollection","0_PathsAndSettings.r"))
 
 # read in SGCN data
-sgcn <- arc.open(here("COA_Update.gdb","lu_sgcn")) # need to figure out how to reference a server
-sgcn <- arc.select(sgcn, c("ELCODE", "SNAME", "SCOMNAME", "TaxaGroup", "SeasonCode","ELSeason" ))
+db <- dbConnect(SQLite(), dbname = databasename)
+SQLquery <- paste("SELECT ELCODE, SNAME, SCOMNAME, TaxaGroup, SeasonCode, ELSeason"," FROM lu_sgcn ")
+lu_sgcn <- dbGetQuery(db, statement = SQLquery)
+dbDisconnect(db) # disconnect the db
 
 # Bombus Data #################################################################################
 bombus <- arc.open(here("_data","input","SGCN_data","PA_Bombus","PA_Bombus.shp")) 
@@ -40,9 +42,9 @@ bombus$SeasonCode <- "y"
 bombus$useCOA <- NA
 bombus$LastObs <- bombus$year_
 bombus$useCOA <- ifelse(bombus$LastObs>=cutoffyear, "y", "n")
-bombus <- merge(bombus, sgcn[c("SNAME","ELCODE","ELSeason","SCOMNAME","TaxaGroup")], by="SNAME")
+bombus <- merge(bombus, lu_sgcn[c("SNAME","ELCODE","ELSeason","SCOMNAME","TaxaGroup")], by="SNAME")
 # subset to SGCN
-bombus <- bombus[which(bombus$SNAME %in% sgcn$SNAME),]
+bombus <- bombus[which(bombus$SNAME %in% lu_sgcn$SNAME),]
 # kill the ones with no coordinates
 bombus <- bombus[which(bombus$longitude<0),]
 # create a spatial layer

@@ -29,14 +29,21 @@ if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
 require(here)
 if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
 require(sf)
+if (!requireNamespace("RSQLite", quietly = TRUE)) install.packages("RSQLite")
+require(RSQLite)
+
 
 source(here::here("scripts","SGCN_DataCollection","0_PathsAndSettings.r"))
 
 # read in SGCN data
-sgcn <- arc.open(here("COA_Update.gdb","lu_sgcn")) # need to figure out how to reference a server
-sgcn <- arc.select(sgcn, c("ELCODE", "SNAME", "SCOMNAME", "TaxaGroup","ELSeason" ), where_clause="ELCODE LIKE 'AB%'")
+# get SGCN data
+db <- dbConnect(SQLite(), dbname = databasename)
+SQLquery <- paste("SELECT ELCODE, SNAME, SCOMNAME, TaxaGroup, ELSeason"," FROM lu_sgcn ")
+lu_sgcn <- dbGetQuery(db, statement = SQLquery)
+lu_sgcn <- lu_sgcn[which(lu_sgcn$TaxaGroup=="AB"),]
+dbDisconnect(db) # disconnect the db
 
-sgcn_clean <- unique(sgcn$SNAME)
+sgcn_clean <- unique(lu_sgcn$SNAME)
 sgcn_clean <- sgcn_clean[!sgcn_clean %in% "Anas discors"] # species not in the ebird dataset
 
 auk_set_ebd_path(here("_data","input","SGCN_data","eBird"), overwrite=TRUE)
@@ -154,13 +161,13 @@ ebd_df$useCOA <- with(ebd_df, ifelse(ebd_df$year >= cutoffYear, "y", "n"))
 ebd_df <- ebd_df[c("SNAME","DataID","longitude","latitude","LastObs","year","useCOA","DataSource","OccProb","season")]
 
 #add in the SGCN fields
-ebd_df <- merge(ebd_df, sgcn, by="SNAME", all.x=TRUE)
+ebd_df <- merge(ebd_df, lu_sgcn, by="SNAME", all.x=TRUE)
 
 
 ebd_df$ELSeason <- paste(ebd_df$ELCODE,substr(ebd_df$season,1,1),sep="_")
 
 # create a list of ebird SGCN elseason codes
-sgcnfinal <- sgcn$ELSeason
+sgcnfinal <- lu_sgcn$ELSeason
 
 # drop species that we don't want to use Ebird data for as
 drop_from_eBird <- c("ABNKC10010_b", "ABNNM10020_b", "ABNGA11010_b", "ABNNM08070_b", "ABNGA04040_b", "ABNKC12060_b", "ABNKC01010_b", "ABNKD06070_b", "ABNNB03070_b", "ABNSB13040_b", "ABNGA13010_b")
@@ -186,7 +193,7 @@ ebird_buffer_sf <- ebird_buffer_sf[final_fields]
 arc.write(path=here("_data/output/SGCN.gdb","final_eBird"), ebird_buffer_sf, overwrite=TRUE)
 
 # delete unneeded stuff
-rm(birdseason, sgcn, ebd, ebd_df_backup, ebd_filtered, ebd_filters)
+rm(birdseason, lu_sgcn, ebd, ebd_df_backup, ebd_filtered, ebd_filters)
 
 
 
