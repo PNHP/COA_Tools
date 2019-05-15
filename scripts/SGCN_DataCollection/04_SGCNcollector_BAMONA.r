@@ -21,15 +21,17 @@
 
 # load packages
 if (!requireNamespace("arcgisbinding", quietly = TRUE)) install.packages("arcgisbinding")
-require(arcgisbinding)
+  require(arcgisbinding)
 if (!requireNamespace("lubridate", quietly = TRUE)) install.packages("lubridate")
-require(lubridate)
+  require(lubridate)
 if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
-require(here)
+  require(here)
 if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
-require(sf)
+  require(sf)
+if (!requireNamespace("RSQLite", quietly = TRUE)) install.packages("RSQLite")
+  require(RSQLite)
 
-source(here::here("scripts","SGCN_DataCollection","0_PathsAndSettings.r"))
+source(here::here("scripts","SGCN_DataCollection","00_PathsAndSettings.r"))
 
 # read in SGCN data
 db <- dbConnect(SQLite(), dbname = databasename)
@@ -72,7 +74,7 @@ names(bamona1)[names(bamona1)=='Scientific.Name'] <- 'SNAME'
 names(bamona1)[names(bamona1)=='Common.Name'] <- 'SCOMNAME'
 names(bamona1)[names(bamona1)=='Record.Number'] <- 'DataID'
 names(bamona1)[names(bamona1)=='Lat.Long'] <- 'Latitude'
-names(bamona1)[names(bamona1)=='Observation.Date'] <- 'LastObs'
+names(bamona1)[names(bamona1)=='year'] <- 'LastObs'
 
 # delete the colums we don't need from the BAMONA dataset
 bamona1 <- bamona1[c("DataSource","DataID","SNAME","Longitude","Latitude","OccProb","LastObs","SeasonCode","UseCOA")]

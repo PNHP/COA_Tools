@@ -20,20 +20,20 @@
 
 # load packages
 if (!requireNamespace("arcgisbinding", quietly = TRUE)) install.packages("arcgisbinding")
-require(arcgisbinding)
+  require(arcgisbinding)
 if (!requireNamespace("auk", quietly = TRUE)) install.packages("auk")
-require(auk)
+  require(auk)
 if (!requireNamespace("lubridate", quietly = TRUE)) install.packages("lubridate")
-require(lubridate)
+  require(lubridate)
 if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
-require(here)
+  require(here)
 if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
-require(sf)
+  require(sf)
 if (!requireNamespace("RSQLite", quietly = TRUE)) install.packages("RSQLite")
-require(RSQLite)
+  require(RSQLite)
 
 
-source(here::here("scripts","SGCN_DataCollection","0_PathsAndSettings.r"))
+source(here::here("scripts","SGCN_DataCollection","00_PathsAndSettings.r"))
 
 # read in SGCN data
 # get SGCN data
@@ -142,29 +142,27 @@ ebd_df$OccProb <- "k"
 names(ebd_df)[names(ebd_df)=='scientific_name'] <- 'SNAME'
 names(ebd_df)[names(ebd_df)=='common_name'] <- 'SCOMNAME'
 names(ebd_df)[names(ebd_df)=='global_unique_identifier'] <- 'DataID'
-names(ebd_df)[names(ebd_df)=='lon'] <- 'Longitude'
-names(ebd_df)[names(ebd_df)=='lat'] <- 'Latitude'
+names(ebd_df)[names(ebd_df)=='lon'] <- 'longitude'
+names(ebd_df)[names(ebd_df)=='lat'] <- 'latitude'
 names(ebd_df)[names(ebd_df)=='observation_date'] <- 'LastObs'
 
-
-
-ebd_df$year <- year(parse_date_time(ebd_df$LastObs,"ymd"))
+ebd_df$year <- year(parse_date_time(ebd_df$LastObs, orders=c("ymd","mdy")))
+ebd_df$LastObs <- ebd_df$year
+#ebd_df$year <- year(parse_date_time(ebd_df$LastObs,"ymd"))
 ebd_df <- ebd_df[which(!is.na(ebd_df$year)),] # deletes one without a year
 
 ebd_df$useCOA <- NA
-cutoffYear <- year(Sys.Date())-25
-ebd_df$useCOA <- with(ebd_df, ifelse(ebd_df$year >= cutoffYear, "y", "n"))
-
-
+ebd_df$useCOA <- with(ebd_df, ifelse(ebd_df$year >= cutoffyear, "y", "n"))
 
 # drops the unneeded columns. 
-ebd_df <- ebd_df[c("SNAME","DataID","longitude","latitude","LastObs","year","useCOA","DataSource","OccProb","season")]
+ebd_df <- ebd_df[c("SNAME","DataID","longitude","latitude","LastObs","useCOA","DataSource","OccProb","season")]
+
+ebd_df$season <- substr(ebd_df$season, 1, 1)
 
 #add in the SGCN fields
 ebd_df <- merge(ebd_df, lu_sgcn, by="SNAME", all.x=TRUE)
 
-
-ebd_df$ELSeason <- paste(ebd_df$ELCODE,substr(ebd_df$season,1,1),sep="_")
+ebd_df$ELSeason <- paste(ebd_df$ELCODE, ebd_df$season, sep="_")
 
 # create a list of ebird SGCN elseason codes
 sgcnfinal <- lu_sgcn$ELSeason

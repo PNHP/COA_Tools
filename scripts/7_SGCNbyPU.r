@@ -16,10 +16,10 @@ require(RSQLite)
 
 # Set input paths ----
 databasename <- "coa_bridgetest.sqlite" 
-databasename <- here("_data","output",databasename)
+databasename <- here::here("_data","output",databasename)
 
 olddatabasename <- "coa_bridgetest_previous.sqlite" 
-olddatabasename <- here("_data","output",olddatabasename)
+olddatabasename <- here::here("_data","output",olddatabasename)
 
 db <- dbConnect(SQLite(), dbname=olddatabasename) # connect to the database
   sgcnXpu <- dbReadTable(db, "lu_sgcnXpu_all") # write the table to the sqlite
@@ -34,7 +34,7 @@ sgcnXpu_oldK <- sgcnXpu[which(sgcnXpu$OccProb=="k"),]
 sgcnXpu_models <- sgcnXpu[which(sgcnXpu$OccProb!="k"),]
 
 ## read in the new table the known occurences
-sgcnXpu_newK <- read.csv(here("_data","output","sgcnXpu_test","sgcnXpu_K.csv"), stringsAsFactors=FALSE)
+sgcnXpu_newK <- read.csv(here::here("_data","output","sgcnXpu_test","sgcnXpu.csv"), stringsAsFactors=FALSE)
 sgcnXpu_newK$OBJECTID <- NULL
 sgcnXpu_newK$AREA <- NULL
 sgcnXpu_newK$OccProb <- tolower(sgcnXpu_newK$OccProb) # put this in lower case since I did it wrong previously
