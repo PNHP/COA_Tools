@@ -27,7 +27,7 @@ if (!requireNamespace("RSQLite", quietly = TRUE)) install.packages("RSQLite")
 require(RSQLite)
 
 
-source(here("scripts","SGCN_DataCollection","0_PathsAndSettings.r"))
+source(here("scripts","SGCN_DataCollection","00_PathsAndSettings.r"))
 
 
 ######################################################################################
@@ -162,7 +162,13 @@ rm(srcf_pt_sf1,srcf_ln_sf1,srcf_py_sf1)
 
 # merge into one
 srcf_combined <- rbind(srcf_pt_sf1buf,srcf_ln_sf1buf,srcf_py_sf1buf)
-srcf_combined$useCOA <- ifelse(srcf_combined$LASTOBS_YR>=cutoffyear & srcf_combined$buffer<1000, "y", "n")
+
+
+
+srcf_combined$useCOA <- with(srcf_combined, ifelse(srcf_combined$LastObs>=cutoffyearL & srcf_combined$buffer<1000, "y", "n"))
+#add the occurence probability
+srcf_combined$OccProb = with(srcf_combined, ifelse(LastObs>=cutoffyearK , "k", ifelse(LastObs<cutoffyearK & LastObs>=cutoffyearL, "l", "u")))
+
 
 # replace bad season codes
 sf_y2b <- c("Podilymbus podiceps","Botaurus lentiginosus","Ixobrychus exilis","Ardea alba","Nycticorax nycticorax","Nyctanassa violacea","Anas crecca","Anas rubripes","Anas discors","Pandion haliaetus","Haliaeetus leucocephalus","Circus cyaneus","Accipiter striatus","Accipiter gentilis","Buteo platypterus","Falco sparverius","Falco peregrinus","Bonasa umbellus","Rallus elegans","Rallus limicola","Porzana carolina","Gallinula galeata","Fulica americana","Charadrius melodus","Actitis macularius","Bartramia longicauda","Gallinago delicata","Scolopax minor","Sterna hirundo","Chlidonias niger","Tyto alba","Asio otus","Asio flammeus","Aegolius acadicus","Chordeiles minor","Antrostomus vociferus","Chaetura pelagica","Melanerpes erythrocephalus","Contopus cooperi","Empidonax flaviventris","Empidonax traillii","Progne subis","Riparia riparia","Certhia americana","Troglodytes hiemalis","Cistothorus platensis","Cistothorus palustris","Catharus ustulatus","Hylocichla mustelina","Dumetella carolinensis","Lanius ludovicianus","Vermivora cyanoptera","Vermivora chrysoptera","Oreothlypis ruficapilla","Setophaga caerulescens","Setophaga virens","Setophaga discolor","Setophaga striata","Setophaga cerulea","Mniotilta varia","Protonotaria citrea","Parkesia noveboracensis","Parkesia motacilla","Geothlypis formosa","Cardellina canadensis","Icteria virens","Piranga rubra","Piranga olivacea","Spiza americana","Spizella pusilla","Pooecetes gramineus","Passerculus sandwichensis","Ammodramus savannarum","Ammodramus henslowii","Zonotrichia albicollis","Dolichonyx oryzivorus","Sturnella magna","Loxia curvirostra","Spinus pinus")  
@@ -230,6 +236,13 @@ final_srcf_combined <- merge(final_srcf_combined, unique(lu_sgcn[c("SNAME","Taxa
 # field alignment
 cppCore_sf_final <- cppCore_sf_final[final_fields]
 final_srcf_combined <- final_srcf_combined[final_fields] 
+
+
+#final_srcf_combined$useCOA <- with(final_srcf_combined, ifelse(final_srcf_combined$LastObs>=cutoffyearL, "y", "n"))
+#add the occurence probability
+#final_srcf_combined$OccProb = with(final_srcf_combined, ifelse(LastObs>=cutoffyearK , "k", ifelse(LastObs<cutoffyearK & LastObs>=cutoffyearL, "l", "u")))
+
+
 
 # write a feature class to the gdb
 arc.write(path=here("_data/output/SGCN.gdb","final_cppCore"), final_cppCore_sf, overwrite=TRUE)

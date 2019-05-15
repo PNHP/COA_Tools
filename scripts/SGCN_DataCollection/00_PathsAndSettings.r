@@ -16,6 +16,8 @@ cpp_path <- "W:/Heritage/Heritage_Projects/CPP/CPP_Pittsburgh.gdb"
 
 # cutoff year for records
 cutoffyear <- as.integer(format(Sys.Date(), "%Y")) - 25  # keep data that's only within 25 years
+cutoffyearK <- as.integer(format(Sys.Date(), "%Y")) - 25  # keep data that's only within 25 years
+cutoffyearL <- 1980  # keep data that's only within 25 years
 
 # final fields for arcgis
 final_fields <- c("ELCODE","ELSeason","SNAME","SCOMNAME","SeasonCode","DataSource","DataID","OccProb","LastObs","useCOA","TaxaGroup","geometry") 

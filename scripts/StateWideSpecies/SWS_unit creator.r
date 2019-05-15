@@ -32,11 +32,11 @@ if (!requireNamespace("reticulate", quietly = TRUE)) install.packages("reticulat
 arc.check_product()
 
 # check to see if sws.gdb exists and create a new one
-if(dir.exists(here("_data","output","sws","sws.gdb"))) {
+if(dir.exists(here::here("_data","output","sws","sws.gdb"))) {
   use_python("C:/Users/CTracey/AppData/Local/ESRI/conda/envs/arcgispro-py3-clone", required=TRUE)
   arcpy <- import("arcpy")
-  gdbName <- "sws_KL.gdb"
-  arcpy$CreateFileGDB_management(out_folder_path=here("_data","output","sws"), out_name=gdbName)
+  gdbName <- "sws.gdb"
+  arcpy$CreateFileGDB_management(out_folder_path=here::here("_data","output","sws"), out_name=gdbName)
 } else {
   print("sws.gdb already exists, please rename or move.")
 }
@@ -51,7 +51,7 @@ substrRight <- function(x, n){
 options(useFancyQuotes = FALSE)
 
 # Set input paths ----
-databasename <- here("_data","output","coa_bridgetest.sqlite") 
+databasename <- here::here("_data","output","coa_bridgetest.sqlite") 
 
 db <- dbConnect(SQLite(), dbname = databasename)
 # get the SGCN by planning unit data
@@ -119,7 +119,7 @@ sws_huc08agg_cast$m <- ifelse(sws_huc08agg_cast$m_prop>0, "yes", NA)
 sws_huc08agg_cast$w <- ifelse(sws_huc08agg_cast$w_prop>0, "yes", NA)
 sws_huc08agg_cast$y <- ifelse(sws_huc08agg_cast$y_prop>0, "yes", NA)
 # load the huc08 basemap
-huc08_shp <- arc.open(here("_data","output","sws","sws_new1.gdb", "_huc08"))
+huc08_shp <- arc.open(here::here("_data","output","sws","sws.gdb", "_huc08"))
 huc08_shp <- arc.select(huc08_shp)
 huc08_shp <- arc.data2sf(huc08_shp)
 huc08_shp <- huc08_shp[c("OBJECTID","HUC8","NAME")]
@@ -131,7 +131,7 @@ for(i in 1:length(sgcnlist)){
   sws_huc08_1 <- sws_huc08agg_cast[which(sws_huc08agg_cast$ELCODE==sgcnlist[i]),]
   sws_huc08_1a <- merge(huc08_shp,sws_huc08_1,by.x="HUC8",by.y="HUC08")
   sws_huc08_1a <- merge(sws_huc08_1a,data_sgcn,by="ELCODE", all.x=TRUE)
-  arc.write(file.path(here("_data","output","sws","sws_KL.gdb",paste("huc08",sgcnlist[i],sep="_"))),sws_huc08_1a ,overwrite=TRUE)
+  arc.write(file.path(here::here("_data","output","sws","sws.gdb",paste("huc08",sgcnlist[i],sep="_"))),sws_huc08_1a ,overwrite=TRUE)
 }
 
 
@@ -153,7 +153,7 @@ sws_countyagg_cast$m <- ifelse(sws_countyagg_cast$m_prop>0, "yes", NA)
 sws_countyagg_cast$w <- ifelse(sws_countyagg_cast$w_prop>0, "yes", NA)
 sws_countyagg_cast$y <- ifelse(sws_countyagg_cast$y_prop>0, "yes", NA)
 # load the county basemap
-county_shp <- arc.open(here("_data","output","sws","sws_new1.gdb", "_county")) 
+county_shp <- arc.open(here::here("_data","output","sws","sws.gdb", "_county")) 
 county_shp <- arc.select(county_shp)
 county_shp <- arc.data2sf(county_shp)
 county_shp <- county_shp[c("OBJECTID","COUNTY_NAM","COUNTY_NUM","FIPS_COUNT")]
@@ -165,18 +165,18 @@ for(i in 1:length(sgcnlist)){
   sws_county_1 <- sws_countyagg_cast[which(sws_countyagg_cast$ELCODE==sgcnlist[i]),]
   sws_county_1a <- merge(county_shp,sws_county_1,by="COUNTY_NAM")
   sws_county_1a <- merge(sws_county_1a,data_sgcn,by="ELCODE", all.x=TRUE)
-  arc.write(file.path(here("_data","output","sws","sws_KL.gdb",paste("county",sgcnlist[i],sep="_"))),sws_county_1a ,overwrite=TRUE)
+  arc.write(file.path(here::here("_data","output","sws","sws.gdb",paste("county",sgcnlist[i],sep="_"))),sws_county_1a ,overwrite=TRUE)
 }
 
 ###################################
 # combined data for COA tool
 huc08agg <- sws_huc08agg_cast
 huc08agg_all <- merge(huc08_shp, huc08agg, by.x="HUC8", by.y="HUC08")
-arc.write(here("_data","output","sws","sws_KL.gdb","_HUC08_SGCN"), huc08agg_all, overwrite=TRUE)
+arc.write(here::here("_data","output","sws","sws.gdb","_HUC08_SGCN"), huc08agg_all, overwrite=TRUE)
 
 countyagg <- sws_countyagg_cast
 countyagg_all <- merge(county_shp, countyagg, by="COUNTY_NAM")
-arc.write(here("_data","output","sws","sws_KL.gdb","_county_SGCN"), countyagg_all, overwrite=TRUE)
+arc.write(here::here("_data","output","sws","sws.gdb","_county_SGCN"), countyagg_all, overwrite=TRUE)
 
 
 

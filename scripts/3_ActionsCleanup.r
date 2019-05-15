@@ -28,14 +28,12 @@ COA_actions_file <- list.files(path=here("_data/input"), pattern=".xlsx$")  # --
 COA_actions_file
 #look at the output and choose which shapefile you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 2
+n <- 4
 COA_actions_file <- here("_data/input",COA_actions_file[n])
 
 #get a list of the sheets in the file
 COA_actions_sheets <- getSheetNames(COA_actions_file)
 #look at the output and choose which excel sheet you want to load
-
-
 ## Actions
 # Enter the actions sheet (eg. "lu_actionsLevel2") 
 COA_actions_sheets # list the sheets

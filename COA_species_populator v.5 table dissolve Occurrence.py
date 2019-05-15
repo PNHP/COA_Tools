@@ -28,7 +28,7 @@ arcpy.env.overwriteOutput = True
 
 target_features = r'E:\COA_Tools\_data\output\SGCN.gdb\PlanningUnit_Hex10acre' # planning polygon unit
 #join_features = r'Database Connections\COA.Working.pgh-gis0.sde\COA.DBO.COA_SGCN\COA.DBO.SGCN_OccFinal' # SGCN occurrence probability layer - should be polygon layer
-join_features = r'E:\COA_Tools\_data\output\SGCN.gdb\allSGCNuse'
+join_features = r'E:\COA_Tools\_data\output\SGCN.gdb\allSGCNuse2'
 outGDB = r'E:\COA_Tools\_data\output\sgcnXpu_test\SGCNxPU.gdb' # the output path and name of SGCN table
 scratch = r'E:\COA_Tools\_data\output\sgcnXpu_test\COA.gdb'
 counties = r'E:\COA_Tools\_data\output\SGCN.gdb\CountyBuffer'

@@ -25,6 +25,8 @@ if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
   require(sf)
 if (!requireNamespace("rgbif", quietly = TRUE)) install.packages("rgbif")
   require(rgbif)
+if (!requireNamespace("RSQLite", quietly = TRUE)) install.packages("RSQLite")
+  require(RSQLite)
 
 source(here::here("scripts","SGCN_DataCollection","0_PathsAndSettings.r"))
 
@@ -67,37 +69,51 @@ dat <- occ_search(
 dat <-  dat[dat!="no data found, try a different search"] # deletes the items from the list where no occurences were found. doesn't work for one species
 datdf <- ldply(dat) # turns the list to a data frame
 write.csv(datdf, "gbif20180327backup.csv")
+##datdf <- read.csv("gbif20180327backup.csv", stringsAsFactors=FALSE) # to reload a saved search
 
-datdf <- subset(datdf,datasetKey!='4fa7b334-ce0d-4e88-aaae-2e0c138d049e') #subset out the records from the eBird dataset, using the ebird dataset key. Unfortunately, we need to download them first.  Might be a better way to do this somewhere.
+
 gbifdata <- datdf # just changing the name so it backs up
+gbifdata <- gbifdata[which(gbifdata$datasetKey!='4fa7b334-ce0d-4e88-aaae-2e0c138d049e'),] #subset out the records from the eBird dataset, using the ebird dataset key. Unfortunately, we need to download them first.  Might be a better way to do this somewhere.
 
 #this will eventually pull up the dataset name so we can put it int tohe notes
 #datasetkeys <- unique(datdf$datasetKey)
 #datasetnames <- datasets(uuid="c4a2c617-91a7-4d4f-90dd-a78b899f8545")
 
-gbifdata$Notes <- paste("gbifid=",datdf$key,"; Basis of Record=",datdf$basisOfRecord)
+gbifdata$Notes <- paste("gbifid=",gbifdata$key,"; Basis of Record=",gbifdata$basisOfRecord)
 gbifdata$DataSource <- "GBIF"
-names(gbifdata)[names(gbifdata)=='scientificName'] <- 'SNAME'
+names(gbifdata)[names(gbifdata)=='name'] <- 'SNAME'
 names(gbifdata)[names(gbifdata)=='key'] <- 'DataID'
 names(gbifdata)[names(gbifdata)=='decimalLongitude'] <- 'Longitude'
 names(gbifdata)[names(gbifdata)=='decimalLatitude'] <- 'Latitude'
+names(gbifdata)[names(gbifdata)=='year'] <- 'LastObs'
+
+# pull out records with the lease uncertainty
+gbifdata <- gbifdata[which(gbifdata$coordinateUncertaintyInMeters<=200|is.na(gbifdata$coordinateUncertaintyInMeters)),]
+
+#subset to the needed columns
+gbifdata <- gbifdata[c("SNAME","DataID","DataSource","Notes","LastObs","Longitude","Latitude")]
+
+gbifdata <- merge(gbifdata, lu_sgcn, by=c('SNAME'), all.x=TRUE)
 
 
-gbifdata1 <- gbifdata[which(gbifdata$coordinateUncertaintyInMeters<=200),]
-
-
-keeps <- c("SNAME","DataID","DataSource","Notes","Longitude","Latitude")
-gbifdata <- gbifdata[keeps]
-
-setnames(inverts_info, "Scientific_Name", "SNAME")
-gbifdata <-  join(gbifdata,inverts_info,by=c('SNAME'))
+# delete any bird records because there are so many season issues with them
+gbifdata <- gbifdata[which(gbifdata$TaxaGroup!="AB"),]
 
 # create a shapefile
-# based on http://neondataskills.org/R/csv-to-shapefile-R/
-# note that the easting and northing columns are in columns 5 and 6
-SGCNgbif <- SpatialPointsDataFrame(gbifdata[,5:6],gbifdata,,proj4string <- CRS("+init=epsg:4326"))   # assign a CRS, proj4string = utm18nCR  #https://www.nceas.ucsb.edu/~frazier/RSpatialGuides/OverviewCoordinateReferenceSystems.pdf; the two commas in a row are important due to the slots feature
-plot(SGCNgbif,main="Map of SGCN Locations")
-# write a shapefile
-writeOGR(SGCNgbif, getwd(),"SGCN_FromGBIF", driver="ESRI Shapefile")
+gbif_sf <- st_as_sf(gbifdata, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+# reproject to custom albers
+gbif_sf <- st_transform(gbif_sf, crs=customalbers)
+# buffer the points by 100m
+gbif_buffer_sf <- st_buffer(gbif_sf, 100)
+
+# use COA
+gbif_buffer_sf$useCOA <- ifelse(gbif_buffer_sf$LastObs>=cutoffyear, "y", "n")
+gbif_buffer_sf$OccProb <- "k"
+
+# field alignment
+gbif_buffer_sf <- gbif_buffer_sf[c("ELCODE","ELSeason","SNAME","SCOMNAME","SeasonCode","DataSource","DataID","OccProb","LastObs","useCOA","TaxaGroup","geometry")]
+
+# write a feature class to the gdb
+arc.write(path=here::here("_data/output/SGCN.gdb","final_gbif"), gbif_buffer_sf, overwrite=TRUE)
 
 
