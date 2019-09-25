@@ -34,12 +34,8 @@ if (!requireNamespace("RSQLite", quietly = TRUE)) install.packages("RSQLite")
 source(here::here("scripts","SGCN_DataCollection","00_PathsAndSettings.r"))
 
 # read in SGCN data
-db <- dbConnect(SQLite(), dbname = databasename)
-SQLquery <- paste("SELECT ELCODE, SNAME, SCOMNAME, TaxaGroup, ELSeason"," FROM lu_sgcn ")
-lu_sgcn <- dbGetQuery(db, statement = SQLquery)
+loadSGCN()
 lu_sgcn <- lu_sgcn[which(substr(lu_sgcn$ELSeason,1,4)=="IILE"),]
-dbDisconnect(db) # disconnect the db
-
 
 # read in BAMONA data
 bamona <- read.csv(here("_data","input","SGCN_data","bamona","bamona_data_02_19_2019.csv"), stringsAsFactors=FALSE)
