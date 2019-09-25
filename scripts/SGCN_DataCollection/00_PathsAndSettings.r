@@ -27,11 +27,17 @@ customalbers <- "+proj=aea +lat_1=40 +lat_2=42 +lat_0=39 +lon_0=-78 +x_0=0 +y_0=
 
 # function to load SGCN species list
 loadSGCN <- function(taxagroup) {
+  if (!requireNamespace("RSQLite", quietly = TRUE)) install.packages("RSQLite")
+  require(RSQLite)
   db <- dbConnect(SQLite(), dbname = databasename)
   SQLquery <- paste("SELECT ELCODE, SNAME, SCOMNAME, TaxaGroup, ELSeason"," FROM lu_sgcn ")
   lu_sgcn <- dbGetQuery(db, statement = SQLquery)
-  lu_sgcn <- lu_sgcn[which(lu_sgcn$TaxaGroup==taxagroup),]
+  if(missing(taxagroup)){
+    lu_sgcn <<- lu_sgcn
+  } else {
+    lu_sgcn <<- lu_sgcn[which(lu_sgcn$TaxaGroup==taxagroup),] # limit by taxagroup code
+  }
   dbDisconnect(db) # disconnect the db
-  sgcn_clean <- unique(lu_sgcn$SNAME)
+  sgcnlist <<- unique(lu_sgcn$SNAME)
 }
 
