@@ -36,15 +36,17 @@ if (!requireNamespace("RSQLite", quietly = TRUE)) install.packages("RSQLite")
 source(here::here("scripts","SGCN_DataCollection","00_PathsAndSettings.r"))
 
 # read in SGCN data
+loadSGCN("AB")
 # get SGCN data
-db <- dbConnect(SQLite(), dbname = databasename)
-SQLquery <- paste("SELECT ELCODE, SNAME, SCOMNAME, TaxaGroup, ELSeason"," FROM lu_sgcn ")
-lu_sgcn <- dbGetQuery(db, statement = SQLquery)
-lu_sgcn <- lu_sgcn[which(lu_sgcn$TaxaGroup=="AB"),]
-dbDisconnect(db) # disconnect the db
+# db <- dbConnect(SQLite(), dbname = databasename)
+# SQLquery <- paste("SELECT ELCODE, SNAME, SCOMNAME, TaxaGroup, ELSeason"," FROM lu_sgcn ")
+# lu_sgcn <- dbGetQuery(db, statement = SQLquery)
+# lu_sgcn <- lu_sgcn[which(lu_sgcn$TaxaGroup=="AB"),]
+# dbDisconnect(db) # disconnect the db
+# sgcnlist <- unique(lu_sgcn$SNAME)
 
-sgcn_clean <- unique(lu_sgcn$SNAME)
-sgcn_clean <- sgcn_clean[!sgcn_clean %in% "Anas discors"] # species not in the ebird dataset
+
+sgcnlist <- sgcnlist[!sgcnlist %in% "Anas discors"] # species not in the ebird dataset
 
 auk_set_ebd_path(here("_data","input","SGCN_data","eBird"), overwrite=TRUE)
 
@@ -59,7 +61,7 @@ n <- 1
 f_in <- here("_data","input","SGCN_data","eBird",fileList[[n]]) #"C:/Users/dyeany/Documents/R/eBird/ebd.txt"
 f_out <- "ebd_filtered_SGCN.txt"
 ebd <- auk_ebd(f_in)
-ebd_filters <- auk_species(ebd, species=sgcn_clean, taxonomy_version=2016)
+ebd_filters <- auk_species(ebd, species=sgcnlist, taxonomy_version=2016)
 ebd_filtered <- auk_filter(ebd_filters, file=f_out, overwrite=TRUE)
 ebd_df2016 <- read_ebd(ebd_filtered)
 ebd_df2016_backup <- ebd_df2016
@@ -75,7 +77,7 @@ n <- 2
 f_in <- here("_data","input","SGCN_data","eBird",fileList[[n]]) #"C:/Users/dyeany/Documents/R/eBird/ebd.txt"
 f_out <- "ebd_filtered_SGCN.txt"
 ebd <- auk_ebd(f_in)
-ebd_filters <- auk_species(ebd, species=sgcn_clean, taxonomy_version=2017)
+ebd_filters <- auk_species(ebd, species=sgcnlist, taxonomy_version=2017)
 ebd_filtered <- auk_filter(ebd_filters, file=f_out, overwrite=TRUE)
 ebd_df2018 <- read_ebd(ebd_filtered)
 ebd_df2018_backup <- ebd_df2018
