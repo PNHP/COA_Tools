@@ -34,13 +34,8 @@ require(openxlsx)
 source(here::here("scripts","SGCN_DataCollection","0_PathsAndSettings.r"))
 
 # read in SGCN data
-db <- dbConnect(SQLite(), dbname = databasename)
-SQLquery <- paste("SELECT ELCODE, SNAME, SCOMNAME, TaxaGroup, ELSeason"," FROM lu_sgcn ")
-lu_sgcn <- dbGetQuery(db, statement = SQLquery)
+loadSGCN()
 lu_sgcn <- lu_sgcn[which(lu_sgcn$TaxaGroup=="inv_snailf"),]
-dbDisconnect(db) # disconnect the db
-
-
 
 snails <- read.xlsx(xlsxFile=here("_data","input","SGCN_data","Snails","PA-data-from_Dillon-14Jan14.xlsx"), sheet="Sheet1", skipEmptyRows=FALSE, rowNames=FALSE)
 

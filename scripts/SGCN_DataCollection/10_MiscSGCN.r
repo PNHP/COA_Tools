@@ -27,10 +27,7 @@ if (!requireNamespace("RSQLite", quietly = TRUE)) install.packages("RSQLite")
 source(here::here("scripts","SGCN_DataCollection","0_PathsAndSettings.r"))
 
 # read in SGCN data
-db <- dbConnect(SQLite(), dbname = databasename)
-SQLquery <- paste("SELECT ELCODE, SNAME, SCOMNAME, TaxaGroup, SeasonCode, ELSeason"," FROM lu_sgcn ")
-lu_sgcn <- dbGetQuery(db, statement = SQLquery)
-dbDisconnect(db) # disconnect the db
+loadSGCN()
 
 # Bombus Data #################################################################################
 bombus <- arc.open(here("_data","input","SGCN_data","PA_Bombus","PA_Bombus.shp")) 

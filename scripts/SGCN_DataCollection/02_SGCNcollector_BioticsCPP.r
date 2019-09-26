@@ -31,11 +31,8 @@ source(here("scripts","SGCN_DataCollection","00_PathsAndSettings.r"))
 
 
 ######################################################################################
-# get SGCN data
-db <- dbConnect(SQLite(), dbname = databasename)
-SQLquery <- paste("SELECT ELCODE, SCOMNAME, SNAME, USESA, SPROT, PBSSTATUS, TaxaGroup"," FROM lu_sgcn ")
-lu_sgcn <- dbGetQuery(db, statement = SQLquery)
-dbDisconnect(db) # disconnect the db
+# read in SGCN data
+loadSGCN()
 
 # load the Biotics Crosswalk
 biotics_crosswalk <- read.csv(biotics_crosswalk, stringsAsFactors=FALSE)

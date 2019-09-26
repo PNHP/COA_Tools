@@ -34,11 +34,7 @@ require(RSQLite)
 source(here::here("scripts","SGCN_DataCollection","00_PathsAndSettings.r"))
 
 # read in SGCN data
-db <- dbConnect(SQLite(), dbname = databasename)
-SQLquery <- paste("SELECT ELCODE, SNAME, SCOMNAME, TaxaGroup, ELSeason"," FROM lu_sgcn ")
-lu_sgcn <- dbGetQuery(db, statement = SQLquery)
-lu_sgcn <- lu_sgcn[which(lu_sgcn$TaxaGroup=="AF"),]
-dbDisconnect(db) # disconnect the db
+loadSGCN("AF")
 
 # laod and assemble the fish data from the indivdual excel files
 setwd("W:/Heritage/Heritage_Projects/1332_PGC_COA/species_data/fishdata_fromPFBC")

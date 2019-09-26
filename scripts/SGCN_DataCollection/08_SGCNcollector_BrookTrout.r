@@ -25,10 +25,7 @@ if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
 source(here::here("scripts","SGCN_DataCollection","0_PathsAndSettings.r"))
 
 # read in SGCN data
-db <- dbConnect(SQLite(), dbname = databasename)
-SQLquery <- paste("SELECT ELCODE, SNAME, SCOMNAME, TaxaGroup, SeasonCode, ELSeason"," FROM lu_sgcn ")
-lu_sgcn <- dbGetQuery(db, statement = SQLquery)
-dbDisconnect(db) # disconnect the db
+loadSGCN("AF")
 
 brooktrout <- arc.open(here("_data","input","SGCN_data","PFBC_BrookTrout","PA_WildTrout_BrookTroutOnly_NR_Mar2016Export.shp")) 
 brooktrout <- arc.select(brooktrout, c("SSB"))
