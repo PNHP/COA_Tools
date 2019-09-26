@@ -255,8 +255,8 @@ SGCN_cpp <- unique(final_cppCore_sf[which(final_cppCore_sf$useCOA=="y"),]$SNAME)
 SGCN_bioticsCPP <- unique(c(SGCN_biotics, SGCN_cpp))
 rm(SGCN_biotics, SGCN_cpp)
 
-write.csv(SGCN_bioticsCPP, "SGCN_bioticsCPP.csv", row.names=FALSE)
-
+#write.csv(SGCN_bioticsCPP, "SGCN_bioticsCPP.csv", row.names=FALSE)
+save(SGCN_bioticsCPP, file=updateData)
 
 a <- setdiff(unique(cppCore_sf_final$ELCODE), unique(lu_sgcn$ELCODE))
 b <- setdiff(unique(lu_sgcn$ELCODE), unique(cppCore_sf_final$ELCODE))
