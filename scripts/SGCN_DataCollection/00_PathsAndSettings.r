@@ -36,7 +36,7 @@ loadSGCN <- function(taxagroup) {
   if (!requireNamespace("RSQLite", quietly = TRUE)) install.packages("RSQLite")
   require(RSQLite)
   db <- dbConnect(SQLite(), dbname = databasename)
-  SQLquery <- paste("SELECT ELCODE, SNAME, SCOMNAME, TaxaGroup, ELSeason"," FROM lu_sgcn ")
+  SQLquery <- paste("SELECT ELCODE, SNAME, SCOMNAME, TaxaGroup, SeasonCode, ELSeason"," FROM lu_sgcn ")
   lu_sgcn <- dbGetQuery(db, statement = SQLquery)
   if(missing(taxagroup)){
     lu_sgcn <<- lu_sgcn
