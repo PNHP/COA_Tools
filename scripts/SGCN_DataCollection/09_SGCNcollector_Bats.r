@@ -25,10 +25,7 @@ require(sf)
 source(here::here("scripts","SGCN_DataCollection","0_PathsAndSettings.r"))
 
 # read in SGCN data
-db <- dbConnect(SQLite(), dbname = databasename)
-SQLquery <- paste("SELECT ELCODE, SNAME, SCOMNAME, TaxaGroup, SeasonCode, ELSeason"," FROM lu_sgcn ")
-lu_sgcn <- dbGetQuery(db, statement = SQLquery)
-dbDisconnect(db) # disconnect the db
+loadSGCN()
 
 # read in the bat data 
 # note that this is partially processed bat data, and not raw bat data from PGC

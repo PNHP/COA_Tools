@@ -31,10 +31,7 @@ if (!requireNamespace("RSQLite", quietly = TRUE)) install.packages("RSQLite")
 source(here::here("scripts","SGCN_DataCollection","0_PathsAndSettings.r"))
 
 # read in SGCN data
-db <- dbConnect(SQLite(), dbname = databasename)
-SQLquery <- paste("SELECT ELCODE, SNAME, SCOMNAME, TaxaGroup, SeasonCode, ELSeason"," FROM lu_sgcn ")
-lu_sgcn <- dbGetQuery(db, statement = SQLquery)
-dbDisconnect(db) # disconnect the db
+loadSGCN()
 
 splist <- lu_sgcn$SNAME
 

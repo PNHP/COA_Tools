@@ -24,14 +24,10 @@ if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
 if (!requireNamespace("reshape", quietly = TRUE)) install.packages("reshape")
   require(reshape)
 
-source(here::here("scripts","SGCN_DataCollection","0_PathsAndSettings.r"))
+source(here::here("scripts","SGCN_DataCollection","00_PathsAndSettings.r"))
 
 # read in SGCN data
-db <- dbConnect(SQLite(), dbname = databasename)
-SQLquery <- paste("SELECT ELCODE, SNAME, SCOMNAME, TaxaGroup, SeasonCode, ELSeason"," FROM lu_sgcn ")
-lu_sgcn <- dbGetQuery(db, statement = SQLquery)
-lu_sgcn <- lu_sgcn[which(lu_sgcn$TaxaGroup=="AB"),]
-dbDisconnect(db) # disconnect the db
+loadSGCN("AB")
 lu_sgcn <- lu_sgcn[which(lu_sgcn$SeasonCode=='b'),]
 
 birdcodes <- read.csv(here("_data","input","SGCN_data","bba_ptct","birdcodes.csv"), stringsAsFactors=FALSE)

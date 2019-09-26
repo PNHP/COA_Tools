@@ -29,9 +29,7 @@ if (!requireNamespace("RSQLite", quietly = TRUE)) install.packages("RSQLite")
 source(here::here("scripts","SGCN_DataCollection","0_PathsAndSettings.r"))
 
 # read in SGCN data
-db <- dbConnect(SQLite(), dbname = databasename)
-SQLquery <- paste("SELECT ELCODE, SNAME, SCOMNAME, TaxaGroup, SeasonCode, ELSeason"," FROM lu_sgcn ")
-lu_sgcn <- dbGetQuery(db, statement = SQLquery)
+loadSGCN()
 lu_sgcn <- lu_sgcn[which(lu_sgcn$TaxaGroup=="AAAA"|lu_sgcn$TaxaGroup=="AAAB"|lu_sgcn$TaxaGroup=="ARAA"|lu_sgcn$TaxaGroup=="ARAC"|lu_sgcn$TaxaGroup=="ARAD"),]
 dbDisconnect(db) # disconnect the db
 
