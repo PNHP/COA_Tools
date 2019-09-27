@@ -44,9 +44,11 @@ brooktrout$useCOA <- "y"
 
 brooktrout <- brooktrout[final_fields]
 
-brooktrout <- st_transform(brooktrout, crs=customalbers)
-
-brooktrout <- st_buffer(brooktrout, 50)
+# create a spatial layer
+brooktrout_sf <- st_transform(brooktrout, crs=customalbers) # reproject to custom albers
+arc.write(path=here("_data/output/SGCN.gdb","srcln_brooktrout_sf"), brooktrout_sf, overwrite=TRUE) # write a feature class to the gdb
+brooktrout_buffer_sf <- st_buffer(brooktrout_sf, 100) # buffer the points by 100m
+arc.write(path=here("_data/output/SGCN.gdb","final_BBAptct"), brooktrout_buffer_sf, overwrite=TRUE) # write a feature class to the gdb
 
 # write a feature class to the gdb
 arc.write(path=here("_data/output/SGCN.gdb","final_brooktrout"), brooktrout, overwrite=TRUE)

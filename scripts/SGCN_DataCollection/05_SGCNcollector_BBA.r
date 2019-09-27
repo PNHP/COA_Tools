@@ -57,24 +57,18 @@ PtCt2$SeasonCode <- "b"
 PtCt2$Environment <- "t"
 PtCt2$TaxaGroup <- "AB"
 PtCt2$LastObs <- "2007"
+PtCt2$DataSource <- "BBA_PtCt"
+PtCt2$OccProb <- "k"
+PtCt2$useCOA <- "y"
 
 # subset to SGCN
 PtCt3 <- PtCt2[which(PtCt2$SNAME %in% lu_sgcn$SNAME),]
 
 # create a spatial layer
 bba_sf <- st_as_sf(PtCt3, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+bba_sf <- st_transform(bba_sf, crs=customalbers) # reproject to custom albers
+arc.write(path=here("_data/output/SGCN.gdb","srcpt_BBAptct"), bba_sf, overwrite=TRUE) # write a feature class to the gdb
+bba_buffer_sf <- st_buffer(bba_sf, 100) # buffer the points by 100m
+bba_buffer_sf <- bba_buffer_sf[final_fields] 
+arc.write(path=here("_data/output/SGCN.gdb","final_BBAptct"), bba_buffer_sf, overwrite=TRUE) # write a feature class to the gdb
 
-# reproject to custom albers
-bba_sf1 <- st_transform(bba_sf, crs=customalbers)
-
-# buffer the points by 100m
-bba_buffer_sf <- st_buffer(bba_sf1, 100)
-
-# field alignment
-bba_buffer_sf$DataSource <- "BBA_PtCt"
-bba_buffer_sf$OccProb <- "k"
-bba_buffer_sf$useCOA <- "y"
-bba_buffer_sf <- bba_buffer_sf[final_fields]
-
-# write a feature class to the gdb
-arc.write(path=here("_data/output/SGCN.gdb","final_BBAptct"), bba_buffer_sf, overwrite=TRUE)
