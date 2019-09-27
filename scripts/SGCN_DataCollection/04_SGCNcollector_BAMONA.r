@@ -41,6 +41,8 @@ load(file=updateData)
 loadSGCN()
 lu_sgcn <- lu_sgcn[which(substr(lu_sgcn$ELSeason,1,4)=="IILE"),]
 
+# sgcnLepBiotics <- setdiff(lu_sgcn$SNAME, SGCN_bioticsCPP)
+
 # read in BAMONA data
 bamona_file <- "bamona_data_02_19_2019.csv"
 bamona <- read.csv(here("_data","input","SGCN_data","bamona", bamona_file), stringsAsFactors=FALSE)
@@ -67,10 +69,14 @@ print(paste(length(unique(bamona1$SNAME)),"of the", length(unique(lu_sgcn$SNAME)
 NotInBamona <- setdiff(lu_sgcn$SNAME, bamona1$Scientific.Name)
 NotInBamona
 # subset to leps that are not in Biotics
+
 #DELETE SGCN_bioticsCPP <- read.csv("SGCN_bioticsCPP.csv", stringsAsFactors=FALSE)
 bamona1 <- bamona1[which(!bamona1$SNAME %in% SGCN_bioticsCPP),]
 
+
 table(bamona1$SNAME)
+
+
 
 # add in useCOA
 bamona1$UseCOA <- NA
@@ -90,12 +96,10 @@ bamona1 <- merge(bamona1, lu_sgcn, by="SNAME", all.x=TRUE)
 
 # create a spatial layer
 bamona_sf <- st_as_sf(bamona1, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
-bamona_sf <- st_transform(bamona_sf, crs=customalbers)
-# buffer by 100m
-bamona_sf <- st_buffer(bamona_sf, dist=100)
-
-# write a feature class into the geodatabase
-arc.write(path=here("_data/output/SGCN.gdb","final_BAMONA"), bamona_sf, overwrite=TRUE)
+bamona_sf <- st_transform(bamona_sf, crs=customalbers) # reproject to the custom albers
+arc.write(path=here("_data/output/SGCN.gdb","srcpt_BAMONA"), bamona_sf, overwrite=TRUE) # write a feature class into the geodatabase
+bamona_buffer <- st_buffer(bamona_sf, dist=100) # buffer by 100m
+arc.write(path=here("_data/output/SGCN.gdb","final_BAMONA"), bamona_buffer, overwrite=TRUE) # write a feature class into the geodatabase
 
 # clean up
 rm(bamona, bamona1, lu_sgcn, SGCN_bioticsCPP)
