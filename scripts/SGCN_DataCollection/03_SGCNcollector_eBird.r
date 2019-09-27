@@ -176,18 +176,17 @@ sgcnfinal <- sgcnfinal[which(!sgcnfinal %in% drop_from_eBird) ]
 # create the final layer
 ebd_df1 <- ebd_df[which(ebd_df$ELSeason %in% sgcnfinal),]
 
-# create a spatial layer
-ebird_sf <- st_as_sf(ebd_df1, coords=c("longitude","latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
-
-# reproject to custom albers
-ebird_sf1 <- st_transform(ebird_sf, crs=customalbers)
-  
-# buffer the points by 100m
-ebird_buffer_sf <- st_buffer(ebird_sf1, 100)
-
 # field alignment
 names(ebird_buffer_sf)[names(ebird_buffer_sf)=='season'] <- 'SeasonCode'
 ebird_buffer_sf <- ebird_buffer_sf[final_fields]
+
+# create a spatial layer
+ebird_sf <- st_as_sf(ebd_df1, coords=c("longitude","latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+ebird_sf <- st_transform(ebird_sf, crs=customalbers) # reproject to custom albers
+
+ebird_buffer_sf <- st_buffer(ebird_sf1, 100) # buffer the points by 100m
+
+
 
 # write a feature class to the gdb
 arc.write(path=here("_data/output/SGCN.gdb","final_eBird"), ebird_buffer_sf, overwrite=TRUE)
