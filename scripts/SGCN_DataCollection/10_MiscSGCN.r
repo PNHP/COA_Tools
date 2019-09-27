@@ -46,19 +46,18 @@ bombus <- merge(bombus, lu_sgcn[c("SNAME","ELCODE","ELSeason","SCOMNAME","TaxaGr
 bombus <- bombus[which(bombus$SNAME %in% lu_sgcn$SNAME),]
 # kill the ones with no coordinates
 bombus <- bombus[which(bombus$longitude<0),]
+
+# field alignment
+bombus <- bombus[final_fields] 
+
 # create a spatial layer
 bombus_sf <- st_as_sf(bombus, coords=c("longitude","latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
-# reproject to custom albers
-bombus_sf <- st_transform(bombus_sf, crs=customalbers)
-# buffer the points by 100m
-bombus_buffer_sf <- st_buffer(bombus_sf, 100)
-# field alignment
-bombus_buffer_sf <- bombus_buffer_sf[final_fields]
-# write a feature class to the gdb
-arc.write(path=here("_data/output/SGCN.gdb","final_Bombus"), bombus_buffer_sf, overwrite=TRUE)
+bombus_sf <- st_transform(bombus_sf, crs=customalbers) # reproject to custom albers
+arc.write(path=here("_data/output/SGCN.gdb","srcpt_Bombus"), bombus_sf, overwrite=TRUE) # write a feature class into the geodatabase
+bombus_buffer_sf <- st_buffer(bombus_sf, 100) # buffer the points by 100m
+arc.write(path=here("_data/output/SGCN.gdb","final_Bombus"), bombus_buffer_sf, overwrite=TRUE) # write a feature class to the gdb
 
-
-# Bombus Data #################################################################################
+# ???? Data #################################################################################
 
 
 

@@ -35,6 +35,7 @@ if (!requireNamespace("rmarkdown", quietly = TRUE)) install.packages("rmarkdown"
 
 source(here::here("scripts","SGCN_DataCollection","00_PathsAndSettings.r"))
 
+# load the r data file
 load(file=updateData)
 
 # read in SGCN data
