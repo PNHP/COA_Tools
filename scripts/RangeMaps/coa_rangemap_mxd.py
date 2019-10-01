@@ -13,7 +13,7 @@ import arcpy, os, datetime
 
 ##################################### SET SWS DB LOCATION ############################################################################################
 #set database where species range feature classes are
-db = r'C:\_coa\range_maps\Updated_2019_04_17\sws.gdb'
+db = r'C:\_coa\range_maps\Updated_2019_04_29\sws.gdb'
 ######################################################################################################################################################
 
 def mxd_create(mxd,df_name,desiredFields,fc):
@@ -92,8 +92,8 @@ def mxd_create(mxd,df_name,desiredFields,fc):
                 taxa = "Mussels"
         ##    elif taxa == "Invertebrate - Sawflies":
         ##        taxa = "Sawflies"
-        ##    elif taxa == "Invertebrate - Spiders":
-        ##        taxa = "Spiders"
+            elif taxa == "Invertebrate - Spiders":
+                taxa = "Spiders"
         ##    elif taxa == "Invertebrate - Sponges":
         ##        taxa = "Sponges"
             elif taxa == "Invertebrate - Stoneflies":
@@ -156,7 +156,7 @@ def mxd_format(mxd,desiredFields):
     mxd.save()
 
 ########################################### SET COUNTY .MXD LOCATION #################################################################################
-mxd = r'C:\_coa\range_maps\Updated_2019_04_17\SGCNCountyRangeMaps1.mxd'
+mxd = r'C:\_coa\range_maps\Updated_2019_04_29\SGCNCountyRangeMaps.mxd'
 ######################################################################################################################################################
 df_name = "SGCN County Range Maps"
 desiredFields = ['COUNTY_NAM','y_prop','b_prop','m_prop','w_prop','SCOMNAME','SNAME','TaxaDisplay','USESA','SPROT','PBSSTATUS','Shape','OBJECTID']
@@ -167,7 +167,7 @@ mxd_create(mxd,df_name,desiredFields,fc)
 mxd_format(mxd,desiredFields)
 
 ########################################### SET WATERSHED .MXD LOCATION ##############################################################################
-mxd = r'C:\_coa\range_maps\Updated_2019_04_17\SGCNWatershedRangeMaps1.mxd'
+mxd = r'C:\_coa\range_maps\Updated_2019_04_29\SGCNWatershedRangeMaps.mxd'
 ######################################################################################################################################################
 df_name = "SGCN Watershed Range Maps"
 desiredFields = ['HUC08','NAME','COUNTY_NAM','y_prop','b_prop','m_prop','w_prop','SCOMNAME','SNAME','TaxaDisplay','USESA','SPROT','PBSSTATUS','Shape','OBJECTID']
