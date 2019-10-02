@@ -1,35 +1,49 @@
 #---------------------------------------------------------------------------------------------
-# Name: 1_SGCNcollector_BioticsCPP.r
+# Name: 14_SGCNcollector_POND.r
 # Purpose: 
-# Author: Christopher Tracey
-# Created: 2019-03-11
-# Updated: 2018-03-23
+# Author: Molly Moore
+# Created: 2019-10-01
+# Updated: 
 #
 # Updates:
-# insert date and info
-# * 2018-03-21 - get list of species that are in Biotics
-# * 2018-03-23 - export shapefiles
+#
 #
 # To Do List/Future Ideas:
 # * 
 #---------------------------------------------------------------------------------------------
 
-# load packages
-if (!requireNamespace("arcgisbinding", quietly = TRUE)) install.packages("arcgisbinding")
+#load packages
+if (!requireNamespace("arcgisbinding", quietly=TRUE)) install.packages("arcgisbinding")
 require(arcgisbinding)
-if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr")
+if (!requireNamespace("dplyr", quietly=TRUE)) install.packages("dplyr")
 require(dplyr)
-if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
-require(here)
-if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
+if (!requireNamespace("sf", quietly=TRUE)) install.packages("sf")
 require(sf)
-if (!requireNamespace("RSQLite", quietly = TRUE)) install.packages("RSQLite")
-require(RSQLite)
+if (!requireNamespace("plyr", quietly = TRUE)) install.packages("plyr")
+require(plyr)
 
+#get paths listed in pathes and settings script
 source(here("scripts","SGCN_DataCollection","00_PathsAndSettings.r"))
 
-
-######################################################################################
 # read in SGCN data
 loadSGCN()
+
+#paths to POND feature service layers
+pond_pts <- 'https://maps.waterlandlife.org/arcgis/rest/services/PNHP/POND/FeatureServer/0'
+pond_species <- 'https://maps.waterlandlife.org/arcgis/rest/services/PNHP/POND/FeatureServer/3'
+
+#put in code to load lu_sgcn from sqlite db and create list of sgcn
+
+arc.check_product()
+
+s <- arc.open(pond_species)
+species <- arc.select(s) #add code to load only sgcn species from lu_sgcn list
+
+#create list of wpc_ids 
+
+#load in pond_pts
+
+#merge pond_pts with species
+
+#add coa information like season, el_season, data source, data code, etc.
 
