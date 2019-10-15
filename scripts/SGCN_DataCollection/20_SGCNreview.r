@@ -28,11 +28,35 @@ arc.check_product()
 ######################################################################################
 # get SGCN data
 db <- dbConnect(SQLite(), dbname = databasename)
-SQLquery <- paste("SELECT ELCODE, SCOMNAME, SNAME, TaxaDisplay"," FROM lu_sgcn ")
-lu_sgcn <- dbGetQuery(db, statement = SQLquery)
+lu_sgcn_SQLquery <- "SELECT ELSeason, ELCODE, SCOMNAME, SNAME, TaxaDisplay, SeasonCode FROM lu_sgcn"
+lu_sgcnXpu_SQLquery <- "SELECT unique_id, OccProb, PERCENTAGE, ELSeason FROM lu_sgcnXpu_all"
+lu_sgcn <- dbGetQuery(db, statement = lu_sgcn_SQLquery)
+lu_sgcnXpu <- dbGetQuery(db, statement = lu_sgcnXpu_SQLquery)
 dbDisconnect(db) # disconnect the db
 
-lu_sgcn <- unique(lu_sgcn)
+print(paste0("There are ",nrow(lu_sgcn)," rows in the master lu_sgcn list from the sqlite database."))
+print(paste0("There are ",length(unique(lu_sgcn$ELSeason))," unique ELSeason values in the master lu_sgcn list from the sqlite database."))
+print(paste0("There are ",length(unique(lu_sgcn$ELCODE))," unique ELCODE values in the master lu_sgcn list from the sqlite database."))
+
+dupe = lu_sgcn[,c('ELSeason')] # select columns to check duplicates
+dups <- lu_sgcn[duplicated(dupe) | duplicated(dupe, fromLast=TRUE),]
+if(nrow(dups)>0){
+  print('There are duplicate ELSeason records in the master lu_sgcn list from the sqlite database. They include: ')
+  print(dups)
+} else{
+  print('There are no duplicate ELSeason records in the master lu_sgcn list from the sqlite database')
+}
+
+
+print(paste0("There are ",nrow(lu_sgcnXpu)," records in the lu_sgcnXpu table from the sqlite database."))
+print(paste0("There are ",length(unique(lu_sgcn$ELSeason))," unique ELSeason values in the lu_sgcnXpu table from the sqlite database."))
+
+lu_sgcn_ELSeason <- unique(lu_sgcn$ELSeason)
+lu_sgcnXpu_ELSeason <- unique(lu_sgcnXpu$ELSeason)
+
+setdiff(lu_sgcn_ELSeason,lu_sgcnXpu_ELSeason)
+setdiff(lu_sgcnXpu_ELSeason,lu_sgcn_ELSeason)
+
 
 SGCN <- arc.open(path=here::here("_data/output/SGCN.gdb","allSGCNuse2"))
 SGCN <- arc.select(SGCN)
