@@ -37,28 +37,23 @@ source(here::here("scripts","SGCN_DataCollection","00_PathsAndSettings.r"))
 
 # read in SGCN data
 loadSGCN("AB")
-# get SGCN data
-# db <- dbConnect(SQLite(), dbname = databasename)
-# SQLquery <- paste("SELECT ELCODE, SNAME, SCOMNAME, TaxaGroup, ELSeason"," FROM lu_sgcn ")
-# lu_sgcn <- dbGetQuery(db, statement = SQLquery)
-# lu_sgcn <- lu_sgcn[which(lu_sgcn$TaxaGroup=="AB"),]
-# dbDisconnect(db) # disconnect the db
-# sgcnlist <- unique(lu_sgcn$SNAME)
+sgcnlist <- unique(lu_sgcn$SNAME)
 
 
 sgcnlist <- sgcnlist[!sgcnlist %in% "Anas discors"] # species not in the ebird dataset
 
-auk_set_ebd_path(here("_data","input","SGCN_data","eBird"), overwrite=TRUE)
+auk_set_ebd_path(here::here("_data","input","SGCN_data","eBird"), overwrite=TRUE)
 
 # 2016 eBird data ##############################################
 #get a list of what's in the directory
-fileList <- dir(path=here("_data","input","SGCN_data","eBird"), pattern = ".txt$")
+fileList <- dir(path=here::here("_data","input","SGCN_data","eBird"), pattern = ".txt$")
 fileList
 #look at the output and choose which shapefile you want to run. enter its location in the list (first = 1, second = 2, etc)
 n <- 1
 
 # read in the file using auk
-f_in <- here("_data","input","SGCN_data","eBird",fileList[[n]]) #"C:/Users/dyeany/Documents/R/eBird/ebd.txt"
+## Note: it's good to run each of these in turn, as it can fail if you do all of them at once.
+f_in <- here::here("_data","input","SGCN_data","eBird",fileList[[n]]) #"C:/Users/dyeany/Documents/R/eBird/ebd.txt"
 f_out <- "ebd_filtered_SGCN.txt"
 ebd <- auk_ebd(f_in)
 ebd_filters <- auk_species(ebd, species=sgcnlist, taxonomy_version=2016)
@@ -68,19 +63,39 @@ ebd_df2016_backup <- ebd_df2016
 
 # 2018 eBird data ##############################################
 #get a list of what's in the directory
-fileList <- dir(path=here("_data","input","SGCN_data","eBird"), pattern = ".txt$")
+fileList <- dir(path=here::here("_data","input","SGCN_data","eBird"), pattern = ".txt$")
 fileList
 #look at the output and choose which shapefile you want to run. enter its location in the list (first = 1, second = 2, etc)
 n <- 2
-
 # read in the file using auk
-f_in <- here("_data","input","SGCN_data","eBird",fileList[[n]]) #"C:/Users/dyeany/Documents/R/eBird/ebd.txt"
+## Note: it's good to run each of these in turn, as it can fail if you do all of them at once.
+f_in <- here::here("_data","input","SGCN_data","eBird",fileList[[n]]) #"C:/Users/dyeany/Documents/R/eBird/ebd.txt"
 f_out <- "ebd_filtered_SGCN.txt"
 ebd <- auk_ebd(f_in)
 ebd_filters <- auk_species(ebd, species=sgcnlist, taxonomy_version=2017)
 ebd_filtered <- auk_filter(ebd_filters, file=f_out, overwrite=TRUE)
 ebd_df2018 <- read_ebd(ebd_filtered)
 ebd_df2018_backup <- ebd_df2018
+
+# 2019 eBird data ##############################################
+#get a list of what's in the directory
+fileList <- dir(path=here::here("_data","input","SGCN_data","eBird"), pattern = ".txt$")
+fileList
+#look at the output and choose which shapefile you want to run. enter its location in the list (first = 1, second = 2, etc)
+n <- 3
+# read in the file using auk
+## Note: it's good to run each of these in turn, as it can fail if you do all of them at once.
+f_in <- here::here("_data","input","SGCN_data","eBird",fileList[[n]]) #"C:/Users/dyeany/Documents/R/eBird/ebd.txt"
+f_out <- "ebd_filtered_SGCN.txt"
+ebd <- auk_ebd(f_in)
+ebd_filters <- auk_species(ebd, species=sgcnlist, taxonomy_version=2017)
+ebd_filtered <- auk_filter(ebd_filters, file=f_out, overwrite=TRUE)
+ebd_df2019 <- read_ebd(ebd_filtered)
+ebd_df2019_backup <- ebd_df2019
+
+
+
+
 # Combine 2016 and 2018 data ##################################
 setdiff(names(ebd_df2016), names(ebd_df2018))
 
@@ -97,8 +112,18 @@ ebd_df2018$protocol_code <- NULL
 ebd_df2018$has_media <- NULL
 sortorder <- names(ebd_df2016)
 ebd_df2018 <- ebd_df2018[sortorder]
+
+
+# combine the merged 2016/2018 data with the 2019 data
+setdiff(names(ebd_df), names(ebd_df2019))
+names(ebd_df2019)[names(ebd_df2019)=='state'] <- 'state_province'
+names(ebd_df2019)[names(ebd_df2019)=='state_code'] <- 'subnational1_code'
+names(ebd_df2019)[names(ebd_df2019)=='county_code'] <- 'subnational2_code'
+sortorder <- names(ebd_df)
+ebd_df2019 <- ebd_df2019[sortorder]
+
 # merge the multiple years together
-ebd_df <- rbind(ebd_df2016,ebd_df2018)
+ebd_df <- rbind(ebd_df2016,ebd_df2018, ebd_df2019)
 
 # gets rid of the bad data lines
 ebd_df$latitude <- as.numeric(as.character(ebd_df$latitude))
@@ -123,7 +148,7 @@ ebd_df <- ebd_df[which(ebd_df$protocol_type=="Banding"|
 ### Next filter out records by Focal Season for each SGCN using day-of-year
 # library(lubridate)
 ebd_df$dayofyear <- yday(ebd_df$observation_date) ## Add day of year to eBird dataset based on the observation date.
-birdseason <- read.csv(here("scripts","SGCN_DataCollection","lu_eBird_birdseason.csv"), colClasses = c("character","character","integer","integer"),stringsAsFactors=FALSE)
+birdseason <- read.csv(here::here("scripts","SGCN_DataCollection","lu_eBird_birdseason.csv"), colClasses = c("character","character","integer","integer"),stringsAsFactors=FALSE)
 
 ### assign a migration date to each ebird observation.
 ebd_df$season <- NA
@@ -176,15 +201,15 @@ sgcnfinal <- sgcnfinal[which(!sgcnfinal %in% drop_from_eBird) ]
 # create the final layer
 ebd_df1 <- ebd_df[which(ebd_df$ELSeason %in% sgcnfinal),]
 
-# field alignment
-names(ebird_buffer_sf)[names(ebird_buffer_sf)=='season'] <- 'SeasonCode'
-ebird_buffer_sf <- ebird_buffer_sf[final_fields]
-
 # create a spatial layer
 ebird_sf <- st_as_sf(ebd_df1, coords=c("longitude","latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
 ebird_sf <- st_transform(ebird_sf, crs=customalbers) # reproject to custom albers
 
-ebird_buffer_sf <- st_buffer(ebird_sf1, 100) # buffer the points by 100m
+ebird_buffer_sf <- st_buffer(ebird_sf, 100) # buffer the points by 100m
+
+# field alignment
+names(ebird_buffer_sf)[names(ebird_buffer_sf)=='season'] <- 'SeasonCode'
+ebird_buffer_sf <- ebird_buffer_sf[final_fields]
 
 
 

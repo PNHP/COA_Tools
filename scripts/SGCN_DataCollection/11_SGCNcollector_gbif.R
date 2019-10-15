@@ -70,25 +70,26 @@ dat <- occ_search(
 dat <-  dat[dat!="no data found, try a different search"] # deletes the items from the list where no occurences were found. doesn't work for one species
 datdf <- ldply(dat) # turns the list to a data frame
 write.csv(datdf, paste("gbif", format(Sys.time(), "%Y%m%d"), "backup.csv"), sep="")
-##datdf <- read.csv("gbif20180327backup.csv", stringsAsFactors=FALSE) # to reload a saved search
+##datdf <- read.csv("gbif 20191015 backup.csv", stringsAsFactors=FALSE) # to reload a saved search
 
 
 gbifdata <- datdf # just changing the name so it backs up
 gbifdata <- gbifdata[which(gbifdata$datasetKey!='4fa7b334-ce0d-4e88-aaae-2e0c138d049e'),] #subset out the records from the eBird dataset, using the ebird dataset key. Unfortunately, we need to download them first.  Might be a better way to do this somewhere.
 
-#this will eventually pull up the dataset name so we can put it int tohe notes
-#datasetkeys <- unique(datdf$datasetKey)
-#datasetnames <- datasets(uuid="c4a2c617-91a7-4d4f-90dd-a78b899f8545")
+#this will eventually pull up the dataset name so we can put it int the notes
+# datasetkeys <- unique(datdf$datasetKey)
+# datasetnames <- datasets(uuid="c4a2c617-91a7-4d4f-90dd-a78b899f8545")
+# datasetnames <- datasets(data="all")
 
 gbifdata$Notes <- paste("gbifid=",gbifdata$key,"; Basis of Record=",gbifdata$basisOfRecord)
 gbifdata$DataSource <- "GBIF"
-names(gbifdata)[names(gbifdata)=='name'] <- 'SNAME'
+names(gbifdata)[names(gbifdata)=='species'] <- 'SNAME'
 names(gbifdata)[names(gbifdata)=='key'] <- 'DataID'
 names(gbifdata)[names(gbifdata)=='decimalLongitude'] <- 'Longitude'
 names(gbifdata)[names(gbifdata)=='decimalLatitude'] <- 'Latitude'
 names(gbifdata)[names(gbifdata)=='year'] <- 'LastObs'
 
-# pull out records with the lease uncertainty
+# pull out records with the least uncertainty
 gbifdata <- gbifdata[which(gbifdata$coordinateUncertaintyInMeters<=200|is.na(gbifdata$coordinateUncertaintyInMeters)),]
 
 #subset to the needed columns
