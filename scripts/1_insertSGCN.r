@@ -16,14 +16,22 @@ require(RSQLite)
 
 # Set input paths ----
 databasename <- "coa_bridgetest.sqlite" 
-databasename <- here("_data","output",databasename)
+databasename <- here::here("_data","output",databasename)
 
 ## Read SGCN list in
-SGCN <- read.csv(here("_data","input","lu_sgcn.csv"), stringsAsFactors=FALSE) # read in the SGCN list
+SGCN <- read.csv(here::here("_data","input","lu_sgcn.csv"), stringsAsFactors=FALSE) # read in the SGCN list
 drops <- c("OBJECTID","GlobalID","created_user","created_date","last_edited_user","last_edited_date") # delete unneeded columns
 SGCN <- SGCN[ , !(names(SGCN) %in% drops)]
 rm(drops)
 
+# QC to make sure that the ELCODES match the first part of the ELSeason code.
+if(length(setdiff(SGCN$ELCODE, gsub("(.+?)(\\_.*)", "\\1", SGCN$ELSeason)))==0){
+  print("ELCODEs and ELSeason strings match")
+} else {
+  print(paste("Codes for ", setdiff(SGCN$ELCODE, gsub("(.+?)(\\_.*)", "\\1", SGCN$ELSeason)), "do not match", sep=""))
+}
+
+# write the lu_sgcn table to the database
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
 dbWriteTable(db, "lu_SGCN", SGCN, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
