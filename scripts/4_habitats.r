@@ -39,7 +39,6 @@ SpecificHab_sheets <- getSheetNames(SpecificHab_file)
 SpecificHab_sheets # list the sheets
 n <- 2 # enter its location in the list (first = 1, second = 2, etc)
 SpecificHabitatReq <- read.xlsx(xlsxFile=SpecificHab_file, sheet=SpecificHab_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE)
-
 SpecificHabitatReq <- SpecificHabitatReq[c("ELSEASON","SNAME","SCOMNAME","Group","SpecificHabitatRequirements" )]
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
 dbWriteTable(db, "lu_SpecificHabitatReq", SpecificHabitatReq, overwrite=TRUE) # write the table to the sqlite
