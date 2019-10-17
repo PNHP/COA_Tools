@@ -20,7 +20,7 @@ require(RSQLite)
 
 # Set input paths ----
 databasename <- "coa_bridgetest.sqlite" 
-databasename <- here("_data","output",databasename)
+databasename <- here::here("_data","output",databasename)
 
 # connect to the database
 db <- dbConnect(SQLite(), dbname=databasename) # creates an empty COA database

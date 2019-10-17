@@ -38,10 +38,11 @@ dbDisconnect(db) # disconnect the db
 rm(SGCN)
 
 ## Taxa Group import
-taxagrp <- read.csv(here("_data","input","lu_taxagrp.csv"), stringsAsFactors=FALSE)
+taxagrp <- read.csv(here::here("_data","input","lu_taxagrp.csv"), stringsAsFactors=FALSE)
 taxagrp$OID <- NULL
 
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
 dbWriteTable(db, "lu_taxagrp", taxagrp, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
 rm(taxagrp)
+
