@@ -16,21 +16,40 @@ if (!requireNamespace("here", quietly=TRUE)) install.packages("here")
   require(here)
 if (!requireNamespace("RSQLite", quietly=TRUE)) install.packages("RSQLite")
   require(RSQLite)
+if (!requireNamespace("openxlsx", quietly=TRUE)) install.packages("openxlsx")
+  require(openxlsx)
 
 # Set input paths ----
 databasename <- "coa_bridgetest.sqlite" 
-databasename <- here("_data","output",databasename)
+databasename <- here::here("_data","output",databasename)
 
 ## Specific Habitat Requirements
-SpecificHabitatReq <- read.csv(here("_data","input","lu_SpecificHabitatReq.csv"), stringsAsFactors=FALSE)
+#get the habitat template
+SpecificHab_file <- list.files(path=here::here("_data/input"), pattern=".xlsx$")  # --- make sure your excel file is not open.
+SpecificHab_file
+#look at the output and choose which shapefile you want to run
+#enter its location in the list (first = 1, second = 2, etc)
+n <- 5
+SpecificHab_file <- here::here("_data/input", SpecificHab_file[n])
+
+#get a list of the sheets in the file
+SpecificHab_sheets <- getSheetNames(SpecificHab_file)
+#look at the output and choose which excel sheet you want to load
+# Enter the habitat sheet (eg. "lu_actionsLevel2") 
+SpecificHab_sheets # list the sheets
+n <- 2 # enter its location in the list (first = 1, second = 2, etc)
+SpecificHabitatReq <- read.xlsx(xlsxFile=SpecificHab_file, sheet=SpecificHab_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE)
+
 SpecificHabitatReq <- SpecificHabitatReq[c("ELSEASON","SNAME","SCOMNAME","Group","SpecificHabitatRequirements" )]
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
 dbWriteTable(db, "lu_SpecificHabitatReq", SpecificHabitatReq, overwrite=TRUE) # write the table to the sqlite
   dbDisconnect(db) # disconnect the db
-SpecificHabitatReq_NeedInfo <- SpecificHabitatReq[which(SpecificHabitatReq$SpecificHabitatRequirements==""),] # get a list of sgcn of species without specific habitat requirements
-write.csv(SpecificHabitatReq_NeedInfo, here("_data","output","needInfo_SpecificHabReq.csv"), row.names=FALSE)
-write.csv(as.data.frame(table(SpecificHabitatReq_NeedInfo$Group)), here("_data","output","needInfo_SpecificHabSpecies.csv"), row.names=FALSE)
+# SpecificHabitatReq_NeedInfo <- SpecificHabitatReq[which(is.na(SpecificHabitatReq$SpecificHabitatRequirements)),] # get a list of sgcn of species without specific habitat requirements
+# write.csv(SpecificHabitatReq_NeedInfo, here::here("_data","output","needInfo_SpecificHabReq.csv"), row.names=FALSE)
+# write.csv(as.data.frame(table(SpecificHabitatReq_NeedInfo$Group)), here("_data","output","needInfo_SpecificHabSpecies.csv"), row.names=FALSE)
 rm(SpecificHabitatReq, SpecificHabitatReq_NeedInfo)
+
+
 
 ## Primary Macrogroups
 PrimaryMacrogroup <- read.csv(here("_data","input","lu_PrimaryMacrogroup.csv"), stringsAsFactors=FALSE)
