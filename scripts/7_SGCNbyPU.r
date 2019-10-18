@@ -26,7 +26,6 @@ db <- dbConnect(SQLite(), dbname=olddatabasename) # connect to the database
 dbDisconnect(db) # disconnect the db
 
 ##unique(sgcnXpu$OccProb)
-sgcnXpu <- lu_sgcnXpu
 
 # subset out the known occurences from the older dataset
 sgcnXpu_oldK <- sgcnXpu[which(sgcnXpu$OccProb=="k" | (substr(sgcnXpu$ELSeason,start=1,stop=2)=="AF" & sgcnXpu$OccProb=="l")),]
