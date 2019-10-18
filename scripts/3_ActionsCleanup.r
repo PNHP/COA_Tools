@@ -21,15 +21,15 @@ require(RSQLite)
 
 # Set input paths ----
 databasename <- "coa_bridgetest.sqlite" 
-databasename <- here("_data","output",databasename)
+databasename <- here::here("_data","output",databasename)
 
 #get the threats template
-COA_actions_file <- list.files(path=here("_data/input"), pattern=".xlsx$")  # --- make sure your excel file is not open.
+COA_actions_file <- list.files(path=here::here("_data/input"), pattern=".xlsx$")  # --- make sure your excel file is not open.
 COA_actions_file
 #look at the output and choose which shapefile you want to run
 #enter its location in the list (first = 1, second = 2, etc)
 n <- 4
-COA_actions_file <- here("_data/input",COA_actions_file[n])
+COA_actions_file <- here::here("_data/input",COA_actions_file[n])
 
 #get a list of the sheets in the file
 COA_actions_sheets <- getSheetNames(COA_actions_file)
@@ -65,8 +65,19 @@ names(COA_references)[names(COA_references) == 'REFERENCE.NAME'] <- 'REF_NAME'
 COA_references$ActionCategory1 <- NULL
 COA_references$ActionCategory2 <- NULL
 
+# # check if url exist
+# library(RCurl)
+# for(l in 1:nrow(COA_references)){
+#   if(isTRUE(url.exists(COA_references$LINK[l], .header=FALSE))){
+#     print(paste("url for -",COA_references$REF_NAME[l],"- is valid"), sep=" ")
+#   }  else if(isFALSE(url.exists(COA_references$LINK[l]))){
+#     print(paste("url for -",COA_references$REF_NAME[l],"- is not valid"), sep=" ")
+#   }
+# }
+
+# 
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
-dbWriteTable(db, "BPreference", COA_references, overwrite=TRUE) # write the output to the sqlite db
+dbWriteTable(db, "lu_BPreference", COA_references, overwrite=TRUE) # write the output to the sqlite db
 dbDisconnect(db) # disconnect the db
 rm(COA_references)
 
