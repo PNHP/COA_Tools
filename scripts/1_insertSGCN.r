@@ -20,9 +20,9 @@ databasename <- here::here("_data","output",databasename)
 
 ## Read SGCN list in
 SGCN <- read.csv(here::here("_data","input","lu_sgcn.csv"), stringsAsFactors=FALSE) # read in the SGCN list
-drops <- c("OBJECTID","GlobalID","created_user","created_date","last_edited_user","last_edited_date") # delete unneeded columns
-SGCN <- SGCN[ , !(names(SGCN) %in% drops)]
-rm(drops)
+#drops <- c("OBJECTID","GlobalID","created_user","created_date","last_edited_user","last_edited_date") # delete unneeded columns
+#SGCN <- SGCN[ , !(names(SGCN) %in% drops)]
+#rm(drops)
 
 # QC to make sure that the ELCODES match the first part of the ELSeason code.
 if(length(setdiff(SGCN$ELCODE, gsub("(.+?)(\\_.*)", "\\1", SGCN$ELSeason)))==0){
