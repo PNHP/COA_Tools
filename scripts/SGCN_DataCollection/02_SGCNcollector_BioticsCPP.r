@@ -174,7 +174,7 @@ srcf_combined[which(srcf_combined$SNAME %in% sf_y2b),]$SeasonCode <- "b"
 sf_b2y <- c("Myotis leibii","Myotis septentrionalis","Sceloporus undulatus")
 srcf_combined[which(srcf_combined$SNAME %in% sf_b2y),]$SeasonCode <- "y"
 sf_b2w <- c("Perimyotis subflavus")
-srcf_combined[which(srcf_combined$SNAME %in% sf_b2y),]$SeasonCode <- "w"
+srcf_combined[which(srcf_combined$SNAME %in% sf_b2w),]$SeasonCode <- "w"
 sf_w2y <- c("Lithobates pipiens","Lithobates sphenocephalus utricularius","Plestiodon anthracinus anthracinus","Virginia valeriae pulchra")
 srcf_combined[which(srcf_combined$SNAME %in% sf_b2y),]$SeasonCode <- "y"
 
@@ -252,8 +252,8 @@ final_srcf_combined <- final_srcf_combined[final_fields]
 #final_srcf_combined$OccProb = with(final_srcf_combined, ifelse(LastObs>=cutoffyearK , "k", ifelse(LastObs<cutoffyearK & LastObs>=cutoffyearL, "l", "u")))
 
 # write a feature class to the gdb
-##arc.write(path=here::here("_data/output/SGCN.gdb","final_cppCore"), final_cppCore_sf, overwrite=TRUE)
-##arc.write(path=here::here("_data/output/SGCN.gdb","final_Biotics"), final_srcf_combined, overwrite=TRUE)
+arc.write(path=here::here("_data/output/SGCN.gdb","final_cppCore"), final_cppCore_sf, overwrite=TRUE)
+arc.write(path=here::here("_data/output/SGCN.gdb","final_Biotics"), final_srcf_combined, overwrite=TRUE)
 
 BioticsCPP_ELSeason <- unique(c(final_cppCore_sf$ELSeason, final_srcf_combined$ELSeason))
 
