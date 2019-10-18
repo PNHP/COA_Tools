@@ -43,8 +43,11 @@ SpecificHabitatReq <- SpecificHabitatReq[c("ELSEASON","SNAME","SCOMNAME","Group"
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
 dbWriteTable(db, "lu_SpecificHabitatReq", SpecificHabitatReq, overwrite=TRUE) # write the table to the sqlite
   dbDisconnect(db) # disconnect the db
-# SpecificHabitatReq_NeedInfo <- SpecificHabitatReq[which(is.na(SpecificHabitatReq$SpecificHabitatRequirements)),] # get a list of sgcn of species without specific habitat requirements
-# write.csv(SpecificHabitatReq_NeedInfo, here::here("_data","output","needInfo_SpecificHabReq.csv"), row.names=FALSE)
+
+SpecificHabitatReq_NeedInfo <- SpecificHabitatReq[which(is.na(SpecificHabitatReq$SpecificHabitatRequirements)),] # get a list of sgcn of species without specific habitat requirements
+print('The following SGCN do not have specific habitat requirements.')
+SpecificHabitatReq_NeedInfo
+ # write.csv(SpecificHabitatReq_NeedInfo, here::here("_data","output","needInfo_SpecificHabReq.csv"), row.names=FALSE)
 # write.csv(as.data.frame(table(SpecificHabitatReq_NeedInfo$Group)), here("_data","output","needInfo_SpecificHabSpecies.csv"), row.names=FALSE)
 rm(SpecificHabitatReq, SpecificHabitatReq_NeedInfo)
 
