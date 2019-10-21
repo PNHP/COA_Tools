@@ -27,18 +27,18 @@ db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
 dbDisconnect(db) # disconnect the db
 rm(CountyName)
 
-## municipal names
-MuniName <- read.csv(here::here("_data","input","lu_muni_names.csv"), stringsAsFactors=FALSE)
-MuniName <- MuniName[order(MuniName$Name_Proper_Type),]
-db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
-dbWriteTable(db, "lu_muni_names", MuniName, overwrite=TRUE) # write the table to the sqlite
-dbDisconnect(db) # disconnect the db
-rm(MuniName)
-
-## municipalities
-Muni <- read.csv(here::here("_data","input","lu_muni.csv"), stringsAsFactors=FALSE)
-db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
-dbWriteTable(db, "lu_muni", Muni, overwrite=TRUE) # write the table to the sqlite
-dbDisconnect(db) # disconnect the db
-rm(Muni)
+# ## municipal names
+# MuniName <- read.csv(here::here("_data","input","lu_muni_names.csv"), stringsAsFactors=FALSE)
+# MuniName <- MuniName[order(MuniName$Name_Proper_Type),]
+# db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
+# dbWriteTable(db, "lu_muni_names", MuniName, overwrite=TRUE) # write the table to the sqlite
+# dbDisconnect(db) # disconnect the db
+# rm(MuniName)
+# 
+# ## municipalities
+# Muni <- read.csv(here::here("_data","input","lu_muni.csv"), stringsAsFactors=FALSE)
+# db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
+# dbWriteTable(db, "lu_muni", Muni, overwrite=TRUE) # write the table to the sqlite
+# dbDisconnect(db) # disconnect the db
+# rm(Muni)
 
