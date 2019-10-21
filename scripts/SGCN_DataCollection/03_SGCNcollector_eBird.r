@@ -100,11 +100,11 @@ sortorder <- names(ebd_df2016)
 ebd_df2018 <- ebd_df2018[sortorder]
 
 # combine the merged 2016/2018 data with the 2019 data
-setdiff(names(ebd_df), names(ebd_df2019))
+setdiff(names(ebd_df2016), names(ebd_df2019))
 names(ebd_df2019)[names(ebd_df2019)=='state'] <- 'state_province'
 names(ebd_df2019)[names(ebd_df2019)=='state_code'] <- 'subnational1_code'
 names(ebd_df2019)[names(ebd_df2019)=='county_code'] <- 'subnational2_code'
-sortorder <- names(ebd_df)
+sortorder <- names(ebd_df2016)
 ebd_df2019 <- ebd_df2019[sortorder]
 
 # merge the multiple years together
@@ -187,12 +187,12 @@ sgcnfinal <- sgcnfinal[which(!sgcnfinal %in% drop_from_eBird) ]
 ebd_df1 <- ebd_df[which(ebd_df$ELSeason %in% sgcnfinal),]
 # field alignment
 names(ebd_df1)[names(ebd_df1)=='season'] <- 'SeasonCode'
-ebd_df1 <- ebd_df1[final_fields]
 
 # create a spatial layer
-ebird_sf <- st_as_sf(ebd_df1, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+ebird_sf <- st_as_sf(ebd_df1, coords=c("longitude","latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
 ebird_sf <- st_transform(ebird_sf, crs=customalbers) # reproject to the custom albers
-arc.write(path=here("_data/output/SGCN.gdb","srcpt_eBird"), ebird_sf, overwrite=TRUE) # write a feature class into the geodatabase
+ebird_sf <- ebird_sf[final_fields]
+arc.write(path=here::here("_data/output/SGCN.gdb","srcpt_eBird"), ebird_sf, overwrite=TRUE) # write a feature class into the geodatabase
 ebird_buffer <- st_buffer(ebird_sf, dist=100) # buffer by 100m
 arc.write(path=here::here("_data/output/SGCN.gdb","final_eBird"), bamona_buffer, overwrite=TRUE) # write a feature class into the geodatabase
 

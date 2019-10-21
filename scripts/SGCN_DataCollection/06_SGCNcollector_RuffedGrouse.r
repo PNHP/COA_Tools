@@ -68,13 +68,12 @@ grouse_sf$DataSource <- "PGC Grouse Data"
 grouse_sf$OccProb <- "k"
 grouse_sf$useCOA <- "y"
 
-#grouse_sf <- grouse_sf[final_fields,]
+# create a spatial layer
+grouse_sf <- st_transform(grouse_sf, crs=customalbers) # reproject to the custom albers
+arc.write(path=here("_data/output/SGCN.gdb","srcpt_PGCgrouse"), grouse_sf, overwrite=TRUE) # write a feature class into the geodatabase
+grouse_buffer <- st_buffer(grouse_sf, dist=100) # buffer by 100m
+arc.write(path=here("_data/output/SGCN.gdb","final_PGCgrouse"), grouse_buffer, overwrite=TRUE) # write a feature class into the geodatabase
 
-grouse_sf <- st_transform(grouse_sf, crs=customalbers)
-# buffer by 100m
-grouse_sf <- st_buffer(grouse_sf, dist=100)
 
-# write a feature class into the geodatabase
-arc.write(path=here("_data/output/SGCN.gdb","final_PGCgrouse"), grouse_sf, overwrite=TRUE)
 
 
