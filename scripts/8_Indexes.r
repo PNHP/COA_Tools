@@ -14,9 +14,7 @@ require(here)
 if (!requireNamespace("RSQLite", quietly=TRUE)) install.packages("RSQLite")
 require(RSQLite)
 
-# Set input paths ----
-databasename <- "coa_bridgetest.sqlite" 
-databasename <- here("_data","output",databasename)
+source(here::here("scripts", "00_PathsAndSettings.r"))
 
 db <- dbConnect(SQLite(), dbname=olddatabasename) # connect to the database
 sgcnXpu <- dbReadTable(db, "lu_sgcnXpu_all") # write the table to the sqlite

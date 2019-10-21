@@ -14,9 +14,7 @@ require(here)
 if (!requireNamespace("RSQLite", quietly=TRUE)) install.packages("RSQLite")
 require(RSQLite)
 
-# Set input paths ----
-databasename <- "coa_bridgetest.sqlite" 
-databasename <- here::here("_data","output",databasename)
+source(here::here("scripts", "00_PathsAndSettings.r"))
 
 olddatabasename <- "coa_bridgetest_previous.sqlite" 
 olddatabasename <- here::here("_data","output",olddatabasename)

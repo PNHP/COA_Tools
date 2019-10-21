@@ -19,9 +19,7 @@ if (!requireNamespace("RSQLite", quietly=TRUE)) install.packages("RSQLite")
 if (!requireNamespace("openxlsx", quietly=TRUE)) install.packages("openxlsx")
   require(openxlsx)
 
-# Set input paths ----
-databasename <- "coa_bridgetest.sqlite" 
-databasename <- here::here("_data","output",databasename)
+source(here::here("scripts", "00_PathsAndSettings.r"))
 
 ## Specific Habitat Requirements
 #get the habitat template

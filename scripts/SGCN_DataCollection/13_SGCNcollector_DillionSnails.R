@@ -31,7 +31,7 @@ require(sf)
 if (!requireNamespace("openxlsx", quietly=TRUE)) install.packages("openxlsx")
 require(openxlsx)
 
-source(here::here("scripts","SGCN_DataCollection","0_PathsAndSettings.r"))
+source(here::here("scripts","00_PathsAndSettings.r"))
 
 # read in SGCN data
 loadSGCN()

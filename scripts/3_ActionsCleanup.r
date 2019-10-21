@@ -20,30 +20,10 @@ require(openxlsx)
 if (!requireNamespace("RSQLite", quietly=TRUE)) install.packages("RSQLite")
 require(RSQLite)
 
-# Set input paths ----
-databasename <- "coa_bridgetest.sqlite" 
-databasename <- here::here("_data","output",databasename)
-
+source(here::here("scripts", "00_PathsAndSettings.r"))
 
 ##############################################################################################################
 # load lu_sgcn for latter integrity checks
-# function to load SGCN species list
-loadSGCN <- function(taxagroup) {
-  if (!requireNamespace("RSQLite", quietly = TRUE)) install.packages("RSQLite")
-  require(RSQLite)
-  db <- dbConnect(SQLite(), dbname = databasename)
-  SQLquery <- paste("SELECT ELCODE, SNAME, SCOMNAME, TaxaGroup, SeasonCode, ELSeason"," FROM lu_sgcn ")
-  lu_sgcn <- dbGetQuery(db, statement = SQLquery)
-  if(missing(taxagroup)){
-    lu_sgcn <<- lu_sgcn
-    sgcnlist <<- unique(lu_sgcn$SNAME)
-  } else {
-    lu_sgcn <<- lu_sgcn[which(lu_sgcn$TaxaGroup==taxagroup),] # limit by taxagroup code
-    sgcnlist <<- unique(lu_sgcn$SNAME)
-  }
-  dbDisconnect(db) # disconnect the db
-}
-
 loadSGCN()
 
 

@@ -22,7 +22,7 @@ require(here)
 if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
 require(sf)
 
-source(here::here("scripts","SGCN_DataCollection","00_PathsAndSettings.r"))
+source(here::here("scripts","00_PathsAndSettings.r"))
 
 # read in SGCN data
 loadSGCN("AB")

@@ -25,7 +25,7 @@ if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
 require(here)
 
 #get paths listed in pathes and settings script
-source(here::here("scripts","SGCN_DataCollection","00_PathsAndSettings.r"))
+source(here::here("scripts","00_PathsAndSettings.r"))
 
 # read in SGCN data
 loadSGCN()
