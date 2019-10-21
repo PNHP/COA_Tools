@@ -24,10 +24,10 @@ dbDisconnect(db) # disconnect the db
 ##unique(sgcnXpu$OccProb)
 
 # subset out the known occurences from the older dataset
-sgcnXpu_oldK <- sgcnXpu[which(sgcnXpu$OccProb=="k"),]
+sgcnXpu_oldK <- sgcnXpu[which(sgcnXpu$OccProb=="k" | (substr(sgcnXpu$ELSeason,start=1,stop=2)=="AF" & sgcnXpu$OccProb=="l")),]
 
-# delete the known from the older dataset
-sgcnXpu_models <- sgcnXpu[which(sgcnXpu$OccProb!="k"),]
+# delete known occurrences, likely occurrences that are fish, and records with blank ELSeason or OccProb values from the older dataset
+sgcnXpu_models <- sgcnXpu[which((sgcnXpu$OccProb!="k") & !(substr(sgcnXpu$ELSeason,start=1,stop=2)=="AF" & sgcnXpu$OccProb=="l") & (sgcnXpu$ELSeason!="") & (sgcnXpu$OccProb!="")),]
 
 ## read in the new table the known occurences
 sgcnXpu_newK <- read.csv(here::here("_data","output","sgcnXpu_test","sgcnXpu.csv"), stringsAsFactors=FALSE)
@@ -45,9 +45,9 @@ db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
   dbWriteTable(db, "lu_sgcnXpu_all", sgcnXpu_newTable, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
 
-
 # bonus to create a summary table
 a <- as.data.frame(table(sgcnXpu$ELSeason))
 
 a1 <- merge(a, lu_sgcn, by.x="Var1", by.y="ELSeason")
 write.csv(a1, "countBySpecies.csv")
+
