@@ -48,7 +48,7 @@ fishdata_master <- dplyr::bind_rows(my_data)
 
 ### extra fish data
 # read in SGCN data
-fishdata_extra <- read.csv(here("_data/input/SGCN_data/PFBC_FishDPF","UpdatedFishDataFromDoug.csv"), stringsAsFactors=FALSE)
+fishdata_extra <- read.csv(here::here("_data/input/SGCN_data/PFBC_FishDPF","UpdatedFishDataFromDoug.csv"), stringsAsFactors=FALSE)
 fishdata_extra$X <- NULL
 
 fishdata <- rbind(fishdata_master, fishdata_extra)
@@ -107,16 +107,15 @@ setwd(here::here())
 ##fishdata <- fishdata[which(!fishdata$SNAME %in% SGCN_bioticsCPP$x),]
 
 
-
-
 # create a spatial layer
 fishdata_sf <- st_as_sf(fishdata, coords=c("lon","lat"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
-fishdata_sf <- st_transform(fishdata_sf, crs=customalbers)
-# buffer by 100m
-fishdata_sf <- st_buffer(fishdata_sf, dist=100)
+fishdata_sf <- st_transform(fishdata_sf, crs=customalbers) # reproject to the custom albers
+arc.write(path=here::here("_data/output/SGCN.gdb","srcpt_PFBC_DPF"), fishdata_sf, overwrite=TRUE) # write a feature class into the geodatabase
+fishdata_buffer <- st_buffer(fishdata_sf, dist=100) # buffer by 100m
+arc.write(path=here::here("_data/output/SGCN.gdb","final_PFBC_DPF"), fishdata_buffer, overwrite=TRUE) # write a feature class into the geodatabase
 
-# write a feature class into the geodatabase
-arc.write(path=here("_data/output/SGCN.gdb","final_PFBC_DPF"), fishdata_sf, overwrite=TRUE)
+
+
 
 
 
