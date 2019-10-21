@@ -73,6 +73,6 @@ sgcn_points$useCOA <- ifelse(sgcn_points$LastObs>=cutoffyearK ,"y","n")
 sgcn_pond <- sgcn_points[,c('ELCODE','ELSeason','SNAME','SCOMNAME','SeasonCode','DataSource','DataID','OccProb','LastObs','useCOA','TaxaGroup')]
 
 #write POND point to feature class in SGCN gdb
-arc.write(path=here("_data/output/SGCN.gdb","srcpt_POND"), sgcn_pond, overwrite=TRUE)
+arc.write(path=here::here("_data/output/SGCN.gdb","srcpt_POND"), sgcn_pond, overwrite=TRUE)
 sgcn_pond_buff <- st_buffer(sgcn_pond, dist=100) # buffer by 100m
 arc.write(path=here::here("_data/output/SGCN.gdb","final_POND"), sgcn_pond_buff, overwrite=TRUE)

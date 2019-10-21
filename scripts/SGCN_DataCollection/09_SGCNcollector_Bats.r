@@ -23,8 +23,8 @@ loadSGCN()
 
 # read in the bat data 
 # note that this is partially processed bat data, and not raw bat data from PGC
-eptefusc <- read.csv(here("_data","input","SGCN_data","PGC_bats","EptesicusFuscus","BigBrownBat.csv"), stringsAsFactors=FALSE)
-tricollb <- read.csv(here("_data","input","SGCN_data","PGC_bats","TriColoredLittleBrownBats","TriColored_LittleBrownBats.csv"), stringsAsFactors=FALSE)
+eptefusc <- read.csv(here::here("_data","input","SGCN_data","PGC_bats","EptesicusFuscus","BigBrownBat.csv"), stringsAsFactors=FALSE)
+tricollb <- read.csv(here::here("_data","input","SGCN_data","PGC_bats","TriColoredLittleBrownBats","TriColored_LittleBrownBats.csv"), stringsAsFactors=FALSE)
 
 names(eptefusc)
 names(tricollb)
@@ -57,33 +57,30 @@ tricollb$TaxaGroup <- "AM"
 eptefusc$useCOA <- with(eptefusc, ifelse(eptefusc$LastObs >= cutoffyear, "y", "n"))
 tricollb$useCOA <- with(tricollb, ifelse(tricollb$LastObs >= cutoffyear, "y", "n"))
 
+# occprob
+eptefusc$OccProb <- "k"
+tricollb$OccProb <- "k"
+
 # ELCODE
 eptefusc <- merge(eptefusc, unique(lu_sgcn[c("SNAME", "ELCODE")]), by="SNAME", all.x=TRUE)
 tricollb <- merge(tricollb, unique(lu_sgcn[c("SNAME", "ELCODE")]), by="SNAME", all.x=TRUE)
 eptefusc$ELSeason <- paste(eptefusc$ELCODE, eptefusc$SeasonCode, sep="_")
 tricollb$ELSeason <- paste(tricollb$ELCODE, tricollb$SeasonCode, sep="_")
 
+
+# field alignment
+eptefusc <- eptefusc[c("ELCODE","ELSeason","SNAME","SCOMNAME","SeasonCode","DataSource","DataID","OccProb","LastObs","useCOA","TaxaGroup","Longitude","Latitude")]
+tricollb <- tricollb[c("ELCODE","ELSeason","SNAME","SCOMNAME","SeasonCode","DataSource","DataID","OccProb","LastObs","useCOA","TaxaGroup","Longitude","Latitude")]
+
+# join the two species together
+bats <- rbind(eptefusc, tricollb)
+
 # create a spatial layer
-eptefusc_sf <- st_as_sf(eptefusc, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
-tricollb_sf <- st_as_sf(tricollb, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
-
-# reproject to custom albers
-eptefusc_sf1 <- st_transform(eptefusc_sf, crs=customalbers)
-tricollb_sf1 <- st_transform(tricollb_sf, crs=customalbers)
-
-# buffer the points by 100m
-eptefusc_buffer_sf <- st_buffer(eptefusc_sf1, 100)
-tricollb_buffer_sf <- st_buffer(tricollb_sf1, 100)
-
-eptefusc_buffer_sf$OccProb <- "k"
-tricollb_buffer_sf$OccProb <- "k"
+bats_sf <- st_as_sf(bats, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+bats_sf <- st_transform(bats_sf, crs=customalbers) # reproject to custom albers
+bats_sf <- bats_sf[final_fields]
+arc.write(path=here::here("_data/output/SGCN.gdb","srcpt_bats"), bats_sf, overwrite=TRUE) # write a feature class to the gdb
+bats_buffer_sf <- st_buffer(bats_sf, 100) # buffer the points by 100m
+arc.write(path=here::here("_data/output/SGCN.gdb","final_bats"), bats_buffer_sf, overwrite=TRUE) # write a feature class to the gdb
 
 
-eptefusc_buffer_sf <- eptefusc_buffer_sf[final_fields]
-tricollb_buffer_sf <- tricollb_buffer_sf[final_fields]
-
-
-bats <- rbind(eptefusc_buffer_sf, tricollb_buffer_sf)
-
-# write a feature class to the gdb
-arc.write(path=here("_data/output/SGCN.gdb","final_PGCbats"), bats, overwrite=TRUE)

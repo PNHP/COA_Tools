@@ -29,7 +29,7 @@ source(here::here("scripts","00_PathsAndSettings.r"))
 loadSGCN()
 lu_sgcn <- lu_sgcn[which(lu_sgcn$TaxaGroup=="inv_snailf"),]
 
-snails <- read.xlsx(xlsxFile=here("_data","input","SGCN_data","Snails","PA-data-from_Dillon-14Jan14.xlsx"), sheet="Sheet1", skipEmptyRows=FALSE, rowNames=FALSE)
+snails <- read.xlsx(xlsxFile=here::here("_data","input","SGCN_data","Snails","PA-data-from_Dillon-14Jan14.xlsx"), sheet="Sheet1", skipEmptyRows=FALSE, rowNames=FALSE)
 
 # subset to the species group one wants to query
 snails <- snails[which(snails$SCI_NAME %in% lu_sgcn$SNAME),]
@@ -42,29 +42,31 @@ snails$LASTOBS[is.na(snails$LASTOBS)] <- "NO DATE"
 
 snails$DataSource <- "DillionSnails"
 snails$SeasonCode <- "y"
+snails$OccProb <- "k"
 names(snails)[names(snails)=='SCI_NAME'] <- 'SNAME'
 names(snails)[names(snails)=='REF_SITE_NO'] <- 'DataID'
 names(snails)[names(snails)=='LONGITUDE'] <- 'Longitude'
 names(snails)[names(snails)=='LATITUDE'] <- 'Latitude'
-names(snails)[names(snails)==''] <- ''
+names(snails)[names(snails)=='LASTOBS'] <- 'LastObs'
 
 # delete the colums we don't need from the BAMONA dataset
-snails <- snails[c("SNAME","DataID","DataSource","Longitude","Latitude","LASTOBS","SeasonCode")]
+snails <- snails[c("SNAME","DataID","DataSource","Longitude","Latitude","LastObs","OccProb")]
 
 
 #add in the SGCN fields
 snails <- merge(snails, lu_sgcn, by="SNAME", all.x=TRUE)
 
 # add in useCOA
-snails$UseCOA <- NA
+snails$useCOA <- NA
 cutoffYear <- year(Sys.Date())-25
-snails$UseCOA <- with(snails, ifelse(snails$LASTOBS >= cutoffYear, "y", "n"))
+snails$useCOA <- with(snails, ifelse(snails$LastObs >= cutoffYear, "y", "n"))
 
 # create a spatial layer
 snails_sf <- st_as_sf(snails, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
 snails_sf <- st_transform(snails_sf, crs=customalbers)
-# buffer by 100m
-snails_sf <- st_buffer(snails_sf, dist=100)
+snails_sf <- snails_sf[final_fields]
+arc.write(path=here::here("_data/output/SGCN.gdb","srcpt_snails"), snails_sf, overwrite=TRUE) # write a feature class into the geodatabase
+snails_buffer_sf <- st_buffer(snails_sf, dist=100) # buffer by 100m
+arc.write(path=here::here("_data/output/SGCN.gdb","final_snails"), snails_buffer_sf, overwrite=TRUE) # write a feature class into the geodatabase
 
-# write a feature class into the geodatabase
-arc.write(path=here("_data/output/SGCN.gdb","final_snails"), snails_sf, overwrite=TRUE)
+
