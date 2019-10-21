@@ -1,4 +1,27 @@
 
+# load packages
+if (!requireNamespace("RSQLite", quietly=TRUE)) install.packages("RSQLite")
+require(RSQLite)
+if (!requireNamespace("openxlsx", quietly=TRUE)) install.packages("openxlsx")
+require(openxlsx)
+if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
+require(sf)
+if (!requireNamespace("arcgisbinding", quietly = TRUE)) install.packages("arcgisbinding")
+require(arcgisbinding)
+if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr")
+require(dplyr)
+if (!requireNamespace("lubridate", quietly = TRUE)) install.packages("lubridate")
+require(lubridate)
+if (!requireNamespace("auk", quietly = TRUE)) install.packages("auk")
+require(auk)
+if (!requireNamespace("reshape", quietly = TRUE)) install.packages("reshape")
+require(reshape)
+if (!requireNamespace("plyr", quietly = TRUE)) install.packages("plyr")
+require(plyr)
+if (!requireNamespace("dplyr", quietly=TRUE)) install.packages("dplyr")
+require(dplyr)
+
+
 
 # load the arcgis license
 arc.check_product() 

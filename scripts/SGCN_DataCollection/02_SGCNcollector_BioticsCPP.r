@@ -15,17 +15,8 @@
 #---------------------------------------------------------------------------------------------
 
 # load packages
-if (!requireNamespace("arcgisbinding", quietly = TRUE)) install.packages("arcgisbinding")
-require(arcgisbinding)
-if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr")
-require(dplyr)
 if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
 require(here)
-if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
-require(sf)
-if (!requireNamespace("RSQLite", quietly = TRUE)) install.packages("RSQLite")
-require(RSQLite)
-
 
 source(here::here("scripts","00_PathsAndSettings.r"))
 

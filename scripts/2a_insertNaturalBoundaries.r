@@ -13,8 +13,6 @@
 
 if (!requireNamespace("here", quietly=TRUE)) install.packages("here")
 require(here)
-if (!requireNamespace("RSQLite", quietly=TRUE)) install.packages("RSQLite")
-require(RSQLite)
 
 source(here::here("scripts", "00_PathsAndSettings.r"))
 
@@ -33,3 +31,4 @@ db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
 dbWriteTable(db, "lu_HUCname", HUCname, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
 rm(HUCname)
+

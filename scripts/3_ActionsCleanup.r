@@ -15,10 +15,6 @@
 
 if (!requireNamespace("here", quietly=TRUE)) install.packages("here")
 require(here)
-if (!requireNamespace("openxlsx", quietly=TRUE)) install.packages("openxlsx")
-require(openxlsx)
-if (!requireNamespace("RSQLite", quietly=TRUE)) install.packages("RSQLite")
-require(RSQLite)
 
 source(here::here("scripts", "00_PathsAndSettings.r"))
 
