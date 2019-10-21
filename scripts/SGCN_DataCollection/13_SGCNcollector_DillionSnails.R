@@ -20,16 +20,8 @@
 #---------------------------------------------------------------------------------------------
 
 # load packages
-if (!requireNamespace("arcgisbinding", quietly = TRUE)) install.packages("arcgisbinding")
-require(arcgisbinding)
-if (!requireNamespace("lubridate", quietly = TRUE)) install.packages("lubridate")
-require(lubridate)
 if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
 require(here)
-if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
-require(sf)
-if (!requireNamespace("openxlsx", quietly=TRUE)) install.packages("openxlsx")
-require(openxlsx)
 
 source(here::here("scripts","00_PathsAndSettings.r"))
 

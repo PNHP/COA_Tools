@@ -13,14 +13,6 @@
 #---------------------------------------------------------------------------------------------
 
 #load packages
-if (!requireNamespace("arcgisbinding", quietly=TRUE)) install.packages("arcgisbinding")
-require(arcgisbinding)
-if (!requireNamespace("dplyr", quietly=TRUE)) install.packages("dplyr")
-require(dplyr)
-if (!requireNamespace("sf", quietly=TRUE)) install.packages("sf")
-require(sf)
-if (!requireNamespace("plyr", quietly = TRUE)) install.packages("plyr")
-require(plyr)
 if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
 require(here)
 
