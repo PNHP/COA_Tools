@@ -3,7 +3,7 @@
 # Purpose: https://www.butterfliesandmoths.org/
 # Author: Christopher Tracey
 # Created: 2017-07-10
-# Updated: 2019-02-20
+# Updated: 2019-10-20
 #
 # Updates:
 # insert date and info
@@ -82,9 +82,6 @@ ebd_filtered <- auk_filter(ebd_filters, file=f_out, overwrite=TRUE)
 ebd_df2019 <- read_ebd(ebd_filtered)
 ebd_df2019_backup <- ebd_df2019
 
-
-
-
 # Combine 2016 and 2018 data ##################################
 setdiff(names(ebd_df2016), names(ebd_df2018))
 
@@ -101,7 +98,6 @@ ebd_df2018$protocol_code <- NULL
 ebd_df2018$has_media <- NULL
 sortorder <- names(ebd_df2016)
 ebd_df2018 <- ebd_df2018[sortorder]
-
 
 # combine the merged 2016/2018 data with the 2019 data
 setdiff(names(ebd_df), names(ebd_df2019))
@@ -189,21 +185,16 @@ sgcnfinal <- sgcnfinal[which(!sgcnfinal %in% drop_from_eBird) ]
 
 # create the final layer
 ebd_df1 <- ebd_df[which(ebd_df$ELSeason %in% sgcnfinal),]
+# field alignment
+names(ebd_df1)[names(ebd_df1)=='season'] <- 'SeasonCode'
+ebd_df1 <- ebd_df1[final_fields]
 
 # create a spatial layer
-ebird_sf <- st_as_sf(ebd_df1, coords=c("longitude","latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
-ebird_sf <- st_transform(ebird_sf, crs=customalbers) # reproject to custom albers
-
-ebird_buffer_sf <- st_buffer(ebird_sf, 100) # buffer the points by 100m
-
-# field alignment
-names(ebird_buffer_sf)[names(ebird_buffer_sf)=='season'] <- 'SeasonCode'
-ebird_buffer_sf <- ebird_buffer_sf[final_fields]
-
-
-
-# write a feature class to the gdb
-arc.write(path=here("_data/output/SGCN.gdb","final_eBird"), ebird_buffer_sf, overwrite=TRUE)
+ebird_sf <- st_as_sf(ebd_df1, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+ebird_sf <- st_transform(ebird_sf, crs=customalbers) # reproject to the custom albers
+arc.write(path=here("_data/output/SGCN.gdb","srcpt_eBird"), ebird_sf, overwrite=TRUE) # write a feature class into the geodatabase
+ebird_buffer <- st_buffer(ebird_sf, dist=100) # buffer by 100m
+arc.write(path=here::here("_data/output/SGCN.gdb","final_eBird"), bamona_buffer, overwrite=TRUE) # write a feature class into the geodatabase
 
 # delete unneeded stuff
 rm(birdseason, lu_sgcn, ebd, ebd_df_backup, ebd_filtered, ebd_filters)
