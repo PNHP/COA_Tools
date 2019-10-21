@@ -28,7 +28,7 @@ if (!requireNamespace("rgbif", quietly = TRUE)) install.packages("rgbif")
 if (!requireNamespace("RSQLite", quietly = TRUE)) install.packages("RSQLite")
   require(RSQLite)
 
-source(here::here("scripts","SGCN_DataCollection","00_PathsAndSettings.r"))
+source(here::here("scripts","00_PathsAndSettings.r"))
 
 # load the r data file
 load(file=updateData)

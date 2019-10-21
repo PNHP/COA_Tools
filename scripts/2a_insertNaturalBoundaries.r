@@ -16,9 +16,7 @@ require(here)
 if (!requireNamespace("RSQLite", quietly=TRUE)) install.packages("RSQLite")
 require(RSQLite)
 
-# Set input paths ----
-databasename <- "coa_bridgetest.sqlite" 
-databasename <- here::here("_data","output",databasename)
+source(here::here("scripts", "00_PathsAndSettings.r"))
 
 ## Natural Boundaries
 NaturalBoundaries <- read.csv(here::here("_data","input","lu_NaturalBoundaries.csv"), stringsAsFactors=FALSE)

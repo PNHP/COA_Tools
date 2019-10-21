@@ -17,9 +17,7 @@ require(here)
 if (!requireNamespace("RSQLite", quietly=TRUE)) install.packages("RSQLite")
 require(RSQLite)
 
-# Set input paths ----
-databasename <- "coa_bridgetest.sqlite" 
-databasename <- here::here("_data","output",databasename)
+source(here::here("scripts", "00_PathsAndSettings.r"))
 
 ## county names
 CountyName <- read.csv(here::here("_data","input","lu_CountyName.csv"), stringsAsFactors=FALSE)

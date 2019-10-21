@@ -23,7 +23,7 @@ require(RSQLite)
 if (!requireNamespace("pingr", quietly = TRUE)) install.packages("pingr")
 require(pingr)
 
-source(here::here("scripts","SGCN_DataCollection","00_PathsAndSettings.r"))
+source(here::here("scripts","00_PathsAndSettings.r"))
 
 arc.check_product()
 

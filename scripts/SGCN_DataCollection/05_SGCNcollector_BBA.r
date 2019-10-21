@@ -24,7 +24,7 @@ if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
 if (!requireNamespace("reshape", quietly = TRUE)) install.packages("reshape")
   require(reshape)
 
-source(here::here("scripts","SGCN_DataCollection","00_PathsAndSettings.r"))
+source(here::here("scripts","00_PathsAndSettings.r"))
 
 # read in SGCN data
 loadSGCN("AB")
