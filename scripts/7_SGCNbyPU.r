@@ -46,3 +46,8 @@ db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
 dbDisconnect(db) # disconnect the db
 
 
+# bonus to create a summary table
+a <- as.data.frame(table(sgcnXpu$ELSeason))
+
+a1 <- merge(a, lu_sgcn, by.x="Var1", by.y="ELSeason")
+write.csv(a1, "countBySpecies.csv")
