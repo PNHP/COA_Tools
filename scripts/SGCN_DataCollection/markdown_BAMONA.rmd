@@ -1,0 +1,42 @@
+---
+title: "SGCN data from BAMONA"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Abstact
+This report outlines the import of Butterflies and Moths of North America (BAMONA, <https://www.butterfliesandmoths.org/>) data into the Conservation Opportunity Area (COA) Tool Species of Greatest Conservation Need (SGCN) Database.  
+
+**BAMONA data source:** `r bamona_file` \  
+**BAMONA citation:** `r bamona_citation` &nbsp;
+
+
+
+### SGCN obtained from this dataset
+```{r echo=FALSE}
+library(knitr)
+kable(as.data.frame(table(bamona1$SNAME)), caption="SGCN present in the BAMONA dataset")
+
+```
+
+### SGCN presennt this dataset, but not used becaues there are Biotics records.
+
+
+
+
+
+
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
