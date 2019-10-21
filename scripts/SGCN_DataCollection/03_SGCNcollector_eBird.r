@@ -194,7 +194,7 @@ ebird_sf <- st_transform(ebird_sf, crs=customalbers) # reproject to the custom a
 ebird_sf <- ebird_sf[final_fields]
 arc.write(path=here::here("_data/output/SGCN.gdb","srcpt_eBird"), ebird_sf, overwrite=TRUE) # write a feature class into the geodatabase
 ebird_buffer <- st_buffer(ebird_sf, dist=100) # buffer by 100m
-arc.write(path=here::here("_data/output/SGCN.gdb","final_eBird"), bamona_buffer, overwrite=TRUE) # write a feature class into the geodatabase
+arc.write(path=here::here("_data/output/SGCN.gdb","final_eBird"), ebird_buffer, overwrite=TRUE) # write a feature class into the geodatabase
 
 # delete unneeded stuff
 rm(birdseason, lu_sgcn, ebd, ebd_df_backup, ebd_filtered, ebd_filters)
