@@ -20,8 +20,6 @@ if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
 require(sf)
 if (!requireNamespace("RSQLite", quietly = TRUE)) install.packages("RSQLite")
 require(RSQLite)
-if (!requireNamespace("pingr", quietly = TRUE)) install.packages("pingr")
-require(pingr)
 
 source(here::here("scripts","SGCN_DataCollection","00_PathsAndSettings.r"))
 
