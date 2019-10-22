@@ -46,5 +46,5 @@ for(name in final_list){
   sgcn_sf <- rbind(sgcn_sf,data_sf)
 }
 
-sgcn_final <- sgcn_sf[grepl("y",sgcn$useCOA),]
+sgcn_final <- sgcn_sf[which(sgcn_sf$useCOA=='y'),]
 arc.write(path=here::here("_data/output/SGCN.gdb","allSGCNuse"), sgcn_final, overwrite=TRUE)
