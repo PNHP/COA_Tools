@@ -58,9 +58,3 @@ bombus_buffer_sf <- st_buffer(bombus_sf, 100) # buffer the points by 100m
 arc.write(path=here("_data/output/SGCN.gdb","final_Bombus"), bombus_buffer_sf, overwrite=TRUE) # write a feature class to the gdb
 
 # ???? Data #################################################################################
-
-
-
-
-
-
