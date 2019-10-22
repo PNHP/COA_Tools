@@ -59,7 +59,9 @@ snails <- merge(snails, lu_sgcn, by="SNAME", all.x=TRUE)
 # add in useCOA
 snails$useCOA <- NA
 cutoffYear <- year(Sys.Date())-25
-snails$useCOA <- with(snails, ifelse(snails$LastObs >= cutoffYear, "y", "n"))
+
+snails$UseCOA <- with(snails, ifelse(snails$LASTOBS >= cutoffYear, "y", "n"))
+snails$OccProb <- "k"
 
 # create a spatial layer
 snails_sf <- st_as_sf(snails, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")

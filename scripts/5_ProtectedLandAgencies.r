@@ -35,3 +35,4 @@ db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
 dbWriteTable(db, "lu_PGC_RegionName", PGC_RegionName, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
 rm(PGC_RegionName)
+
