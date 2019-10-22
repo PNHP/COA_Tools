@@ -29,7 +29,7 @@ COA_actions_file <- list.files(path=here::here("_data/input"), pattern=".xlsx$")
 COA_actions_file
 #look at the output and choose which shapefile you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 5
+n <- 7
 COA_actions_file <- here::here("_data/input",COA_actions_file[n])
 
 #get a list of the sheets in the file
@@ -55,15 +55,15 @@ sgcn_actionnorecord <- setdiff(COA_actions$ELSeason, lu_sgcn$ELSeason)
 print("The following ELSeason records are found in the lu_actions table, but do not have matching records in the lu_sgcn table: ")
 print(sgcn_actionnorecord)
 
-# get list of rows from actions table that include null or blank ELSeason values
-actions_null_ELCODE <- lu_actions[is.na(lu_actions$ELSeason)==TRUE,]
-if(nrow(actions_null_ELCODE)>0){
-  print('There are null or blank ELSeason values in the actions table from the sqlite database. They include: ')
-  print(actions_null_ELCODE[,names(actions_null_ELCODE)!="COATool_ActionsFINAL"])
-} else{
-  print('There are no null or blank ELSeason values in the actions table from the sqlite database! Yay!')
-}
-print(unique(sort(lu_actions$ActionCategory2)))
+# # get list of rows from actions table that include null or blank ELSeason values
+# actions_null_ELCODE <- lu_actions[is.na(lu_actions$ELSeason)==TRUE,]
+# if(nrow(actions_null_ELCODE)>0){
+#   print('There are null or blank ELSeason values in the actions table from the sqlite database. They include: ')
+#   print(actions_null_ELCODE[,names(actions_null_ELCODE)!="COATool_ActionsFINAL"])
+# } else{
+#   print('There are no null or blank ELSeason values in the actions table from the sqlite database! Yay!')
+# }
+# print(unique(sort(lu_actions$ActionCategory2)))
 
 
 #############################################################################################################
@@ -103,13 +103,21 @@ dbDisconnect(db) # disconnect the db
 rm(COA_references)
 
 ## research needs
-SGCNresearch <- read.csv(here("_data","input","lu_SGCNresearch.csv"), stringsAsFactors=FALSE)
+COA_actions_sheets # list the sheets
+#n <- 9 # enter its location in the list (first = 1, second = 2, etc)
+#SGCNresearch <- read.xlsx(xlsxFile=COA_actions_file, sheet=COA_actions_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE)
+# SGCNresearch <- SGCNresearch[c("SpeciesID","ELCODE","ELSeason","Group","SCOMNAME","ResearchQues_Edited","AgencySpecific","ResearchID","Priority")]
+SGCNresearch <- read.csv(here::here("_data","input","lu_SGCNresearch.csv"), stringsAsFactors=FALSE)
 
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
   dbWriteTable(db, "lu_SGCNresearch", SGCNresearch, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
 
 ## survey needs
+COA_actions_sheets # list the sheets
+# n <- 10 # enter its location in the list (first = 1, second = 2, etc)
+# SGCNsurvey <- read.xlsx(xlsxFile=COA_actions_file, sheet=COA_actions_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE)
+# SGCNsurvey <- SGCNsurvey[c("SpeciesID","ELCODE","ELSeason","Group","SCOMNAME","ResearchQues_Edited","AgencySpecific","ResearchID","Priority")]
 SGCNsurvey <- read.csv(here("_data","input","lu_SGCNsurvey.csv"), stringsAsFactors=FALSE)
 
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
