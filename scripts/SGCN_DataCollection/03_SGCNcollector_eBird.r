@@ -3,7 +3,7 @@
 # Purpose: https://www.butterfliesandmoths.org/
 # Author: Christopher Tracey
 # Created: 2017-07-10
-# Updated: 2019-02-20
+# Updated: 2019-10-20
 #
 # Updates:
 # insert date and info
@@ -19,21 +19,10 @@
 # 2) cygwin (gawk) must be installed
 
 # load packages
-if (!requireNamespace("arcgisbinding", quietly = TRUE)) install.packages("arcgisbinding")
-  require(arcgisbinding)
-if (!requireNamespace("auk", quietly = TRUE)) install.packages("auk")
-  require(auk)
-if (!requireNamespace("lubridate", quietly = TRUE)) install.packages("lubridate")
-  require(lubridate)
 if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
   require(here)
-if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
-  require(sf)
-if (!requireNamespace("RSQLite", quietly = TRUE)) install.packages("RSQLite")
-  require(RSQLite)
 
-
-source(here::here("scripts","SGCN_DataCollection","00_PathsAndSettings.r"))
+source(here::here("scripts","00_PathsAndSettings.r"))
 
 # read in SGCN data
 loadSGCN("AB")
@@ -93,9 +82,6 @@ ebd_filtered <- auk_filter(ebd_filters, file=f_out, overwrite=TRUE)
 ebd_df2019 <- read_ebd(ebd_filtered)
 ebd_df2019_backup <- ebd_df2019
 
-
-
-
 # Combine 2016 and 2018 data ##################################
 setdiff(names(ebd_df2016), names(ebd_df2018))
 
@@ -113,13 +99,12 @@ ebd_df2018$has_media <- NULL
 sortorder <- names(ebd_df2016)
 ebd_df2018 <- ebd_df2018[sortorder]
 
-
 # combine the merged 2016/2018 data with the 2019 data
-setdiff(names(ebd_df), names(ebd_df2019))
+setdiff(names(ebd_df2016), names(ebd_df2019))
 names(ebd_df2019)[names(ebd_df2019)=='state'] <- 'state_province'
 names(ebd_df2019)[names(ebd_df2019)=='state_code'] <- 'subnational1_code'
 names(ebd_df2019)[names(ebd_df2019)=='county_code'] <- 'subnational2_code'
-sortorder <- names(ebd_df)
+sortorder <- names(ebd_df2016)
 ebd_df2019 <- ebd_df2019[sortorder]
 
 # merge the multiple years together
@@ -200,21 +185,16 @@ sgcnfinal <- sgcnfinal[which(!sgcnfinal %in% drop_from_eBird) ]
 
 # create the final layer
 ebd_df1 <- ebd_df[which(ebd_df$ELSeason %in% sgcnfinal),]
+# field alignment
+names(ebd_df1)[names(ebd_df1)=='season'] <- 'SeasonCode'
 
 # create a spatial layer
 ebird_sf <- st_as_sf(ebd_df1, coords=c("longitude","latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
-ebird_sf <- st_transform(ebird_sf, crs=customalbers) # reproject to custom albers
-
-ebird_buffer_sf <- st_buffer(ebird_sf, 100) # buffer the points by 100m
-
-# field alignment
-names(ebird_buffer_sf)[names(ebird_buffer_sf)=='season'] <- 'SeasonCode'
-ebird_buffer_sf <- ebird_buffer_sf[final_fields]
-
-
-
-# write a feature class to the gdb
-arc.write(path=here("_data/output/SGCN.gdb","final_eBird"), ebird_buffer_sf, overwrite=TRUE)
+ebird_sf <- st_transform(ebird_sf, crs=customalbers) # reproject to the custom albers
+ebird_sf <- ebird_sf[final_fields]
+arc.write(path=here::here("_data/output/SGCN.gdb","srcpt_eBird"), ebird_sf, overwrite=TRUE) # write a feature class into the geodatabase
+ebird_buffer <- st_buffer(ebird_sf, dist=100) # buffer by 100m
+arc.write(path=here::here("_data/output/SGCN.gdb","final_eBird"), ebird_buffer, overwrite=TRUE) # write a feature class into the geodatabase
 
 # delete unneeded stuff
 rm(birdseason, lu_sgcn, ebd, ebd_df_backup, ebd_filtered, ebd_filters)

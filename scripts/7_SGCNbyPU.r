@@ -11,12 +11,8 @@
 
 if (!requireNamespace("here", quietly=TRUE)) install.packages("here")
 require(here)
-if (!requireNamespace("RSQLite", quietly=TRUE)) install.packages("RSQLite")
-require(RSQLite)
 
-# Set input paths ----
-databasename <- "coa_bridgetest.sqlite" 
-databasename <- here::here("_data","output",databasename)
+source(here::here("scripts", "00_PathsAndSettings.r"))
 
 olddatabasename <- "coa_bridgetest_previous.sqlite" 
 olddatabasename <- here::here("_data","output",olddatabasename)
@@ -48,3 +44,10 @@ sgcnXpu_newTable <- rbind(sgcnXpu_newK,sgcnXpu_models)
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
   dbWriteTable(db, "lu_sgcnXpu_all", sgcnXpu_newTable, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
+
+# bonus to create a summary table
+a <- as.data.frame(table(sgcnXpu$ELSeason))
+
+a1 <- merge(a, lu_sgcn, by.x="Var1", by.y="ELSeason")
+write.csv(a1, "countBySpecies.csv")
+

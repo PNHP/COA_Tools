@@ -13,24 +13,16 @@
 #---------------------------------------------------------------------------------------------
 
 # load packages
-if (!requireNamespace("arcgisbinding", quietly = TRUE)) install.packages("arcgisbinding")
-  require(arcgisbinding)
-if (!requireNamespace("lubridate", quietly = TRUE)) install.packages("lubridate")
-  require(lubridate)
 if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
   require(here)
-if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
-  require(sf)
-if (!requireNamespace("RSQLite", quietly = TRUE)) install.packages("RSQLite")
-  require(RSQLite)
 
-source(here::here("scripts","SGCN_DataCollection","0_PathsAndSettings.r"))
+source(here::here("scripts","00_PathsAndSettings.r"))
 
 # read in SGCN data
 loadSGCN()
 
 # Bombus Data #################################################################################
-bombus <- arc.open(here("_data","input","SGCN_data","PA_Bombus","PA_Bombus.shp")) 
+bombus <- arc.open(here::here("_data","input","SGCN_data","PA_Bombus","PA_Bombus.shp")) 
 bombus <- arc.select(bombus) 
 
 bombus$SNAME <- paste("Bombus",bombus$species, sep=" ")
@@ -53,8 +45,10 @@ bombus <- bombus[final_fields]
 # create a spatial layer
 bombus_sf <- st_as_sf(bombus, coords=c("longitude","latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
 bombus_sf <- st_transform(bombus_sf, crs=customalbers) # reproject to custom albers
-arc.write(path=here("_data/output/SGCN.gdb","srcpt_Bombus"), bombus_sf, overwrite=TRUE) # write a feature class into the geodatabase
+# field alignment
+bombus_sf <- bombus_sf[final_fields] 
+arc.write(path=here::here("_data/output/SGCN.gdb","srcpt_Bombus"), bombus_sf, overwrite=TRUE) # write a feature class into the geodatabase
 bombus_buffer_sf <- st_buffer(bombus_sf, 100) # buffer the points by 100m
-arc.write(path=here("_data/output/SGCN.gdb","final_Bombus"), bombus_buffer_sf, overwrite=TRUE) # write a feature class to the gdb
+arc.write(path=here::here("_data/output/SGCN.gdb","final_Bombus"), bombus_buffer_sf, overwrite=TRUE) # write a feature class to the gdb
 
 # ???? Data #################################################################################
