@@ -13,22 +13,12 @@
 #---------------------------------------------------------------------------------------------
 
 # load packages
-if (!requireNamespace("arcgisbinding", quietly = TRUE)) install.packages("arcgisbinding")
-  require(arcgisbinding)
-if (!requireNamespace("lubridate", quietly = TRUE)) install.packages("lubridate")
-  require(lubridate)
-if (!requireNamespace("plyr", quietly = TRUE)) install.packages("plyr")
-  require(plyr)
 if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
   require(here)
-if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
-  require(sf)
 if (!requireNamespace("rgbif", quietly = TRUE)) install.packages("rgbif")
   require(rgbif)
-if (!requireNamespace("RSQLite", quietly = TRUE)) install.packages("RSQLite")
-  require(RSQLite)
 
-source(here::here("scripts","SGCN_DataCollection","00_PathsAndSettings.r"))
+source(here::here("scripts","00_PathsAndSettings.r"))
 
 # load the r data file
 load(file=updateData)
@@ -104,13 +94,11 @@ gbifdata <- gbifdata[which(gbifdata$TaxaGroup!="AB"),]
 gbifdata$useCOA <- ifelse(gbifdata$LastObs>=cutoffyear, "y", "n")
 gbifdata$OccProb <- "k"
 
-# field alignment
-gbifdata <- gbifdata[c("ELCODE","ELSeason","SNAME","SCOMNAME","SeasonCode","DataSource","DataID","OccProb","LastObs","useCOA","TaxaGroup","geometry")]
-
 # create a spatial layer
 gbif_sf <- st_as_sf(gbifdata, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
 gbif_sf <- st_transform(gbif_sf, crs=customalbers) # reproject to the custom albers
-arc.write(path=here("_data/output/SGCN.gdb","srcpt_GBIF"), gbif_sf, overwrite=TRUE) # write a feature class into the geodatabase
+gbif_sf <- gbif_sf[final_fields] # field alignment
+arc.write(path=here::here("_data/output/SGCN.gdb","srcpt_GBIF"), gbif_sf, overwrite=TRUE) # write a feature class into the geodatabase
 gbif_buffer_sf <- st_buffer(gbif_sf, dist=100) # buffer by 100m
 arc.write(path=here::here("_data/output/SGCN.gdb","final_GBIF"), gbif_buffer_sf, overwrite=TRUE) # write a feature class into the geodatabase
 

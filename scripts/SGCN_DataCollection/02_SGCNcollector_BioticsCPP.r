@@ -15,19 +15,10 @@
 #---------------------------------------------------------------------------------------------
 
 # load packages
-if (!requireNamespace("arcgisbinding", quietly = TRUE)) install.packages("arcgisbinding")
-require(arcgisbinding)
-if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr")
-require(dplyr)
 if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
 require(here)
-if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
-require(sf)
-if (!requireNamespace("RSQLite", quietly = TRUE)) install.packages("RSQLite")
-require(RSQLite)
 
-
-source(here("scripts","SGCN_DataCollection","00_PathsAndSettings.r"))
+source(here::here("scripts","00_PathsAndSettings.r"))
 
 
 ######################################################################################
@@ -37,10 +28,11 @@ loadSGCN()
 # load the Biotics Crosswalk
 biotics_crosswalk <- read.csv(biotics_crosswalk, stringsAsFactors=FALSE)
 lu_sgcnBiotics <- biotics_crosswalk$SNAME
+lu_sgcnBioticsELCODE <- biotics_crosswalk$ELCODE
 
 ########################################################################################
 # load in Conservation Planning Polygons
-cppCore <- arc.open(paste(cpp_path,"CPP_Core",sep="/")) 
+cppCore <- arc.open(paste(cpp_path, "CPP_Core", sep="/")) 
 cppCore <- arc.select(cppCore, c("SNAME","EO_ID","Status"), where_clause="Status ='c' OR Status ='r'") 
 cppCore_sf <- arc.data2sf(cppCore)
 #### cppCore_sf <- cppCore_sf[which(cppCore_sf$SNAME %in% unique(lu_sgcn$SNAME)),] # bad SGCN names
@@ -58,17 +50,17 @@ lu_srcfeature_names <- c("SF_ID","EO_ID","ELCODE","SNAME","SCOMNAME","ELSUBID","
 # read in source points 
 srcfeat_points <- arc.open(paste(biotics_path,"eo_sourcept",sep="/")) 
 srcfeat_points <- arc.select(srcfeat_points, lu_srcfeature_names)
-srcfeat_points_SGCN <- srcfeat_points[which(srcfeat_points$SNAME %in% lu_sgcnBiotics),] # subset to SGCN
+srcfeat_points_SGCN <- srcfeat_points[which(srcfeat_points$ELCODE %in% lu_sgcnBioticsELCODE),] # subset to SGCN
 srcfeat_points_SGCN <- srcfeat_points_SGCN[which(!is.na(srcfeat_points_SGCN$EO_ID)),] # drop independent source features
 # read in source lines 
 srcfeat_lines <- arc.open(paste(biotics_path,"eo_sourceln",sep="/")) 
 srcfeat_lines <- arc.select(srcfeat_lines, lu_srcfeature_names)
-srcfeat_lines_SGCN <- srcfeat_lines[which(srcfeat_lines$SNAME %in% lu_sgcnBiotics),] # subset to SGCN
+srcfeat_lines_SGCN <- srcfeat_lines[which(srcfeat_lines$ELCODE %in% lu_sgcnBioticsELCODE),] # subset to SGCN
 srcfeat_lines_SGCN <- srcfeat_lines_SGCN[which(!is.na(srcfeat_lines_SGCN$EO_ID)),] # drop independent source features
 # read in source polygons 
 srcfeat_polygons <- arc.open(paste(biotics_path,"eo_sourcepy",sep="/"))  
 srcfeat_polygons <- arc.select(srcfeat_polygons, lu_srcfeature_names)
-srcfeat_polygons_SGCN <- srcfeat_polygons[which(srcfeat_polygons$SNAME %in% lu_sgcnBiotics),] # subset to SGCN
+srcfeat_polygons_SGCN <- srcfeat_polygons[which(srcfeat_polygons$ELCODE %in% lu_sgcnBioticsELCODE),] # subset to SGCN
 srcfeat_polygons_SGCN <- srcfeat_polygons_SGCN[which(!is.na(srcfeat_polygons_SGCN$EO_ID)),] # drop independent source features
 
 # clean up
@@ -168,8 +160,15 @@ srcf_combined$OccProb = with(srcf_combined, ifelse(LastObs>=cutoffyearK , "k", i
 
 
 # replace bad season codes
-sf_y2b <- c("Podilymbus podiceps","Botaurus lentiginosus","Ixobrychus exilis","Ardea alba","Nycticorax nycticorax","Nyctanassa violacea","Anas crecca","Anas rubripes","Anas discors","Pandion haliaetus","Haliaeetus leucocephalus","Circus cyaneus","Accipiter striatus","Accipiter gentilis","Buteo platypterus","Falco sparverius","Falco peregrinus","Bonasa umbellus","Rallus elegans","Rallus limicola","Porzana carolina","Gallinula galeata","Fulica americana","Charadrius melodus","Actitis macularius","Bartramia longicauda","Gallinago delicata","Scolopax minor","Sterna hirundo","Chlidonias niger","Tyto alba","Asio otus","Asio flammeus","Aegolius acadicus","Chordeiles minor","Antrostomus vociferus","Chaetura pelagica","Melanerpes erythrocephalus","Contopus cooperi","Empidonax flaviventris","Empidonax traillii","Progne subis","Riparia riparia","Certhia americana","Troglodytes hiemalis","Cistothorus platensis","Cistothorus palustris","Catharus ustulatus","Hylocichla mustelina","Dumetella carolinensis","Lanius ludovicianus","Vermivora cyanoptera","Vermivora chrysoptera","Oreothlypis ruficapilla","Setophaga caerulescens","Setophaga virens","Setophaga discolor","Setophaga striata","Setophaga cerulea","Mniotilta varia","Protonotaria citrea","Parkesia noveboracensis","Parkesia motacilla","Geothlypis formosa","Cardellina canadensis","Icteria virens","Piranga rubra","Piranga olivacea","Spiza americana","Spizella pusilla","Pooecetes gramineus","Passerculus sandwichensis","Ammodramus savannarum","Ammodramus henslowii","Zonotrichia albicollis","Dolichonyx oryzivorus","Sturnella magna","Loxia curvirostra","Spinus pinus")  
+sf_y2b <- c("Podilymbus podiceps","Botaurus lentiginosus","Ixobrychus exilis","Ardea alba","Nycticorax nycticorax","Nyctanassa violacea","Anas crecca","Anas rubripes","Anas discors","Pandion haliaetus","Haliaeetus leucocephalus","Circus cyaneus","Accipiter striatus","Accipiter gentilis","Buteo platypterus","Falco sparverius","Falco peregrinus","Bonasa umbellus","Rallus elegans","Rallus limicola","Porzana carolina","Gallinula galeata","Fulica americana","Charadrius melodus","Actitis macularius","Bartramia longicauda","Gallinago delicata","Scolopax minor","Sterna hirundo","Chlidonias niger","Tyto alba","Asio otus","Asio flammeus","Aegolius acadicus","Chordeiles minor","Antrostomus vociferus","Chaetura pelagica","Melanerpes erythrocephalus","Contopus cooperi","Empidonax flaviventris","Empidonax traillii","Progne subis","Riparia riparia","Certhia americana","Troglodytes hiemalis","Cistothorus platensis","Cistothorus palustris","Catharus ustulatus","Hylocichla mustelina","Dumetella carolinensis","Lanius ludovicianus","Vermivora cyanoptera","Vermivora chrysoptera","Oreothlypis ruficapilla","Setophaga caerulescens","Setophaga virens","Setophaga discolor","Setophaga striata","Setophaga cerulea","Mniotilta varia","Protonotaria citrea","Parkesia noveboracensis","Parkesia motacilla","Geothlypis formosa","Cardellina canadensis","Icteria virens","Piranga rubra","Piranga olivacea","Spiza americana","Spizella pusilla","Pooecetes gramineus","Passerculus sandwichensis","Ammodramus savannarum","Ammodramus henslowii","Zonotrichia albicollis","Dolichonyx oryzivorus","Sturnella magna","Loxia curvirostra","Spinus pinus","Lanius ludovicianus","Lanius ludovicianus migrans","Lasionycteris noctivagans")  
 srcf_combined[which(srcf_combined$SNAME %in% sf_y2b),]$SeasonCode <- "b"
+sf_b2y <- c("Myotis leibii","Myotis septentrionalis","Sceloporus undulatus")
+srcf_combined[which(srcf_combined$SNAME %in% sf_b2y),]$SeasonCode <- "y"
+sf_b2w <- c("Perimyotis subflavus")
+srcf_combined[which(srcf_combined$SNAME %in% sf_b2w),]$SeasonCode <- "w"
+sf_w2y <- c("Lithobates pipiens","Lithobates sphenocephalus utricularius","Plestiodon anthracinus anthracinus","Virginia valeriae pulchra")
+srcf_combined[which(srcf_combined$SNAME %in% sf_b2y),]$SeasonCode <- "y"
+
 
 
 srcf_combined$ELSeason <- paste(srcf_combined$ELCODE,srcf_combined$SeasonCode,sep="_")
@@ -184,9 +183,13 @@ final_srcf_combined <- srcf_combined[which(!srcf_combined$EO_ID %in% cppCore_sf$
 att_for_cpp <- srcf_combined[which(srcf_combined$EO_ID %in% cppCore_sf$EO_ID),] 
 
 # replace bad season codes
-cpp_y2b <- c("Podilymbus podiceps","Botaurus lentiginosus","Ixobrychus exilis","Ardea alba","Nycticorax nycticorax","Nyctanassa violacea","Anas crecca","Anas rubripes","Anas discors","Pandion haliaetus","Haliaeetus leucocephalus","Circus cyaneus","Accipiter striatus","Accipiter gentilis","Buteo platypterus","Falco sparverius","Falco peregrinus","Bonasa umbellus","Rallus elegans","Rallus limicola","Porzana carolina","Gallinula galeata","Fulica americana","Charadrius melodus","Actitis macularius","Bartramia longicauda","Gallinago delicata","Scolopax minor","Sterna hirundo","Chlidonias niger","Tyto alba","Asio otus","Asio flammeus","Aegolius acadicus","Chordeiles minor","Antrostomus vociferus","Chaetura pelagica","Melanerpes erythrocephalus","Contopus cooperi","Empidonax flaviventris","Empidonax traillii","Progne subis","Riparia riparia","Certhia americana","Troglodytes hiemalis","Cistothorus platensis","Cistothorus palustris","Catharus ustulatus","Hylocichla mustelina","Dumetella carolinensis","Lanius ludovicianus","Vermivora cyanoptera","Vermivora chrysoptera","Oreothlypis ruficapilla","Setophaga caerulescens","Setophaga virens","Setophaga discolor","Setophaga striata","Setophaga cerulea","Mniotilta varia","Protonotaria citrea","Parkesia noveboracensis","Parkesia motacilla","Geothlypis formosa","Cardellina canadensis","Icteria virens","Piranga rubra","Piranga olivacea","Spiza americana","Spizella pusilla","Pooecetes gramineus","Passerculus sandwichensis","Ammodramus savannarum","Ammodramus henslowii","Zonotrichia albicollis","Dolichonyx oryzivorus","Sturnella magna","Loxia curvirostra","Spinus pinus")       
+cpp_y2b <- c("Podilymbus podiceps","Botaurus lentiginosus","Ixobrychus exilis","Ardea alba","Nycticorax nycticorax","Nyctanassa violacea","Anas crecca","Anas rubripes","Anas discors","Pandion haliaetus","Haliaeetus leucocephalus","Circus cyaneus","Accipiter striatus","Accipiter gentilis","Buteo platypterus","Falco sparverius","Falco peregrinus","Bonasa umbellus","Rallus elegans","Rallus limicola","Porzana carolina","Gallinula galeata","Fulica americana","Charadrius melodus","Actitis macularius","Bartramia longicauda","Gallinago delicata","Scolopax minor","Sterna hirundo","Chlidonias niger","Tyto alba","Asio otus","Asio flammeus","Aegolius acadicus","Chordeiles minor","Antrostomus vociferus","Chaetura pelagica","Melanerpes erythrocephalus","Contopus cooperi","Empidonax flaviventris","Empidonax traillii","Progne subis","Riparia riparia","Certhia americana","Troglodytes hiemalis","Cistothorus platensis","Cistothorus palustris","Catharus ustulatus","Hylocichla mustelina","Dumetella carolinensis","Lanius ludovicianus","Vermivora cyanoptera","Vermivora chrysoptera","Oreothlypis ruficapilla","Setophaga caerulescens","Setophaga virens","Setophaga discolor","Setophaga striata","Setophaga cerulea","Mniotilta varia","Protonotaria citrea","Parkesia noveboracensis","Parkesia motacilla","Geothlypis formosa","Cardellina canadensis","Icteria virens","Piranga rubra","Piranga olivacea","Spiza americana","Spizella pusilla","Pooecetes gramineus","Passerculus sandwichensis","Ammodramus savannarum","Ammodramus henslowii","Zonotrichia albicollis","Dolichonyx oryzivorus","Sturnella magna","Loxia curvirostra","Spinus pinus","Lanius ludovicianus","Lanius ludovicianus migrans","Lasionycteris noctivagans")       
 att_for_cpp[which(att_for_cpp$SNAME %in% cpp_y2b),]$SeasonCode <- "b"
-cpp_b2y <- c("Lithobates pipiens","Lithobates sphenocephalus utricularius","Plestiodon anthracinus anthracinus","Sorex palustris albibarbis","Virginia pulchra")
+cpp_b2y <- c("Lithobates pipiens","Lithobates sphenocephalus utricularius","Plestiodon anthracinus anthracinus","Sorex palustris albibarbis","Virginia pulchra","Myotis leibii","Myotis septentrionalis","Sceloporus undulatus")
+att_for_cpp[which(att_for_cpp$SNAME %in% cpp_b2y),]$SeasonCode <- "y"
+cpp_b2w <- c("Perimyotis subflavus")
+att_for_cpp[which(att_for_cpp$SNAME %in% cpp_b2y),]$SeasonCode <- "w"
+cpp_w2y <- c("Lithobates pipiens","Lithobates sphenocephalus utricularius","Plestiodon anthracinus anthracinus","Virginia valeriae pulchra")
 att_for_cpp[which(att_for_cpp$SNAME %in% cpp_b2y),]$SeasonCode <- "y"
 
 att_for_cpp$ELSeason <- paste(att_for_cpp$ELCODE, att_for_cpp$SeasonCode,sep="_")
@@ -239,11 +242,11 @@ final_srcf_combined <- final_srcf_combined[final_fields]
 #add the occurence probability
 #final_srcf_combined$OccProb = with(final_srcf_combined, ifelse(LastObs>=cutoffyearK , "k", ifelse(LastObs<cutoffyearK & LastObs>=cutoffyearL, "l", "u")))
 
-
-
 # write a feature class to the gdb
-arc.write(path=here("_data/output/SGCN.gdb","final_cppCore"), final_cppCore_sf, overwrite=TRUE)
-arc.write(path=here("_data/output/SGCN.gdb","final_Biotics"), final_srcf_combined, overwrite=TRUE)
+arc.write(path=here::here("_data/output/SGCN.gdb","final_cppCore"), final_cppCore_sf, overwrite=TRUE)
+arc.write(path=here::here("_data/output/SGCN.gdb","final_Biotics"), final_srcf_combined, overwrite=TRUE)
+
+BioticsCPP_ELSeason <- unique(c(final_cppCore_sf$ELSeason, final_srcf_combined$ELSeason))
 
 # get a vector of species that are in Biotics/CPP so we can use it to filter other datasets
 SGCN_biotics <- unique(final_srcf_combined[which(final_srcf_combined$useCOA=="y"),]$SNAME)
@@ -259,4 +262,18 @@ a <- setdiff(unique(cppCore_sf_final$ELCODE), unique(lu_sgcn$ELCODE))
 b <- setdiff(unique(lu_sgcn$ELCODE), unique(cppCore_sf_final$ELCODE))
 a <- table(cppCore_sf_final$SNAME,cppCore_sf_final$SeasonCode)
 b <- table(final_srcf_combined$SNAME, final_srcf_combined$SeasonCode)
+
+# QC checks
+
+# get ELSeason values that are in lu_sgcn table, but not spatially represented in lu_sgcnXpu table
+sgcn_noDataFromBiotics <- setdiff(lu_sgcn$ELSeason, BioticsCPP_ELSeason)
+print("The following ELSeason records are found in the lu_sgcn table, but are not spatially represented in the  Biotics/CPP data: ")
+print(lu_sgcn[lu_sgcn$ELSeason %in% sgcn_noDataFromBiotics ,])
+
+# get ELSeason values that are in lu_sgcnXpu table, but do not have a matching ELSeason record in lu_sgcn
+sgcn_InBioticsButNotInLuSGCN <- setdiff(BioticsCPP_ELSeason, lu_sgcn$ELSeason)
+print("The following ELSeason records are found in the Biotics/CPP data, but do not have matching records in the lu_sgcn table: ")
+print(sgcn_InBioticsButNotInLuSGCN)
+
+
 
