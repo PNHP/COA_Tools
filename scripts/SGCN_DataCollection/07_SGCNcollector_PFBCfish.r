@@ -102,6 +102,7 @@ fishdata$OccProb = with(fishdata, ifelse(year>=cutoffyearK , "k", ifelse(year<cu
 # drops the unneeded columns. please modify the list.
 fishdata <- fishdata[c("SNAME","SCOMNAME","TaxaGroup","ELCODE","DataSource","DataID","LastObs","lat","lon","OccProb","useCOA")]
 
+fishdata$SeasonCode <- "y"
 fishdata$ELSeason <- paste(fishdata$ELCODE,"_y",sep="")
 fishdata$lat <- as.numeric(as.character(fishdata$lat))
 
