@@ -72,9 +72,9 @@ table(bamona1$SNAME)
 
 
 # add in useCOA
-bamona1$UseCOA <- NA
+bamona1$useCOA <- NA
 cutoffYear <- year(Sys.Date())-25
-bamona1$UseCOA <- with(bamona1, ifelse(bamona1$LastObs >= cutoffYear, "y", "n"))
+bamona1$useCOA <- with(bamona1, ifelse(bamona1$LastObs >= cutoffYear, "y", "n"))
 
 # add additonal fields 
 bamona1$DataSource <- "BAMONA"
@@ -82,13 +82,14 @@ bamona1$SeasonCode <- "y"
 bamona1$OccProb <- "k"
 
 # delete the colums we don't need from the BAMONA dataset
-bamona1 <- bamona1[c("DataSource","DataID","SNAME","Longitude","Latitude","OccProb","LastObs","SeasonCode","UseCOA")]
+bamona1 <- bamona1[c("DataSource","DataID","SNAME","Longitude","Latitude","OccProb","LastObs","SeasonCode","useCOA")]
 
 #add in the SGCN fields
-bamona1 <- merge(bamona1, lu_sgcn, by="SNAME", all.x=TRUE)
+bamona1 <- merge(bamona1, lu_sgcn[c("SNAME","ELCODE","ELSeason","SCOMNAME","TaxaGroup")], by="SNAME", all.x=TRUE)
 
 # create a spatial layer
 bamona_sf <- st_as_sf(bamona1, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+bamona_sf <- bamona_sf[final_fields]
 bamona_sf <- st_transform(bamona_sf, crs=customalbers) # reproject to the custom albers
 arc.write(path=here::here("_data/output/SGCN.gdb","srcpt_BAMONA"), bamona_sf, overwrite=TRUE) # write a feature class into the geodatabase
 bamona_buffer <- st_buffer(bamona_sf, dist=100) # buffer by 100m
