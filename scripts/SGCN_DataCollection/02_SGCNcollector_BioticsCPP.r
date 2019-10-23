@@ -229,12 +229,12 @@ final_srcf_combined <- final_srcf_combined1
 rm(final_srcf_combined1)
 
 # add in TaxaGroup
-cppCore_sf_final <- merge(cppCore_sf_final, unique(lu_sgcn[c("SNAME","TaxaGroup")]), all.x=TRUE)
+final_cppCore_sf <- merge(final_cppCore_sf, unique(lu_sgcn[c("SNAME","TaxaGroup")]), all.x=TRUE)
 final_srcf_combined <- merge(final_srcf_combined, unique(lu_sgcn[c("SNAME","TaxaGroup")]), all.x=TRUE)
 
 
 # field alignment
-cppCore_sf_final <- cppCore_sf_final[final_fields]
+final_cppCore_sf <- final_cppCore_sf[final_fields]
 final_srcf_combined <- final_srcf_combined[final_fields] 
 
 
@@ -258,9 +258,9 @@ rm(SGCN_biotics, SGCN_cpp)
 #write.csv(SGCN_bioticsCPP, "SGCN_bioticsCPP.csv", row.names=FALSE)
 save(SGCN_bioticsCPP, file=updateData)
 
-a <- setdiff(unique(cppCore_sf_final$ELCODE), unique(lu_sgcn$ELCODE))
-b <- setdiff(unique(lu_sgcn$ELCODE), unique(cppCore_sf_final$ELCODE))
-a <- table(cppCore_sf_final$SNAME,cppCore_sf_final$SeasonCode)
+a <- setdiff(unique(final_cppCore_sf$ELCODE), unique(lu_sgcn$ELCODE))
+b <- setdiff(unique(lu_sgcn$ELCODE), unique(final_cppCore_sf$ELCODE))
+a <- table(cppCore_sf_final$SNAME, final_cppCore_sf$SeasonCode)
 b <- table(final_srcf_combined$SNAME, final_srcf_combined$SeasonCode)
 
 # QC checks
