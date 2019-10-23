@@ -13,8 +13,6 @@
 
 if (!requireNamespace("here", quietly=TRUE)) install.packages("here")
 require(here)
-if (!requireNamespace("RSQLite", quietly=TRUE)) install.packages("RSQLite")
-require(RSQLite)
 
 ## create an empty sqlite db
 
