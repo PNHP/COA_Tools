@@ -74,7 +74,7 @@ table(bamona1$SNAME)
 # add in useCOA
 bamona1$UseCOA <- NA
 cutoffYear <- year(Sys.Date())-25
-bamona1$UseCOA <- with(bamona1, ifelse(bamona1$year >= cutoffYear, "y", "n"))
+bamona1$UseCOA <- with(bamona1, ifelse(bamona1$LastObs >= cutoffYear, "y", "n"))
 
 # add additonal fields 
 bamona1$DataSource <- "BAMONA"

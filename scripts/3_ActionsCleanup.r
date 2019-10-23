@@ -29,7 +29,7 @@ COA_actions_file <- list.files(path=here::here("_data/input"), pattern=".xlsx$")
 COA_actions_file
 #look at the output and choose which shapefile you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 7
+n <- 8
 COA_actions_file <- here::here("_data/input",COA_actions_file[n])
 
 #get a list of the sheets in the file
@@ -118,7 +118,7 @@ COA_actions_sheets # list the sheets
 # n <- 10 # enter its location in the list (first = 1, second = 2, etc)
 # SGCNsurvey <- read.xlsx(xlsxFile=COA_actions_file, sheet=COA_actions_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE)
 # SGCNsurvey <- SGCNsurvey[c("SpeciesID","ELCODE","ELSeason","Group","SCOMNAME","ResearchQues_Edited","AgencySpecific","ResearchID","Priority")]
-SGCNsurvey <- read.csv(here("_data","input","lu_SGCNsurvey.csv"), stringsAsFactors=FALSE)
+SGCNsurvey <- read.csv(here::here("_data","input","lu_SGCNsurvey.csv"), stringsAsFactors=FALSE)
 
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
   dbWriteTable(db, "lu_SGCNsurvey", SGCNsurvey, overwrite=TRUE) # write the table to the sqlite
