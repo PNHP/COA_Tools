@@ -33,6 +33,7 @@ sgcn <- arc.select(data,columns)
 sgcn_sf <- arc.data2sf(sgcn)
 sgcn_sf <- sgcn_sf[0,]
 
+# before doing this step, you should check to make sure there is no empty geometry in the bat data, unless that was fixed and then please delete this comment.
 for(name in final_list){
   print(name)
   data <- arc.open(path=here::here("_data/output/SGCN.gdb",name))

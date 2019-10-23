@@ -77,6 +77,9 @@ bats <- rbind(eptefusc, tricollb)
 
 # create a spatial layer
 bats_sf <- st_as_sf(bats, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+
+# st_dimension
+
 bats_sf <- st_transform(bats_sf, crs=customalbers) # reproject to custom albers
 bats_sf <- bats_sf[final_fields]
 arc.write(path=here::here("_data/output/SGCN.gdb","srcpt_bats"), bats_sf, overwrite=TRUE) # write a feature class to the gdb
