@@ -39,9 +39,6 @@ bombus <- bombus[which(bombus$SNAME %in% lu_sgcn$SNAME),]
 # kill the ones with no coordinates
 bombus <- bombus[which(bombus$longitude<0),]
 
-# field alignment
-bombus <- bombus[final_fields] 
-
 # create a spatial layer
 bombus_sf <- st_as_sf(bombus, coords=c("longitude","latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
 bombus_sf <- st_transform(bombus_sf, crs=customalbers) # reproject to custom albers
