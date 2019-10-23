@@ -23,8 +23,6 @@ require(RSQLite)
 
 source(here::here("scripts","00_PathsAndSettings.r"))
 
-arc.check_product()
-
 ######################################################################################
 # get lu_sgcn and lu_sgcnXpu data from sqlite database
 db <- dbConnect(SQLite(), dbname = databasename)
