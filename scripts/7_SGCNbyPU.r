@@ -12,7 +12,12 @@
 if (!requireNamespace("here", quietly=TRUE)) install.packages("here")
 require(here)
 
-source(here::here("scripts", "00_PathsAndSettings.r"))
+source(here::here("scripts","00_PathsAndSettings.r"))
+
+# read in SGCN data
+loadSGCN()
+
+
 
 olddatabasename <- "coa_bridgetest_previous.sqlite" 
 olddatabasename <- here::here("_data","output",olddatabasename)
