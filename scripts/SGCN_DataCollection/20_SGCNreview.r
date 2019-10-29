@@ -43,7 +43,7 @@ lu_sgcnXpu[lu_sgcnXpu=="ABPBX03240_y"] <- "ABPBX03240_b"
 lu_sgcnXpu <- lu_sgcnXpu[which(lu_sgcnXpu$ELSeason!="ABNKD06020_y"&lu_sgcnXpu$ELSeason!="ABPBX03120_y"&lu_sgcnXpu$ELSeason!="ABPBX16010_y"&lu_sgcnXpu$ELSeason!="ABNTA07070_y"&lu_sgcnXpu$ELSeason!="ABPBK01010_y"&lu_sgcnXpu$ELSeason!="ABPBX01060_y"&lu_sgcnXpu$ELSeason!="ABPBXA4020_y"&lu_sgcnXpu$ELSeason!="ABNSB13040_y"&lu_sgcnXpu$ELSeason!="ABNNF19020_y"&lu_sgcnXpu$ELSeason!="ABPBA01010_y"&lu_sgcnXpu$ELSeason!="ABPBJ18100_y"&lu_sgcnXpu$ELSeason!="ABPBX05010_y"&lu_sgcnXpu$ELSeason!="ABPAU01010_y"&lu_sgcnXpu$ELSeason!="ABNNM08070_y"&lu_sgcnXpu$ELSeason!="ABPBY06030_y"&lu_sgcnXpu$ELSeason!="ABPBG10020_y"&lu_sgcnXpu$ELSeason!="ABPBX03050_y"&lu_sgcnXpu$ELSeason!="ABPBX03230_y"&lu_sgcnXpu$ELSeason!="ABNME05030_y"&lu_sgcnXpu$ELSeason!="ABNCA03010_y"&lu_sgcnXpu$ELSeason!="AMACC04010_y"&lu_sgcnXpu$ELSeason!="ABNME08020_y"&lu_sgcnXpu$ELSeason!="ABNKC12020_y"&lu_sgcnXpu$ELSeason!="ABNME13030"),]
 
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
-dbWriteTable(db, "lu_sgcnXpu_all", sgcnXpu_newTable, overwrite=TRUE) # write the table to the sqlite
+dbWriteTable(db, "lu_sgcnXpu_all", lu_sgcnXpu, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
 
 
@@ -118,15 +118,19 @@ print(unique(sort(lu_actions$ActionCategory2)))
 
 
 
+# creation of summary table
+source(here::here("scripts","00_PathsAndSettings.r"))
+# read in SGCN data
+loadSGCN()
 
+# collapse sgcn down to one season
+lu_sgcn <- unique(lu_sgcn[c("ELCODE","SNAME","SCOMNAME","TaxaGroup")])
 
-
-
-
-
-SGCN <- arc.open(path=here::here("_data/output/SGCN.gdb","allSGCNuse2"))
+# get data
+SGCN <- arc.open(path=here::here("_data/output/SGCN.gdb","allSGCNuse"))
 SGCN <- arc.select(SGCN)
 
+# aggregate data by min/max year
 SGCNrecordcount <- aggregate(LastObs~SNAME+DataSource, data=SGCN, FUN=length)
 colnames(SGCNrecordcount)[colnames(SGCNrecordcount)=="LastObs"] <- "RecordCount"
 SGCN_Max <- aggregate(LastObs~SNAME+DataSource, data=SGCN, max)
@@ -136,18 +140,26 @@ colnames(SGCN_Min)[colnames(SGCN_Min)=="LastObs"] <- "MinYear"
 
 SGCNsummary <- merge(SGCNrecordcount, SGCN_Max, by=c("SNAME","DataSource"))
 SGCNsummary <- merge(SGCNsummary, SGCN_Min, by=c("SNAME","DataSource"))
-SGCNsummary <- merge(SGCNsummary, lu_sgcn, by="SNAME")
+SGCNsummary <- merge(SGCNsummary, lu_sgcn, by="SNAME", all.x=TRUE)
 
 
 
 # rearrange the column names
-SGCNsummary <- SGCNsummary[c("TaxaDisplay","SCOMNAME","SNAME","DataSource","RecordCount","MinYear","MaxYear")]
+SGCNsummary <- SGCNsummary[c("TaxaGroup","SCOMNAME","SNAME","DataSource","RecordCount","MinYear","MaxYear")]
 
 # sort
-SGCNsummary <- SGCNsummary[order(SGCNsummary$TaxaDisplay,SGCNsummary$SCOMNAME,SGCNsummary$DataSource),]
+SGCNsummary <- SGCNsummary[order(SGCNsummary$TaxaGroup,SGCNsummary$SCOMNAME,SGCNsummary$DataSource),]
+
+# replace some values
+SGCNsummary[SGCNsummary=="PGC Grouse Data"] <- "PGC"
+SGCNsummary[SGCNsummary=="PGC_DougGross"] <- "PGC"
+SGCNsummary[SGCNsummary=="PFBC_DPF"] <- "PFBC"
+
+# rename columns
+names(SGCNsummary) <- c("Taxonomic Group","Common Name","Scientific Name","Data Source","Record Count","MinYear","MaxYear")
 
 
-write.csv(SGCNsummary, "SGCNsummary.csv", row.names=FALSE)
+write.csv(SGCNsummary, "SGCNsummary_20191029.csv", row.names=FALSE)
 
                       
 
