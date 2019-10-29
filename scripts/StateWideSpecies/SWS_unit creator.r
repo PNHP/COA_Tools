@@ -129,6 +129,7 @@ sgcnlist <- gsub("\r\n","",sgcnlist)
 # make the watershed maps
 for(i in 1:length(sgcnlist)){
   sws_huc08_1 <- sws_huc08agg_cast[which(sws_huc08agg_cast$ELCODE==sgcnlist[i]),]
+  print(sgcnlist[i])
   sws_huc08_1a <- merge(huc08_shp,sws_huc08_1,by.x="HUC8",by.y="HUC08")
   sws_huc08_1a <- merge(sws_huc08_1a,data_sgcn,by="ELCODE", all.x=TRUE)
   arc.write(file.path(here::here("_data","output","sws","sws.gdb",paste("huc08",sgcnlist[i],sep="_"))),sws_huc08_1a ,overwrite=TRUE)
