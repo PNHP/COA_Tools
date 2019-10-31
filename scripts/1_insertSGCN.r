@@ -33,6 +33,12 @@ if(length(setdiff(SGCN$ELCODE, gsub("(.+?)(\\_.*)", "\\1", SGCN$ELSeason)))==0){
   print(paste("Codes for ", setdiff(SGCN$ELCODE, gsub("(.+?)(\\_.*)", "\\1", SGCN$ELSeason)), "do not match", sep=""))
 }
 
+# check for leading/trailing whitespace
+SGCN$SNAME <- trimws(SGCN$SNAME, which="both")
+SGCN$SCOMNAME <- trimws(SGCN$SCOMNAME, which="both")
+SGCN$ELSeason <- trimws(SGCN$ELSeason, which="both")
+SGCN$TaxaDisplay <- trimws(SGCN$TaxaDisplay, which="both")
+
 # write the lu_sgcn table to the database
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
 dbWriteTable(db, "lu_SGCN", SGCN, overwrite=TRUE) # write the table to the sqlite
