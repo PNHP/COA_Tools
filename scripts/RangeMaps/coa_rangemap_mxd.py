@@ -13,7 +13,7 @@ import arcpy, os, datetime
 
 ##################################### SET SWS DB LOCATION ############################################################################################
 #set database where species range feature classes are
-db = r'C:\_coa\range_maps\Updated_2019_04_29\sws.gdb'
+db = r'C:\_coa\range_maps\Updated_2019_10_29\sws.gdb'
 ######################################################################################################################################################
 
 def mxd_create(mxd,df_name,desiredFields,fc):
@@ -74,28 +74,28 @@ def mxd_create(mxd,df_name,desiredFields,fc):
                 taxa = "Caddisflies"
             elif taxa == "Invertebrate - Cave Invertebrates":
                 taxa = "Cave Invertebrates"
-        ##    elif taxa == "Invertebrate - Craneflies":
-        ##        taxa = "Craneflies"
+            elif taxa == "Invertebrate - Craneflies":
+                taxa = "Craneflies"
             elif taxa == "Invertebrate - Crayfishes":
                 taxa = "Crayfishes"
             elif taxa == "Invertebrate - Dragonflies and Damselflies":
                 taxa = "Dragonflies and Damselflies"
             elif taxa == "Invertebrate - Freshwater Snails":
                 taxa = "Freshwater Snails"
-        ##    elif taxa == "Invertebrate - Grasshoppers":
-        ##        taxa = "Grasshoppers"
+            elif taxa == "Invertebrate - Grasshoppers":
+                taxa = "Grasshoppers"
             elif taxa == "Invertebrate - Mayflies":
                 taxa = "Mayflies"
             elif taxa == "Invertebrate - Moths":
                 taxa = "Moths"
             elif taxa == "Invertebrate - Mussels":
                 taxa = "Mussels"
-        ##    elif taxa == "Invertebrate - Sawflies":
-        ##        taxa = "Sawflies"
+            elif taxa == "Invertebrate - Sawflies":
+                taxa = "Sawflies"
             elif taxa == "Invertebrate - Spiders":
                 taxa = "Spiders"
-        ##    elif taxa == "Invertebrate - Sponges":
-        ##        taxa = "Sponges"
+            elif taxa == "Invertebrate - Sponges":
+                taxa = "Sponges"
             elif taxa == "Invertebrate - Stoneflies":
                 taxa = "Stoneflies"
             elif taxa == "Invertebrate - Terrestrial Snails":
@@ -156,7 +156,7 @@ def mxd_format(mxd,desiredFields):
     mxd.save()
 
 ########################################### SET COUNTY .MXD LOCATION #################################################################################
-mxd = r'C:\_coa\range_maps\Updated_2019_04_29\SGCNCountyRangeMaps.mxd'
+mxd = r'C:\_coa\range_maps\Updated_2019_10_29\SGCNCountyRangeMaps.mxd'
 ######################################################################################################################################################
 df_name = "SGCN County Range Maps"
 desiredFields = ['COUNTY_NAM','y_prop','b_prop','m_prop','w_prop','SCOMNAME','SNAME','TaxaDisplay','USESA','SPROT','PBSSTATUS','Shape','OBJECTID']
@@ -167,7 +167,7 @@ mxd_create(mxd,df_name,desiredFields,fc)
 mxd_format(mxd,desiredFields)
 
 ########################################### SET WATERSHED .MXD LOCATION ##############################################################################
-mxd = r'C:\_coa\range_maps\Updated_2019_04_29\SGCNWatershedRangeMaps.mxd'
+mxd = r'C:\_coa\range_maps\Updated_2019_10_29\SGCNWatershedRangeMaps.mxd'
 ######################################################################################################################################################
 df_name = "SGCN Watershed Range Maps"
 desiredFields = ['HUC08','NAME','COUNTY_NAM','y_prop','b_prop','m_prop','w_prop','SCOMNAME','SNAME','TaxaDisplay','USESA','SPROT','PBSSTATUS','Shape','OBJECTID']
