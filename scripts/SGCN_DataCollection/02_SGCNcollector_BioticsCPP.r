@@ -20,7 +20,6 @@ require(here)
 
 source(here::here("scripts","00_PathsAndSettings.r"))
 
-
 ######################################################################################
 # read in SGCN data
 loadSGCN()
