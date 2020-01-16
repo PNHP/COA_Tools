@@ -13,7 +13,7 @@ import arcpy, os, datetime
 
 ##################################### SET SWS DB LOCATION ############################################################################################
 #set database where species range feature classes are
-db = r'C:\_coa\range_maps\Updated_2019_10_29\sws.gdb'
+db = r'E:\COA_Tools\_data\output\sws\Updated_2020_01_15\sws.gdb'
 ######################################################################################################################################################
 
 def mxd_create(mxd,df_name,desiredFields,fc):
@@ -43,17 +43,17 @@ def mxd_create(mxd,df_name,desiredFields,fc):
             arcpy.AlterField_management(path,"PBSSTATUS",new_field_alias="Pennsylvania Biological Survey Status")
             if len(arcpy.ListFields(path,"COUNTY_NAM"))>0:
                 arcpy.AlterField_management(path,"COUNTY_NAM",new_field_alias="County Name")
-                arcpy.AlterField_management(path,"y_prop",new_field_alias="Proportion of Year-Round Population")
-                arcpy.AlterField_management(path,"b_prop",new_field_alias="Proportion of Breeding Population")
-                arcpy.AlterField_management(path,"m_prop",new_field_alias="Proportion of Migration Population")
-                arcpy.AlterField_management(path,"w_prop",new_field_alias="Proportion of Wintering Population")
+                arcpy.AlterField_management(path,"y",new_field_alias="Year-round Species of Greatest Conservation Need ")
+                arcpy.AlterField_management(path,"b",new_field_alias="Breeding Species of Greatest Conservation Need")
+                arcpy.AlterField_management(path,"m",new_field_alias="Migratory Species of Greatest Conservation Need")
+                arcpy.AlterField_management(path,"w",new_field_alias="Wintering Species of Greatest Conservation Need")
             elif len(arcpy.ListFields(path,"NAME"))>0:
                 arcpy.AlterField_management(path,"HUC8",new_field_alias="Watershed Code")
                 arcpy.AlterField_management(path,"NAME",new_field_alias="Watershed Name")
-                arcpy.AlterField_management(path,"y_prop",new_field_alias="Proportion of Year-Round Population")
-                arcpy.AlterField_management(path,"b_prop",new_field_alias="Proportion of Breeding Population")
-                arcpy.AlterField_management(path,"m_prop",new_field_alias="Proportion of Migration Population")
-                arcpy.AlterField_management(path,"w_prop",new_field_alias="Proportion of Wintering Population")
+                arcpy.AlterField_management(path,"y",new_field_alias="Year-round Species of Greatest Conservation Need ")
+                arcpy.AlterField_management(path,"b",new_field_alias="Breeding Species of Greatest Conservation Need")
+                arcpy.AlterField_management(path,"m",new_field_alias="Migratory Species of Greatest Conservation Need")
+                arcpy.AlterField_management(path,"w",new_field_alias="Wintering Species of Greatest Conservation Need")
 
             else:
                 pass
@@ -156,10 +156,10 @@ def mxd_format(mxd,desiredFields):
     mxd.save()
 
 ########################################### SET COUNTY .MXD LOCATION #################################################################################
-mxd = r'C:\_coa\range_maps\Updated_2019_10_29\SGCNCountyRangeMaps.mxd'
+mxd = r'E:\COA_Tools\_data\output\sws\Updated_2020_01_15\SGCNCountyRangeMaps.mxd'
 ######################################################################################################################################################
 df_name = "SGCN County Range Maps"
-desiredFields = ['COUNTY_NAM','y_prop','b_prop','m_prop','w_prop','SCOMNAME','SNAME','TaxaDisplay','USESA','SPROT','PBSSTATUS','Shape','OBJECTID']
+desiredFields = ['COUNTY_NAM','TaxaDisplay','SCOMNAME','SNAME','y','b','m','w','GRANK','SRANK','USESA','SPROT','PBSSTATUS','Shape','OBJECTID']
 arcpy.env.workspace = db
 fc = arcpy.ListFeatureClasses("county*")
 
@@ -167,10 +167,10 @@ mxd_create(mxd,df_name,desiredFields,fc)
 mxd_format(mxd,desiredFields)
 
 ########################################### SET WATERSHED .MXD LOCATION ##############################################################################
-mxd = r'C:\_coa\range_maps\Updated_2019_10_29\SGCNWatershedRangeMaps.mxd'
+mxd = r'E:\COA_Tools\_data\output\sws\Updated_2020_01_15\SGCNWatershedRangeMaps.mxd'
 ######################################################################################################################################################
 df_name = "SGCN Watershed Range Maps"
-desiredFields = ['HUC08','NAME','COUNTY_NAM','y_prop','b_prop','m_prop','w_prop','SCOMNAME','SNAME','TaxaDisplay','USESA','SPROT','PBSSTATUS','Shape','OBJECTID']
+desiredFields = ['HUC08','NAME','TaxaDisplay','SCOMNAME','SNAME','y','b','m','w','GRANK','SRANK','USESA','SPROT','PBSSTATUS','Shape','OBJECTID']
 arcpy.env.workspace = db
 fc = arcpy.ListFeatureClasses("huc08*")
 
