@@ -13,10 +13,8 @@
 folder = r'C:\_Updated_2019_12_19'
 desiredFields = ['COUNTY_NAM','NAME','TaxaDisplay', 'SCOMNAME', 'SNAME', 'y', 'b', 'm', 'w', 'GRANK', 'SRANK', 'USESA', 'SPROT', 'PBSSTATUS', 'Shape', 'OBJECTID']
 ######################################################################################################################################################
-
 #import modules
 import arcpy, os, datetime
-
 ##################################### PATHS/VARIABLES THAT SHOULD STAY CONSTANT ######################################################################
 gdb_name = "sws.gdb"
 county_mxd_template = "SGCNCountyRangeMaps.mxd"
@@ -26,7 +24,6 @@ db = os.path.join(folder,gdb_name)
 county_mxd = os.path.join(folder,county_mxd_template)
 huc_mxd = os.path.join(folder,watershed_mxd_template)
 ######################################################################################################################################################
-
 def taxa_assign(path):
     with arcpy.da.SearchCursor(path,["SCOMNAME","TaxaDisplay"]) as cursor:
         for row in cursor:

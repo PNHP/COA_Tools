@@ -27,20 +27,22 @@ if (!requireNamespace("stringr", quietly = TRUE)) install.packages("stringr")
   require(stringr)
 if (!requireNamespace("reticulate", quietly = TRUE)) install.packages("reticulate")
   require(reticulate)
+if (!requireNamespace("naniar", quietly = TRUE)) install.packages("naniar")
+  require(naniar)
 
 # load the arcgis license
 arc.check_product()
 
-# check to see if sws.gdb exists and create a new one
-if(dir.exists(here::here("_data","output","sws","sws.gdb"))) {
-  use_python("C:/Users/CTracey/AppData/Local/ESRI/conda/envs/arcgispro-py3-clone", required=TRUE)
-  arcpy <- import("arcpy")
-  gdbName <- "sws.gdb"
-  arcpy$CreateFileGDB_management(out_folder_path=here::here("_data","output","sws"), out_name=gdbName)
-} else {
-  print("sws.gdb already exists, please rename or move.")
-}
-rm(arcpy)
+# # check to see if sws.gdb exists and create a new one
+# if(dir.exists(here::here("_data","output","sws","sws.gdb"))) {
+#   use_python("C:/Users/CTracey/AppData/Local/ESRI/conda/envs/arcgispro-py3-clone", required=TRUE)
+#   arcpy <- import("arcpy")
+#   gdbName <- "sws.gdb"
+#   arcpy$CreateFileGDB_management(out_folder_path=here::here("_data","output","sws"), out_name=gdbName)
+# } else {
+#   print("sws.gdb already exists, please rename or move.")
+# }
+# rm(arcpy)
 
 # function to grab the rightmost characters
 substrRight <- function(x, n){
@@ -68,9 +70,10 @@ data_countyname$FIPS_COUNT <- str_pad(data_countyname$FIPS_COUNT, width=3, pad="
 SQLquery_luNatBound <- paste("SELECT unique_id, HUC08"," FROM lu_NaturalBoundaries ")
 data_NaturalBoundaries <- dbGetQuery(db, statement = SQLquery_luNatBound )
 # get SGCN data
-SQLquery <- paste("SELECT ELCODE, SCOMNAME, SNAME, USESA, SPROT, PBSSTATUS, TaxaDisplay"," FROM lu_sgcn ")
+SQLquery <- paste("SELECT ELCODE, SCOMNAME, SNAME, GRANK, SRANK, USESA, SPROT, PBSSTATUS, TaxaDisplay"," FROM lu_sgcn ")
 data_sgcn <- dbGetQuery(db, statement = SQLquery)
 data_sgcn <- unique(data_sgcn)
+data_sgcn <- replace_with_na(data_sgcn, replace=list(USESA="",SPROT="",PBSSTATUS=""))
 
 # disconnect the db
 dbDisconnect(db)
@@ -100,7 +103,7 @@ sws <- sws[c("unique_id","HUC08","COUNTY_NAM","ELCODE","season","OccProb")]
 # make a table of the count of PUs by HUC08 just for informational purposes
 PU_huc08 <- as.data.frame(table(sws$HUC08))
 PU_county <- as.data.frame(table(sws$COUNTY_NAM))
-
+####
 # summarize by HUC08
 sws_huc08agg <- aggregate(unique_id ~ ELCODE+OccProb+HUC08+season, sws, function(x) length(x))
 sws_huc08agg_cast <- dcast(sws_huc08agg, ELCODE+HUC08~season,sum, value.var="unique_id")  
@@ -118,6 +121,12 @@ sws_huc08agg_cast$b <- ifelse(sws_huc08agg_cast$b_prop>0, "yes", NA)
 sws_huc08agg_cast$m <- ifelse(sws_huc08agg_cast$m_prop>0, "yes", NA)
 sws_huc08agg_cast$w <- ifelse(sws_huc08agg_cast$w_prop>0, "yes", NA)
 sws_huc08agg_cast$y <- ifelse(sws_huc08agg_cast$y_prop>0, "yes", NA)
+# remove the proportions since they are not to be displayed anymore
+sws_huc08agg_cast$b_prop <- NULL
+sws_huc08agg_cast$m_prop <- NULL
+sws_huc08agg_cast$w_prop <- NULL
+sws_huc08agg_cast$y_prop <- NULL
+
 # load the huc08 basemap
 huc08_shp <- arc.open(here::here("_data","output","sws","sws.gdb", "_huc08"))
 huc08_shp <- arc.select(huc08_shp)
@@ -129,12 +138,14 @@ sgcnlist <- gsub("\r\n","",sgcnlist)
 # make the watershed maps
 for(i in 1:length(sgcnlist)){
   sws_huc08_1 <- sws_huc08agg_cast[which(sws_huc08agg_cast$ELCODE==sgcnlist[i]),]
+  print(sgcnlist[i])
   sws_huc08_1a <- merge(huc08_shp,sws_huc08_1,by.x="HUC8",by.y="HUC08")
   sws_huc08_1a <- merge(sws_huc08_1a,data_sgcn,by="ELCODE", all.x=TRUE)
+  sws_huc08_1a <- sws_huc08_1a[c("HUC8","NAME","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","GRANK","SRANK","USESA","SPROT","PBSSTATUS","geometry")]  #    "ELCODE"              "OBJECTID"
   arc.write(file.path(here::here("_data","output","sws","sws.gdb",paste("huc08",sgcnlist[i],sep="_"))),sws_huc08_1a ,overwrite=TRUE)
 }
 
-
+################
 # summarize by County
 sws_countyagg <- aggregate(unique_id ~ ELCODE+OccProb+COUNTY_NAM+season, sws, function(x) length(x))
 sws_countyagg_cast <- dcast(sws_countyagg, ELCODE+COUNTY_NAM~season,sum, value.var="unique_id")  #OccProb+
@@ -152,6 +163,12 @@ sws_countyagg_cast$b <- ifelse(sws_countyagg_cast$b_prop>0, "yes", NA)
 sws_countyagg_cast$m <- ifelse(sws_countyagg_cast$m_prop>0, "yes", NA)
 sws_countyagg_cast$w <- ifelse(sws_countyagg_cast$w_prop>0, "yes", NA)
 sws_countyagg_cast$y <- ifelse(sws_countyagg_cast$y_prop>0, "yes", NA)
+# remove the proportions since they are not to be displayed anymore
+sws_countyagg_cast$b_prop <- NULL
+sws_countyagg_cast$m_prop <- NULL
+sws_countyagg_cast$w_prop <- NULL
+sws_countyagg_cast$y_prop <- NULL
+
 # load the county basemap
 county_shp <- arc.open(here::here("_data","output","sws","sws.gdb", "_county")) 
 county_shp <- arc.select(county_shp)
@@ -163,18 +180,25 @@ sgcnlist <- gsub("\r\n","",sgcnlist)
 # make the county maps
 for(i in 1:length(sgcnlist)){
   sws_county_1 <- sws_countyagg_cast[which(sws_countyagg_cast$ELCODE==sgcnlist[i]),]
+  print(sgcnlist[i])
   sws_county_1a <- merge(county_shp,sws_county_1,by="COUNTY_NAM")
   sws_county_1a <- merge(sws_county_1a,data_sgcn,by="ELCODE", all.x=TRUE)
+  sws_county_1a <- sws_county_1a[c("COUNTY_NAM","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","GRANK","SRANK","USESA","SPROT","PBSSTATUS","geometry")]
   arc.write(file.path(here::here("_data","output","sws","sws.gdb",paste("county",sgcnlist[i],sep="_"))),sws_county_1a ,overwrite=TRUE)
 }
 
 ###################################
 # combined data for COA tool
 huc08agg <- sws_huc08agg_cast
+huc08agg <- merge(huc08agg,data_sgcn,by="ELCODE", all.x=TRUE)
+#huc08agg <- huc08agg[c("HUC8","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","GRANK","SRANK","USESA","SPROT","PBSSTATUS")]
 huc08agg_all <- merge(huc08_shp, huc08agg, by.x="HUC8", by.y="HUC08")
+huc08agg_all <- huc08agg_all[c("HUC8","NAME","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","GRANK","SRANK","USESA","SPROT","PBSSTATUS")]
 arc.write(here::here("_data","output","sws","sws.gdb","_HUC08_SGCN"), huc08agg_all, overwrite=TRUE)
 
 countyagg <- sws_countyagg_cast
+countyagg <- merge(countyagg,data_sgcn,by="ELCODE", all.x=TRUE)
+countyagg <- countyagg[c("COUNTY_NAM","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","GRANK","SRANK","USESA","SPROT","PBSSTATUS")]
 countyagg_all <- merge(county_shp, countyagg, by="COUNTY_NAM")
 arc.write(here::here("_data","output","sws","sws.gdb","_county_SGCN"), countyagg_all, overwrite=TRUE)
 

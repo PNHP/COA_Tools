@@ -9,6 +9,8 @@
 # * modify to run off the lu_sgcn data on the arc server
 #-------------------------------------------------------------------------------
 
+
+
 if (!requireNamespace("here", quietly=TRUE)) install.packages("here")
 require(here)
 
@@ -30,6 +32,12 @@ if(length(setdiff(SGCN$ELCODE, gsub("(.+?)(\\_.*)", "\\1", SGCN$ELSeason)))==0){
 } else {
   print(paste("Codes for ", setdiff(SGCN$ELCODE, gsub("(.+?)(\\_.*)", "\\1", SGCN$ELSeason)), "do not match", sep=""))
 }
+
+# check for leading/trailing whitespace
+SGCN$SNAME <- trimws(SGCN$SNAME, which="both")
+SGCN$SCOMNAME <- trimws(SGCN$SCOMNAME, which="both")
+SGCN$ELSeason <- trimws(SGCN$ELSeason, which="both")
+SGCN$TaxaDisplay <- trimws(SGCN$TaxaDisplay, which="both")
 
 # write the lu_sgcn table to the database
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
