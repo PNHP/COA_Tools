@@ -27,9 +27,6 @@ pond_pts <- 'https://maps.waterlandlife.org/arcgis/rest/services/PNHP/POND/Featu
 pond_species <- 'https://maps.waterlandlife.org/arcgis/rest/services/PNHP/POND/FeatureServer/3'
 pond_surveys <- 'https://maps.waterlandlife.org/arcgis/rest/services/PNHP/POND/FeatureServer/2'
 
-#load arcgis license
-arc.check_product()
-
 #import all species records from POND
 species_fields <- c('refcode','species_type','sname','species_found')
 s <- arc.open(pond_species)

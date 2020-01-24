@@ -58,7 +58,7 @@ grouse_sf$ELSeason <- paste(grouse_sf$ELCODE, grouse_sf$season, sep="_")
 
 grouse_sf$DataID <- grouse_sf$globalid
 
-grouse_sf <- grouse_sf[c("SNAME","LastObs","SNAME","season","geom","DataID")]
+grouse_sf <- grouse_sf[c("SNAME","LastObs","season","geom","DataID")]
 
 #add in the SGCN fields
 grouse_sf <- merge(grouse_sf, lu_sgcn, by.x=c("SNAME","season"), by.y=c("SNAME","SeasonCode"),  all.x=TRUE)
@@ -67,6 +67,9 @@ grouse_sf <- merge(grouse_sf, lu_sgcn, by.x=c("SNAME","season"), by.y=c("SNAME",
 grouse_sf$DataSource <- "PGC Grouse Data"
 grouse_sf$OccProb <- "k"
 grouse_sf$useCOA <- "y"
+colnames(grouse_sf)[colnames(grouse_sf)=="season"] <- "SeasonCode"
+
+grouse_sf <- grouse_sf[final_fields]
 
 # create a spatial layer
 grouse_sf <- st_transform(grouse_sf, crs=customalbers) # reproject to the custom albers
