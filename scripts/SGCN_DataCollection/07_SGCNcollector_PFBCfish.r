@@ -29,15 +29,15 @@ source(here::here("scripts","00_PathsAndSettings.r"))
 loadSGCN("AF")
 
 # laod and assemble the fish data from the indivdual excel files
-setwd("W:/Heritage/Heritage_Projects/1332_PGC_COA/species_data/fishdata_fromPFBC")
+setwd("E:/COA_Tools/_data/input/SGCN_data/PFBC_FishDPF") #E:\COA_Tools\_data\input\SGCN_data\PFBC_FishDPF
 
 # load the csv to dataframes  #### I don't think this is needed anymore....
 #temp = list.files(pattern="*DPF.csv")
 #for (i in 1:length(temp)) assign(temp[i], read.csv(temp[i]))
 
 # join the individual fish dataframes into one
-my_files <- list.files(pattern = "\\DPF.csv$")
-my_data <- lapply(my_files, function(i){read.csv(i,header=TRUE, stringsAsFactors=TRUE,colClasses=c("SCP_siteID"="character","Date"="factor","N_vouchered"="character","Museum_Number"="character","N_Detected"="character","TSN"="character","HUC_8"="character","SCP_PermitNumber"="character"))})
+my_files <- list.files(pattern = "\\.csv$")
+my_data <- lapply(my_files, function(i){read.csv(i,header=TRUE, stringsAsFactors=FALSE,colClasses=c("SCP_siteID"="character","Museum_Number"="character","N_vouchered"="character","SCP_PermitNumber"="character","N_Detected"="character","TSN"="character","HUC_8"="character","Lat"="character"))}) #,colClasses=c("SCP_siteID"="character","Date"="character","N_vouchered"="character","Museum_Number"="character","N_Detected"="character","TSN"="character","HUC_8"="character","SCP_PermitNumber"="character","lat"="numeric")
 
 my_data <- lapply(my_data, function(x) {
   names(x)<-tolower(names(x))
@@ -52,6 +52,8 @@ fishdata_extra <- read.csv(here::here("_data/input/SGCN_data/PFBC_FishDPF","Upda
 fishdata_extra$X <- NULL
 
 fishdata <- rbind(fishdata_master, fishdata_extra)
+
+fishdata <- fishdata_master
 
 # get rid of rows that are all NA
 fishdata <- fishdata[rowSums(is.na(fishdata)) != ncol(fishdata),]
