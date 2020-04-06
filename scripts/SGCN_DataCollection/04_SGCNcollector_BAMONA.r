@@ -91,9 +91,9 @@ bamona1 <- merge(bamona1, lu_sgcn[c("SNAME","ELCODE","ELSeason","SCOMNAME","Taxa
 bamona_sf <- st_as_sf(bamona1, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
 bamona_sf <- bamona_sf[final_fields]
 bamona_sf <- st_transform(bamona_sf, crs=customalbers) # reproject to the custom albers
-arc.write(path=here::here("_data/output/SGCN.gdb","srcpt_BAMONA"), bamona_sf, overwrite=TRUE) # write a feature class into the geodatabase
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_BAMONA"), bamona_sf, overwrite=TRUE) # write a feature class into the geodatabase
 bamona_buffer <- st_buffer(bamona_sf, dist=100) # buffer by 100m
-arc.write(path=here::here("_data/output/SGCN.gdb","final_BAMONA"), bamona_buffer, overwrite=TRUE) # write a feature class into the geodatabase
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_BAMONA"), bamona_buffer, overwrite=TRUE) # write a feature class into the geodatabase
 
 # clean up
 rm(bamona, bamona1, lu_sgcn, SGCN_bioticsCPP)

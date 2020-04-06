@@ -66,8 +66,8 @@ snails$OccProb <- "k"
 snails_sf <- st_as_sf(snails, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
 snails_sf <- st_transform(snails_sf, crs=customalbers)
 snails_sf <- snails_sf[final_fields]
-arc.write(path=here::here("_data/output/SGCN.gdb","srcpt_snails"), snails_sf, overwrite=TRUE) # write a feature class into the geodatabase
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_snails"), snails_sf, overwrite=TRUE) # write a feature class into the geodatabase
 snails_buffer_sf <- st_buffer(snails_sf, dist=100) # buffer by 100m
-arc.write(path=here::here("_data/output/SGCN.gdb","final_snails"), snails_buffer_sf, overwrite=TRUE) # write a feature class into the geodatabase
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_snails"), snails_buffer_sf, overwrite=TRUE) # write a feature class into the geodatabase
 
 

@@ -113,9 +113,9 @@ setwd(here::here())
 # create a spatial layer
 fishdata_sf <- st_as_sf(fishdata, coords=c("lon","lat"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
 fishdata_sf <- st_transform(fishdata_sf, crs=customalbers) # reproject to the custom albers
-arc.write(path=here::here("_data/output/SGCN.gdb","srcpt_PFBC_DPF"), fishdata_sf, overwrite=TRUE) # write a feature class into the geodatabase
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_PFBC_DPF"), fishdata_sf, overwrite=TRUE) # write a feature class into the geodatabase
 fishdata_buffer <- st_buffer(fishdata_sf, dist=100) # buffer by 100m
-arc.write(path=here::here("_data/output/SGCN.gdb","final_PFBC_DPF"), fishdata_buffer, overwrite=TRUE) # write a feature class into the geodatabase
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_PFBC_DPF"), fishdata_buffer, overwrite=TRUE) # write a feature class into the geodatabase
 
 
 
