@@ -18,6 +18,9 @@
 # 1) Before running cleanup code, download and save eBird data in your working directory  
 # 2) cygwin (gawk) must be installed
 
+# clear the environments
+rm(list=ls())
+
 # load packages
 if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
   require(here)
@@ -27,10 +30,16 @@ source(here::here("scripts","00_PathsAndSettings.r"))
 # read in SGCN data
 loadSGCN("AB")
 sgcnlist <- unique(lu_sgcn$SNAME)
+sgcnlist <- sgcnlist[!sgcnlist %in% "Anas discors"]
+
+# create a 2016 sgcnlist for the old blue winged teal
+sgcnlist2016 <- sgcnlist[!sgcnlist %in% "Anas discors"] # species not in the ebird dataset
+# create a 2018 and later sgcn list for the new blue winged teal
+sgcnlist2018 <- sgcnlist
+sgcnlist2018[sgcnlist2018=="Anas discors"] <- "Spatula discors"
 
 
-sgcnlist <- sgcnlist[!sgcnlist %in% "Anas discors"] # species not in the ebird dataset
-
+# set the auk path
 auk_set_ebd_path(here::here("_data","input","SGCN_data","eBird"), overwrite=TRUE)
 
 # 2016 eBird data ##############################################
@@ -43,7 +52,7 @@ n <- 1
 # read in the file using auk
 ## Note: it's good to run each of these in turn, as it can fail if you do all of them at once.
 f_in <- here::here("_data","input","SGCN_data","eBird",fileList[[n]]) #"C:/Users/dyeany/Documents/R/eBird/ebd.txt"
-f_out <- "ebd_filtered_SGCN.txt"
+f_out <- "ebd_filtered2016_SGCN.txt"
 ebd <- auk_ebd(f_in)
 ebd_filters <- auk_species(ebd, species=sgcnlist, taxonomy_version=2016)
 ebd_filtered <- auk_filter(ebd_filters, file=f_out, overwrite=TRUE)
@@ -59,9 +68,9 @@ n <- 2
 # read in the file using auk
 ## Note: it's good to run each of these in turn, as it can fail if you do all of them at once.
 f_in <- here::here("_data","input","SGCN_data","eBird",fileList[[n]]) #"C:/Users/dyeany/Documents/R/eBird/ebd.txt"
-f_out <- "ebd_filtered_SGCN.txt"
+f_out <- "ebd_filtered2018_SGCN.txt"
 ebd <- auk_ebd(f_in)
-ebd_filters <- auk_species(ebd, species=sgcnlist, taxonomy_version=2017)
+ebd_filters <- auk_species(ebd, species=sgcnlist2018, taxonomy_version=2017)
 ebd_filtered <- auk_filter(ebd_filters, file=f_out, overwrite=TRUE)
 ebd_df2018 <- read_ebd(ebd_filtered)
 ebd_df2018_backup <- ebd_df2018
@@ -75,12 +84,19 @@ n <- 3
 # read in the file using auk
 ## Note: it's good to run each of these in turn, as it can fail if you do all of them at once.
 f_in <- here::here("_data","input","SGCN_data","eBird",fileList[[n]]) #"C:/Users/dyeany/Documents/R/eBird/ebd.txt"
-f_out <- "ebd_filtered_SGCN.txt"
+f_out <- "ebd_filtered2019_SGCN.txt"
 ebd <- auk_ebd(f_in)
-ebd_filters <- auk_species(ebd, species=sgcnlist, taxonomy_version=2017)
+ebd_filters <- auk_species(ebd, species=sgcnlist2018, taxonomy_version=2017)
 ebd_filtered <- auk_filter(ebd_filters, file=f_out, overwrite=TRUE)
 ebd_df2019 <- read_ebd(ebd_filtered)
 ebd_df2019_backup <- ebd_df2019
+
+# do a bunch of checks for fixing that blue winged teal data.
+  #"Spatula discors"   "Anas discors"
+ebd_df2018[which(ebd_df2018$scientific_name=="Spatula discors"),]$scientific_name <- "Anas discors"
+ebd_df2018[which(ebd_df2018$scientific_name=="Anas discors"),]
+ebd_df2019[which(ebd_df2019$scientific_name=="Spatula discors"),]$scientific_name <- "Anas discors" 
+ebd_df2019[which(ebd_df2019$scientific_name=="Anas discors"),] 
 
 # Combine 2016 and 2018 data ##################################
 setdiff(names(ebd_df2016), names(ebd_df2018))
@@ -192,9 +208,9 @@ names(ebd_df1)[names(ebd_df1)=='season'] <- 'SeasonCode'
 ebird_sf <- st_as_sf(ebd_df1, coords=c("longitude","latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
 ebird_sf <- st_transform(ebird_sf, crs=customalbers) # reproject to the custom albers
 ebird_sf <- ebird_sf[final_fields]
-arc.write(path=here::here("_data/output/SGCN.gdb","srcpt_eBird"), ebird_sf, overwrite=TRUE) # write a feature class into the geodatabase
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_eBird"), ebird_sf, overwrite=TRUE) # write a feature class into the geodatabase
 ebird_buffer <- st_buffer(ebird_sf, dist=100) # buffer by 100m
-arc.write(path=here::here("_data/output/SGCN.gdb","final_eBird"), ebird_buffer, overwrite=TRUE) # write a feature class into the geodatabase
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_eBird"), ebird_buffer, overwrite=TRUE) # write a feature class into the geodatabase
 
 # delete unneeded stuff
 rm(birdseason, lu_sgcn, ebd, ebd_df_backup, ebd_filtered, ebd_filters)
