@@ -44,9 +44,9 @@ bombus_sf <- st_as_sf(bombus, coords=c("longitude","latitude"), crs="+proj=longl
 bombus_sf <- st_transform(bombus_sf, crs=customalbers) # reproject to custom albers
 # field alignment
 bombus_sf <- bombus_sf[final_fields] 
-arc.write(path=here::here("_data/output/SGCN.gdb","srcpt_Bombus"), bombus_sf, overwrite=TRUE) # write a feature class into the geodatabase
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_Bombus"), bombus_sf, overwrite=TRUE) # write a feature class into the geodatabase
 bombus_buffer_sf <- st_buffer(bombus_sf, 100) # buffer the points by 100m
-arc.write(path=here::here("_data/output/SGCN.gdb","final_Bombus"), bombus_buffer_sf, overwrite=TRUE) # write a feature class to the gdb
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_Bombus"), bombus_buffer_sf, overwrite=TRUE) # write a feature class to the gdb
 
 #############################################################################################################################
 # One Time Data from PSU, DougGross, and ANF #################################################################################
@@ -72,9 +72,9 @@ birdsplus_sf <- st_transform(birdsplus_sf, crs=customalbers) # reproject to cust
 names(birdsplus_sf)[names(birdsplus_sf) == 'geom'] <- 'geometry'
 st_geometry(birdsplus_sf) <- "geometry"
 birdsplus_sf <- birdsplus_sf[final_fields]# field alignment
-arc.write(path=here::here("_data/output/SGCN.gdb","srcpt_BirdsPlus"), birdsplus_sf, overwrite=TRUE) # write a feature class into the geodatabase
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_BirdsPlus"), birdsplus_sf, overwrite=TRUE) # write a feature class into the geodatabase
 birdsplus_buffer_sf <- st_buffer(birdsplus_sf, 100) # buffer the points by 100m
-arc.write(path=here::here("_data/output/SGCN.gdb","final_BirdsPlus"), birdsplus_buffer_sf, overwrite=TRUE) # write a feature class to the gdb
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_BirdsPlus"), birdsplus_buffer_sf, overwrite=TRUE) # write a feature class to the gdb
 
 
 
