@@ -40,8 +40,8 @@ databasename <- here::here("_data","output",updateName,"coa_bridgetest.sqlite")
 biotics_path <- "W:/Heritage/Heritage_Data/Biotics_datasets.gdb"
 biotics_crosswalk <- here::here("_data","input","crosswalk_BioticsSWAP.csv") # note that nine species are not in Biotics at all
 
-# paths to cpp shapefiles
-cpp_path <- "W:/Heritage/Heritage_Projects/CPP/CPP_Pittsburgh.gdb"
+# paths to to server path to access cpp shapefiles, we connect to the cpp file in '02_SGCNcollector_BioticsCPP.r'
+serverPath <- paste("C:/Users/",Sys.getenv("USERNAME"),"/AppData/Roaming/ESRI/ArcGISPro/Favorites/PNHP.PGH-gis0.sde/",sep="")
 
 # cutoff year for records
 cutoffyear <- as.integer(format(Sys.Date(), "%Y")) - 25  # keep data that's only within 25 years

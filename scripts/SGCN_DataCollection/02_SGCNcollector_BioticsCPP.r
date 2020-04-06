@@ -34,7 +34,7 @@ lu_sgcnBioticsELCODE <- biotics_crosswalk$ELCODE
 
 ########################################################################################
 # load in Conservation Planning Polygons
-cppCore <- arc.open(paste(cpp_path, "CPP_Core", sep="/")) 
+cppCore <- arc.open(paste(serverPath,"PNHP.DBO.CPP_Core", sep=""))
 cppCore <- arc.select(cppCore, c("SNAME","EO_ID","Status"), where_clause="Status ='c' OR Status ='r'") 
 cppCore_sf <- arc.data2sf(cppCore)
 #### cppCore_sf <- cppCore_sf[which(cppCore_sf$SNAME %in% unique(lu_sgcn$SNAME)),] # bad SGCN names
