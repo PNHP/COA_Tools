@@ -11,6 +11,11 @@
 # To Do List/Future Ideas:
 # * 
 #---------------------------------------------------------------------------------------------
+
+# clear the environments
+rm(list=ls())
+
+
 # load packages
 if (!requireNamespace("arcgisbinding", quietly = TRUE)) install.packages("arcgisbinding")
 require(arcgisbinding)

@@ -14,6 +14,9 @@
 # # * 
 # #---------------------------------------------------------------------------------------------
 # 
+# clear the environments
+rm(list=ls())
+
 # # load packages
 # if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
 # require(here)

@@ -11,6 +11,8 @@
 # To Do List/Future Ideas:
 # * 
 #---------------------------------------------------------------------------------------------
+# clear the environments
+rm(list=ls())
 
 # load packages
 if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
