@@ -25,13 +25,13 @@ require(dplyr)
 arc.check_product() 
 
 # update name
-updateName <- "Fall2019"
+updateName <- "update202004"
 
 # rdata  file
-updateData <- here::here("_data","output",paste(updateName, "RData", sep="."))
+updateData <- here::here("_data","output",updateName,paste(updateName, "RData", sep="."))
 
 # output database name
-databasename <- here::here("_data","output","coa_bridgetest.sqlite")
+databasename <- here::here("_data","output",updateName,"coa_bridgetest.sqlite")
 
 # paths to biotics shapefiles
 biotics_path <- "W:/Heritage/Heritage_Data/Biotics_datasets.gdb"
