@@ -18,6 +18,8 @@
 # * write bibtex
 # * Migrant, Unknown, Stray, Temporary Colonist, Nonresident filter
 #---------------------------------------------------------------------------------------------
+# clear the environments
+rm(list=ls())
 
 # load packages
 if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
