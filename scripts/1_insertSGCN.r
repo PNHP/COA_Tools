@@ -9,6 +9,8 @@
 # * modify to run off the lu_sgcn data on the arc server
 #-------------------------------------------------------------------------------
 
+# clear the environments
+rm(list=ls())
 
 
 if (!requireNamespace("here", quietly=TRUE)) install.packages("here")

@@ -1,6 +1,9 @@
 if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
 require(here)
 
+# clear the environments
+rm(list=ls())
+
 # copy the blankSGCN directory from the base folder to the output directory
 current_folder <- here::here("_data","SGCN_blank.gdb") 
 new_folder <- here::here("_data","output",updateName,"SGCN.gdb") 

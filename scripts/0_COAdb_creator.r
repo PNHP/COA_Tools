@@ -10,14 +10,15 @@
 # To Do List/Future ideas:
 #
 #-------------------------------------------------------------------------------
+# clear the environments
+rm(list=ls())
 
 if (!requireNamespace("here", quietly=TRUE)) install.packages("here")
 require(here)
 
-## create an empty sqlite db
-
 source(here::here("scripts", "00_PathsAndSettings.r"))
 
+# create an empty sqlite db
 # connect to the database
 db <- dbConnect(SQLite(), dbname=databasename) # creates an empty COA database
 
