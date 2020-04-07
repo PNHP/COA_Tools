@@ -39,19 +39,26 @@ setwd("E:/COA_Tools/_data/input/SGCN_data/PFBC_FishDPF") #E:\COA_Tools\_data\inp
 
 # join the individual fish dataframes into one
 my_files <- list.files(pattern = "\\.csv$")
+my_files <- my_files[-length(my_files)]
 my_data <- lapply(my_files, function(i){read.csv(i,header=TRUE, stringsAsFactors=FALSE,colClasses=c("SCP_siteID"="character","Museum_Number"="character","N_vouchered"="character","SCP_PermitNumber"="character","N_Detected"="character","TSN"="character","HUC_8"="character","Lat"="character"))}) #,colClasses=c("SCP_siteID"="character","Date"="character","N_vouchered"="character","Museum_Number"="character","N_Detected"="character","TSN"="character","HUC_8"="character","SCP_PermitNumber"="character","lat"="numeric")
 
 my_data <- lapply(my_data, function(x) {
-  names(x)<-tolower(names(x))
+  names(x) <- tolower(names(x))
   x})
 
 #make a data frame
 fishdata_master <- dplyr::bind_rows(my_data)
 
+fishdata_master$x <- NULL
+fishdata_master$x.1 <- NULL
+fishdata_master$x.2 <- NULL
+
 ### extra fish data
 # read in SGCN data
 fishdata_extra <- read.csv(here::here("_data/input/SGCN_data/PFBC_FishDPF","UpdatedFishDataFromDoug.csv"), stringsAsFactors=FALSE)
 fishdata_extra$X <- NULL
+
+
 
 fishdata <- rbind(fishdata_master, fishdata_extra)
 
@@ -73,8 +80,8 @@ names(fishdata)[names(fishdata) == "long"] <- "lon"
 fishdata$SNAME[fishdata$SNAME=="Acipenser oxyrinchus"] <- "Acipenser oxyrhynchus"
 fishdata$SNAME[fishdata$SNAME=="Cottus sp."] <- "Cottus sp. cf. cognatus"
 fishdata$SNAME[fishdata$SNAME=="Notropis dorsalis"] <- "Hybopsis dorsalis"
-fishdata$SNAME[fishdata$SNAME=="Lota sp."] <- "Lota sp. cf. lota"
-fishdata$SNAME[fishdata$SNAME=="Lota sp. "] <- "Lota sp. cf. lota" # extra space after "sp."
+fishdata$SNAME[fishdata$SNAME=="Lota sp."] <- "Lota lota pop. 4"
+fishdata$SNAME[fishdata$SNAME=="Lota sp. "] <- "Lota lota pop. 4" # extra space after "sp."
 fishdata$SNAME[fishdata$SNAME=="Notropis heterolepis"] <- "Notropis heterodon"
 fishdata$SNAME[fishdata$SNAME=="Chaenobryttus gulosus"] <- "Lepomis gulosus"
 
