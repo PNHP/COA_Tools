@@ -37,7 +37,7 @@ lu_sgcn <- lu_sgcn[which(substr(lu_sgcn$ELSeason,1,4)=="IILE"),]
 # sgcnLepBiotics <- setdiff(lu_sgcn$SNAME, SGCN_bioticsCPP)
 
 # read in BAMONA data
-bamona_file <- "bamona_data_02_19_2019.csv"
+bamona_file <- "bamona_data_04_07_2020.csv"
 bamona <- read.csv(here::here("_data","input","SGCN_data","bamona", bamona_file), stringsAsFactors=FALSE)
 bamona_citation <- "Lotts, Kelly and Thomas Naberhaus, coordinators. 2017. Butterflies and Moths of North America. http://www.butterfliesandmoths.org/ (Version MMDDYYYY)"
 
