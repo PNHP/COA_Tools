@@ -19,13 +19,13 @@ require(here)
 source(here::here("scripts", "00_PathsAndSettings.r"))
 
 ## Read SGCN list in
-SGCN <- read.csv(here::here("_data","input","lu_sgcn.csv"), stringsAsFactors=FALSE) # read in the SGCN list
+SGCN <- read.csv(here::here("_data","input","lu_SGCNnew.csv"), stringsAsFactors=FALSE) # read in the SGCN list
 
 # QC to make sure that the ELCODES match the first part of the ELSeason code.
 if(length(setdiff(SGCN$ELCODE, gsub("(.+?)(\\_.*)", "\\1", SGCN$ELSeason)))==0){
   print("ELCODEs and ELSeason strings match")
 } else {
-  print(paste("Codes for ", setdiff(SGCN$ELCODE, gsub("(.+?)(\\_.*)", "\\1", SGCN$ELSeason)), "do not match", sep=""))
+  print(paste("Codes for ", setdiff(SGCN$ELCODE, gsub("(.+?)(\\_.*)", "\\1", SGCN$ELSeason)), " do not match;", sep=""))
 }
 
 # check for leading/trailing whitespace
@@ -34,6 +34,42 @@ SGCN$SCOMNAME <- trimws(SGCN$SCOMNAME, which="both")
 SGCN$ELSeason <- trimws(SGCN$ELSeason, which="both")
 SGCN$TaxaDisplay <- trimws(SGCN$TaxaDisplay, which="both")
 
+# compare to the ET
+#get the most recent ET
+ET_file <- list.files(path="P:/Conservation Programs/Natural Heritage Program/Data Management/Biotics Database Areas/Element Tracking/current element lists", pattern=".xlsx$")  # --- make sure your excel file is not open.
+ET_file
+#look at the output and choose which shapefile you want to run
+#enter its location in the list (first = 1, second = 2, etc)
+n <- 3
+ET_file <- file.path("P:/Conservation Programs/Natural Heritage Program/Data Management/Biotics Database Areas/Element Tracking/current element lists",ET_file[n])
+
+#get a list of the sheets in the file
+ET_sheets <- getSheetNames(ET_file)
+#look at the output and choose which excel sheet you want to load
+# Enter the actions sheet (eg. "lu_actionsLevel2") 
+ET_sheets # list the sheets
+n <- 1 # enter its location in the list (first = 1, second = 2, etc)
+ET <- read.xlsx(xlsxFile=ET_file, sheet=ET_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE)
+
+ET <- ET[c("ELCODE","SCIENTIFIC.NAME","COMMON.NAME","G.RANK","S.RANK","SRANK.CHANGE.DATE","SRANK.REVIEW.DATE","TRACKING.STATUS")] # which(ET$SGCN.STATUS=="Y"),
+
+SGCNtest <- merge(SGCN[c("ELCODE","SNAME","SCOMNAME","GRANK","SRANK")], ET, by.x="ELCODE", by.y="ELCODE", all.x = TRUE)
+
+SGCNtest$matchGRANK <- ifelse(SGCNtest$GRANK==SGCNtest$G.RANK,"yes","no")
+SGCNtest$matchSRANK <- ifelse(SGCNtest$SRANK==SGCNtest$S.RANK,"yes","no")
+
+SGCNtest[which(SGCNtest$matchGRANK=="no"),]$SNAME
+SGCNtest[which(SGCNtest$matchSRANK=="no"),]$SNAME
+
+SGCN1 <- merge(SGCN, ET[c("ELCODE","G.RANK","S.RANK")], by="ELCODE", all.x = TRUE )
+SGCN1$GRANK <- SGCN1$G.RANK
+SGCN1$G.RANK <- NULL
+SGCN1$SRANK <- SGCN1$S.RANK
+SGCN1$S.RANK <- NULL
+
+SGCN <- SGCN1
+
+###########################################
 # write the lu_sgcn table to the database
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
 dbWriteTable(db, "lu_SGCN", SGCN, overwrite=TRUE) # write the table to the sqlite
