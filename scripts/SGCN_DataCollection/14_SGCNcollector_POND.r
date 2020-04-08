@@ -57,6 +57,7 @@ point_fields <- c('wpc_id','pool_name','Shape')
 p <- arc.open(pond_pts)
 pond_points <- arc.select(p,point_fields)
 pond_sf <- arc.data2sf(pond_points)
+st_crs(pond_sf) <- 3857 #set to web mercator
 
 #limit POND points to those with SGCN species in them
 sgcn_points <- merge(x=pond_sf, y=sgcn_surveys, by='wpc_id', all.y=TRUE)
