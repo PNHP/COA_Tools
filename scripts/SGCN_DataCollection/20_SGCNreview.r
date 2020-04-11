@@ -25,21 +25,22 @@ source(here::here("scripts","00_PathsAndSettings.r"))
 
 ######################################################################################
 # get lu_sgcn and lu_sgcnXpu data from sqlite database
-db <- dbConnect(SQLite(), dbname = databasename)
+db <- dbConnect(SQLite(), dbname=databasename)
 lu_sgcn_SQLquery <- "SELECT ELSeason, ELCODE, SCOMNAME, SNAME, TaxaDisplay, SeasonCode FROM lu_sgcn"
 lu_sgcnXpu_SQLquery <- "SELECT unique_id, OccProb, PERCENTAGE, ELSeason FROM lu_sgcnXpu_all"
 lu_actionsLevel2_SQLquery <- "SELECT ELSeason, SCOMNAME, SNAME, ActionCategory2, COATool_ActionsFINAL FROM lu_actionsLevel2" #eventually add Group - currently not working
-lu_sgcn <- dbGetQuery(db, statement = lu_sgcn_SQLquery)
-lu_sgcnXpu <- dbGetQuery(db, statement = lu_sgcnXpu_SQLquery)
-lu_actions <- dbGetQuery(db, statement = lu_actionsLevel2_SQLquery)
+lu_sgcn <- dbGetQuery(db, statement=lu_sgcn_SQLquery)
+lu_sgcnXpu <- dbGetQuery(db, statement=lu_sgcnXpu_SQLquery)
+lu_actions <- dbGetQuery(db, statement=lu_actionsLevel2_SQLquery)
 dbDisconnect(db) # disconnect the db
 
 ## minor fixes
-lu_sgcnXpu[lu_sgcnXpu=="AAAAE01040_y"] <- "AAAAE01042_y"
-lu_sgcnXpu[lu_sgcnXpu=="AMAFB09020_y"] <- "AMAFB09030_y"
-lu_sgcnXpu[lu_sgcnXpu=="AMAFB09020_y"] <- "IILEP42010_y"
-lu_sgcnXpu[lu_sgcnXpu=="ABPBX03240_y"] <- "ABPBX03240_b"
+lu_sgcnXpu[lu_sgcnXpu=="AAAAE01040_y"] <- "AAAAE01042_y" # mudpuppy
+lu_sgcnXpu[lu_sgcnXpu=="AMAFB09020_y"] <- "AMAFB09030_y" # northern flying squirrel
+lu_sgcnXpu[lu_sgcnXpu=="AMAFB09020_y"] <- "IILEP42010_y" # arctic skipper
+lu_sgcnXpu[lu_sgcnXpu=="ABPBX03240_y"] <- "ABPBX03240_b" # cerulean warbler
 
+# i think this gets rid of some bad records, mayb strays from the biotics import
 lu_sgcnXpu <- lu_sgcnXpu[which(lu_sgcnXpu$ELSeason!="ABNKD06020_y"&lu_sgcnXpu$ELSeason!="ABPBX03120_y"&lu_sgcnXpu$ELSeason!="ABPBX16010_y"&lu_sgcnXpu$ELSeason!="ABNTA07070_y"&lu_sgcnXpu$ELSeason!="ABPBK01010_y"&lu_sgcnXpu$ELSeason!="ABPBX01060_y"&lu_sgcnXpu$ELSeason!="ABPBXA4020_y"&lu_sgcnXpu$ELSeason!="ABNSB13040_y"&lu_sgcnXpu$ELSeason!="ABNNF19020_y"&lu_sgcnXpu$ELSeason!="ABPBA01010_y"&lu_sgcnXpu$ELSeason!="ABPBJ18100_y"&lu_sgcnXpu$ELSeason!="ABPBX05010_y"&lu_sgcnXpu$ELSeason!="ABPAU01010_y"&lu_sgcnXpu$ELSeason!="ABNNM08070_y"&lu_sgcnXpu$ELSeason!="ABPBY06030_y"&lu_sgcnXpu$ELSeason!="ABPBG10020_y"&lu_sgcnXpu$ELSeason!="ABPBX03050_y"&lu_sgcnXpu$ELSeason!="ABPBX03230_y"&lu_sgcnXpu$ELSeason!="ABNME05030_y"&lu_sgcnXpu$ELSeason!="ABNCA03010_y"&lu_sgcnXpu$ELSeason!="AMACC04010_y"&lu_sgcnXpu$ELSeason!="ABNME08020_y"&lu_sgcnXpu$ELSeason!="ABNKC12020_y"&lu_sgcnXpu$ELSeason!="ABNME13030"),]
 
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
@@ -115,9 +116,7 @@ if(nrow(actions_null_ELCODE)>0){
 print(unique(sort(lu_actions$ActionCategory2)))
 
 
-
-
-
+###################################################
 # creation of summary table
 source(here::here("scripts","00_PathsAndSettings.r"))
 # read in SGCN data
@@ -127,7 +126,7 @@ loadSGCN()
 lu_sgcn <- unique(lu_sgcn[c("ELCODE","SNAME","SCOMNAME","TaxaGroup")])
 
 # get data
-SGCN <- arc.open(path=here::here("_data/output/SGCN.gdb","allSGCNuse"))
+SGCN <- arc.open(path=here::here("_data","output",updateName,"SGCN.gdb","allSGCNuse"))
 SGCN <- arc.select(SGCN)
 
 # aggregate data by min/max year
@@ -159,7 +158,7 @@ SGCNsummary[SGCNsummary=="PFBC_DPF"] <- "PFBC"
 names(SGCNsummary) <- c("Taxonomic Group","Common Name","Scientific Name","Data Source","Record Count","MinYear","MaxYear")
 
 
-write.csv(SGCNsummary, "SGCNsummary_20191029.csv", row.names=FALSE)
+write.csv(SGCNsummary, here::here("_data","output",updateName,paste("SGCNsummary",updateName,".csv",sep="")), row.names=FALSE)
 
                       
 
