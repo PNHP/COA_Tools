@@ -25,13 +25,13 @@ dbDisconnect(db) # disconnect the db
 
 
 
-CREATE INDEX habitat ON lu_HabTerr (unique_id, Code)
-CREATE INDEX habitataq ON lu_LoticData (unique_id, SUM_23)
-CREATE INDEX maindex ON lu_sgcnXpu_all (unique_id,ELSeason)
-CREATE INDEX muni ON lu_muni (unique_id)
-CREATE INDEX natbound ON lu_NaturalBoundaries (unique_id)
-CREATE INDEX proland ON lu_ProtectedLands_25 (unique_id)
-CREATE INDEX threats ON lu_threats (unique_id)
+CREATE INDEX habitat ON lu_HabTerr (unique_id, Code);
+CREATE INDEX habitataq ON lu_LoticData (unique_id, SUM_23);
+CREATE INDEX maindex ON lu_sgcnXpu_all (unique_id,ELSeason);
+CREATE INDEX muni ON lu_muni (unique_id);
+CREATE INDEX natbound ON lu_NaturalBoundaries (unique_id);
+CREATE INDEX proland ON lu_ProtectedLands_25 (unique_id);
+CREATE INDEX threats ON lu_threats (unique_id);
 
 
 olddatabasename <- "coa_bridgetest_previous.sqlite" 
