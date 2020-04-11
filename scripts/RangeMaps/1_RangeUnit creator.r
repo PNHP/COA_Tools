@@ -48,12 +48,12 @@ substrRight <- function(x, n){
 }
 
 # set options   
-options(useFancyQuotes = FALSE)
+options(useFancyQuotes=FALSE)
 
 # Set input paths ----
 databasename <- here::here("_data","output",updateName,"coa_bridgetest.sqlite") 
 
-db <- dbConnect(SQLite(), dbname = databasename)
+db <- dbConnect(SQLite(), dbname=databasename)
 # get the SGCN by planning unit data
 SQLquery <- paste("SELECT unique_id, ELSeason, OccProb", " FROM lu_sgcnXpu_all ", " WHERE OccProb='k' OR OccProb='K' OR OccProb='l' OR OccProb='L'")
 data_sgcnXpu <- dbGetQuery(db, statement = SQLquery)
