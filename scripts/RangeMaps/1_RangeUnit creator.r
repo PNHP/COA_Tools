@@ -38,17 +38,9 @@ list_of_files <- list.files(path=current_folder, full.names=TRUE)
 dir.create(new_folder)
 file.copy(from=file.path(list_of_files), to=new_folder,  overwrite=TRUE, recursive=FALSE, copy.mode=TRUE)
 
-
-# # check to see if sws.gdb exists and create a new one
-# if(dir.exists(here::here("_data","output","sws","sws.gdb"))) {
-#   use_python("C:/Users/CTracey/AppData/Local/ESRI/conda/envs/arcgispro-py3-clone", required=TRUE)
-#   arcpy <- import("arcpy")
-#   gdbName <- "sws.gdb"
-#   arcpy$CreateFileGDB_management(out_folder_path=here::here("_data","output","sws"), out_name=gdbName)
-# } else {
-#   print("sws.gdb already exists, please rename or move.")
-# }
-# rm(arcpy)
+# copy mxds
+file.copy(from=here::here("_data","templates","SGCNCountyRangeMaps.mxd"), to=here::here("_data","output",updateName,"SGCNCountyRangeMaps.mxd"),  overwrite=TRUE, recursive=FALSE, copy.mode=TRUE)
+file.copy(from=here::here("_data","templates","SGCNWatershedRangeMaps.mxd"), to=here::here("_data","output",updateName,"SGCNWatershedRangeMaps.mxd"),  overwrite=TRUE, recursive=FALSE, copy.mode=TRUE)
 
 # function to grab the rightmost characters
 substrRight <- function(x, n){
@@ -59,7 +51,7 @@ substrRight <- function(x, n){
 options(useFancyQuotes = FALSE)
 
 # Set input paths ----
-databasename <- here::here("_data","output","coa_bridgetest.sqlite") 
+databasename <- here::here("_data","output",updateName,"coa_bridgetest.sqlite") 
 
 db <- dbConnect(SQLite(), dbname = databasename)
 # get the SGCN by planning unit data
