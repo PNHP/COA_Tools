@@ -10,19 +10,15 @@
 # To Do List/Future Ideas:
 #---------------------------------------------------------------------------------------------
 
-# this script requires a geodatabase to be placed in the "" directory called "sws.gdb".  This gdb should two feature classes contained within it ("_huc08" and "_county")
+# clear the environments
+rm(list=ls())
+
+if (!requireNamespace("here", quietly=TRUE)) install.packages("here")
+require(here)
+
+source(here::here("scripts", "00_PathsAndSettings.r"))
 
 # load packages
-if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
-  require(here)
-if (!requireNamespace("RSQLite", quietly = TRUE)) install.packages("RSQLite")
-  require(RSQLite)
-if (!requireNamespace("arcgisbinding", quietly = TRUE)) install.packages("arcgisbinding")
-  require(arcgisbinding)
-if (!requireNamespace("reshape", quietly = TRUE)) install.packages("reshape")
-  require(reshape2)
-if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
-  require(sf)
 if (!requireNamespace("stringr", quietly = TRUE)) install.packages("stringr")
   require(stringr)
 if (!requireNamespace("reticulate", quietly = TRUE)) install.packages("reticulate")
@@ -32,6 +28,11 @@ if (!requireNamespace("naniar", quietly = TRUE)) install.packages("naniar")
 
 # load the arcgis license
 arc.check_product()
+
+# this script requires a geodatabase to be placed in the "" directory called "sws.gdb".  This gdb should two feature classes contained within it ("_huc08" and "_county")
+
+
+
 
 # # check to see if sws.gdb exists and create a new one
 # if(dir.exists(here::here("_data","output","sws","sws.gdb"))) {
