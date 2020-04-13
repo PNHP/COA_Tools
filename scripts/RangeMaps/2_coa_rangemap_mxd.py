@@ -10,7 +10,7 @@
 
 ##################################### SET PATH TO FOLDER AND FIELD VARIABLES #########################################################################
 #set folder where sws gdb and .mxds are included
-folder = r'C:\_Updated_2019_12_19'
+folder =  r'E:\COA_Tools\_data\output\_update2020q1' # r'C:\_Updated_2019_12_19'
 desiredFields = ['COUNTY_NAM','NAME','TaxaDisplay', 'SCOMNAME', 'SNAME', 'y', 'b', 'm', 'w', 'GRANK', 'SRANK', 'USESA', 'SPROT', 'PBSSTATUS', 'Shape', 'OBJECTID']
 ######################################################################################################################################################
 #import modules
@@ -160,6 +160,7 @@ def format_mxd(mxd,df_name,fc,alltaxa):
         t = taxa_assign(path)
         scomname = t[0]
         taxa = t[1]
+        edit_attributes(f) # added by ct
         #change layer name to scomname, turn off layer, and add to taxa group
         if scomname is None or taxa is None:
             pass
