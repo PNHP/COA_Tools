@@ -25,6 +25,7 @@ if (!requireNamespace("reticulate", quietly = TRUE)) install.packages("reticulat
   require(reticulate)
 if (!requireNamespace("naniar", quietly = TRUE)) install.packages("naniar")
   require(naniar)
+library(reshape2)
 
 # load the arcgis license
 arc.check_product()
@@ -126,7 +127,7 @@ sws_huc08agg_cast$w_prop <- NULL
 sws_huc08agg_cast$y_prop <- NULL
 
 # load the huc08 basemap
-huc08_shp <- arc.open(here::here("_data","output","sws","sws.gdb", "_huc08"))
+huc08_shp <- arc.open(here::here("_data","output",updateName,"sws.gdb", "_huc08"))
 huc08_shp <- arc.select(huc08_shp)
 huc08_shp <- arc.data2sf(huc08_shp)
 huc08_shp <- huc08_shp[c("OBJECTID","HUC8","NAME")]
@@ -140,7 +141,7 @@ for(i in 1:length(sgcnlist)){
   sws_huc08_1a <- merge(huc08_shp,sws_huc08_1,by.x="HUC8",by.y="HUC08")
   sws_huc08_1a <- merge(sws_huc08_1a,data_sgcn,by="ELCODE", all.x=TRUE)
   sws_huc08_1a <- sws_huc08_1a[c("HUC8","NAME","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","GRANK","SRANK","USESA","SPROT","PBSSTATUS","geometry")]  #    "ELCODE"              "OBJECTID"
-  arc.write(file.path(here::here("_data","output","sws","sws.gdb",paste("huc08",sgcnlist[i],sep="_"))),sws_huc08_1a ,overwrite=TRUE)
+  arc.write(file.path(here::here("_data","output",updateName,"sws.gdb",paste("huc08",sgcnlist[i],sep="_"))),sws_huc08_1a ,overwrite=TRUE)
 }
 
 ################
@@ -168,7 +169,7 @@ sws_countyagg_cast$w_prop <- NULL
 sws_countyagg_cast$y_prop <- NULL
 
 # load the county basemap
-county_shp <- arc.open(here::here("_data","output","sws","sws.gdb", "_county")) 
+county_shp <- arc.open(here::here("_data","output",updateName,"sws.gdb", "_county")) 
 county_shp <- arc.select(county_shp)
 county_shp <- arc.data2sf(county_shp)
 county_shp <- county_shp[c("OBJECTID","COUNTY_NAM","COUNTY_NUM","FIPS_COUNT")]
@@ -182,7 +183,7 @@ for(i in 1:length(sgcnlist)){
   sws_county_1a <- merge(county_shp,sws_county_1,by="COUNTY_NAM")
   sws_county_1a <- merge(sws_county_1a,data_sgcn,by="ELCODE", all.x=TRUE)
   sws_county_1a <- sws_county_1a[c("COUNTY_NAM","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","GRANK","SRANK","USESA","SPROT","PBSSTATUS","geometry")]
-  arc.write(file.path(here::here("_data","output","sws","sws.gdb",paste("county",sgcnlist[i],sep="_"))),sws_county_1a ,overwrite=TRUE)
+  arc.write(file.path(here::here("_data","output",updateName,"sws.gdb",paste("county",sgcnlist[i],sep="_"))),sws_county_1a ,overwrite=TRUE)
 }
 
 ###################################
@@ -192,13 +193,13 @@ huc08agg <- merge(huc08agg,data_sgcn,by="ELCODE", all.x=TRUE)
 #huc08agg <- huc08agg[c("HUC8","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","GRANK","SRANK","USESA","SPROT","PBSSTATUS")]
 huc08agg_all <- merge(huc08_shp, huc08agg, by.x="HUC8", by.y="HUC08")
 huc08agg_all <- huc08agg_all[c("HUC8","NAME","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","GRANK","SRANK","USESA","SPROT","PBSSTATUS")]
-arc.write(here::here("_data","output","sws","sws.gdb","_HUC08_SGCN"), huc08agg_all, overwrite=TRUE)
+arc.write(here::here("_data","output",updateName,"sws.gdb","_HUC08_SGCN"), huc08agg_all, overwrite=TRUE, validate=TRUE)
 
 countyagg <- sws_countyagg_cast
 countyagg <- merge(countyagg,data_sgcn,by="ELCODE", all.x=TRUE)
 countyagg <- countyagg[c("COUNTY_NAM","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","GRANK","SRANK","USESA","SPROT","PBSSTATUS")]
 countyagg_all <- merge(county_shp, countyagg, by="COUNTY_NAM")
-arc.write(here::here("_data","output","sws","sws.gdb","_county_SGCN"), countyagg_all, overwrite=TRUE)
+arc.write(here::here("_data","output",updateName,"sws.gdb","_county_SGCN"), countyagg_all, overwrite=TRUE, validate=TRUE)
 
 
 
