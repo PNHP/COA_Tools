@@ -19,13 +19,13 @@ require(here)
 source(here::here("scripts", "00_PathsAndSettings.r"))
 
 # load packages
-if (!requireNamespace("stringr", quietly = TRUE)) install.packages("stringr")
+if (!requireNamespace("stringr", quietly=TRUE)) install.packages("stringr")
   require(stringr)
-if (!requireNamespace("reticulate", quietly = TRUE)) install.packages("reticulate")
+if (!requireNamespace("reticulate", quietly=TRUE)) install.packages("reticulate")
   require(reticulate)
-if (!requireNamespace("naniar", quietly = TRUE)) install.packages("naniar")
+if (!requireNamespace("naniar", quietly=TRUE)) install.packages("naniar")
   require(naniar)
-if (!requireNamespace("reshape2", quietly = TRUE)) install.packages("reshape2")
+if (!requireNamespace("reshape2", quietly=TRUE)) install.packages("reshape2")
   require(reshape2)
 
 # load the arcgis license
@@ -41,8 +41,8 @@ dir.create(new_folder)
 file.copy(from=file.path(list_of_files), to=new_folder,  overwrite=TRUE, recursive=FALSE, copy.mode=TRUE)
 
 # # copy mxds
- file.copy(from=here::here("_data","templates","SGCNCountyRangeMaps.mxd"), to=here::here("_data","output",updateName,"SGCNCountyRangeMaps.mxd"),  overwrite=TRUE, recursive=FALSE, copy.mode=TRUE)
- file.copy(from=here::here("_data","templates","SGCNWatershedRangeMaps.mxd"), to=here::here("_data","output",updateName,"SGCNWatershedRangeMaps.mxd"),  overwrite=TRUE, recursive=FALSE, copy.mode=TRUE)
+file.copy(from=here::here("_data","templates","SGCNCountyRangeMaps.mxd"), to=here::here("_data","output",updateName,"SGCNCountyRangeMaps.mxd"),  overwrite=TRUE, recursive=FALSE, copy.mode=TRUE)
+file.copy(from=here::here("_data","templates","SGCNWatershedRangeMaps.mxd"), to=here::here("_data","output",updateName,"SGCNWatershedRangeMaps.mxd"),  overwrite=TRUE, recursive=FALSE, copy.mode=TRUE)
 
 # function to grab the rightmost characters
 substrRight <- function(x, n){
@@ -69,11 +69,17 @@ data_countyname$FIPS_COUNT <- str_pad(data_countyname$FIPS_COUNT, width=3, pad="
 # get the HUC08 data
 SQLquery_luNatBound <- paste("SELECT unique_id, HUC08"," FROM lu_NaturalBoundaries ")
 data_NaturalBoundaries <- dbGetQuery(db, statement = SQLquery_luNatBound )
+
 # get SGCN data
 SQLquery <- paste("SELECT ELCODE, SCOMNAME, SNAME, GRANK, SRANK, USESA, SPROT, PBSSTATUS, TaxaDisplay"," FROM lu_sgcn ")
 data_sgcn <- dbGetQuery(db, statement = SQLquery)
 data_sgcn <- unique(data_sgcn)
 data_sgcn <- replace_with_na(data_sgcn, replace=list(USESA="",SPROT="",PBSSTATUS=""))
+
+# get the primary macrogroup
+SQLquery_luPriMacrogroup <- paste("SELECT *"," FROM lu_PrimaryMacrogroup ")
+data_luPriMacrogroup <- dbGetQuery(db, statement = SQLquery_luPriMacrogroup )
+
 
 # disconnect the db
 dbDisconnect(db)
@@ -103,6 +109,8 @@ sws <- sws[c("unique_id","HUC08","COUNTY_NAM","ELCODE","season","OccProb")]
 # make a table of the count of PUs by HUC08 just for informational purposes
 PU_huc08 <- as.data.frame(table(sws$HUC08))
 PU_county <- as.data.frame(table(sws$COUNTY_NAM))
+
+
 ####
 # summarize by HUC08
 sws_huc08agg <- aggregate(unique_id ~ ELCODE+OccProb+HUC08+season, sws, function(x) length(x))
@@ -144,7 +152,7 @@ for(i in 1:length(sgcnlist)){
   print(paste(sgcnlist[i],", which is species ",i," of ",length(sgcnlist), sep=""))
   sws_huc08_1a <- merge(huc08_shp,sws_huc08_1,by.x="HUC8",by.y="HUC08")
   sws_huc08_1a <- merge(sws_huc08_1a,data_sgcn,by="ELCODE", all.x=TRUE)
-  sws_huc08_1a <- sws_huc08_1a[c("ELCODE","HUC8","NAME","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","GRANK","SRANK","USESA","SPROT","PBSSTATUS","geometry")]  #    "ELCODE"              "OBJECTID"
+  sws_huc08_1a <- sws_huc08_1a[c("HUC8","NAME","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","GRANK","SRANK","USESA","SPROT","PBSSTATUS","geometry")]  #    "ELCODE"              "OBJECTID"  "ELCODE",
   arc.write(file.path(here::here("_data","output",updateName,"sws.gdb",paste("huc08",sgcnlist[i],sep="_"))),sws_huc08_1a ,overwrite=TRUE, shape_info=arc.shapeinfo(huc08_shpprj))
 }
 
@@ -189,7 +197,7 @@ for(i in 1:length(sgcnlist)){
   print(paste(sgcnlist[i],", which is species ",i," of ",length(sgcnlist), sep=""))
   sws_county_1a <- merge(county_shp,sws_county_1,by="COUNTY_NAM")
   sws_county_1a <- merge(sws_county_1a,data_sgcn,by="ELCODE", all.x=TRUE)
-  sws_county_1a <- sws_county_1a[c("ELCODE","COUNTY_NAM","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","GRANK","SRANK","USESA","SPROT","PBSSTATUS","geometry")]
+  sws_county_1a <- sws_county_1a[c("COUNTY_NAM","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","GRANK","SRANK","USESA","SPROT","PBSSTATUS","geometry")] # "ELCODE",
   arc.write(file.path(here::here("_data","output",updateName,"sws.gdb",paste("county",sgcnlist[i],sep="_"))),sws_county_1a ,overwrite=TRUE, shape_info=arc.shapeinfo(county_shpprj))
 }
 
