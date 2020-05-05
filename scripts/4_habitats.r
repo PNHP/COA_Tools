@@ -39,10 +39,6 @@ n <- 6 # enter its location in the list (first = 1, second = 2, etc)
 SpecificHabitatReq <- read.xlsx(xlsxFile=SpecificHab_file, sheet=SpecificHab_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE)
 SpecificHabitatReq <- SpecificHabitatReq[c("ELSEASON","SNAME","SCOMNAME","Group","SpecificHabitatRequirements" )]
 
-
-
-
-
 # write to the database
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
 dbWriteTable(db, "lu_SpecificHabitatReq", SpecificHabitatReq, overwrite=TRUE) # write the table to the sqlite
@@ -58,10 +54,20 @@ rm(SpecificHabitatReq, SpecificHabitatReq_NeedInfo)
 
 
 ## Primary Macrogroups
+
+loadSGCN()
+
 PrimaryMacrogroup <- read.csv(here::here("_data","input","lu_PrimaryMacrogroup.csv"), stringsAsFactors=FALSE)
+
+nomatch <- setdiff(lu_sgcn$ELSeason, PrimaryMacrogroup$ELSeason)
+nomatch1 <- setdiff(PrimaryMacrogroup$ELSeason, lu_sgcn$ELSeason)
+nomatch1
+
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
   dbWriteTable(db, "lu_PrimaryMacrogroup", PrimaryMacrogroup, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
+
+
 
 ## Habitat Names
 HabitatName <- read.csv(here::here("_data","input","lu_HabitatName.csv"), stringsAsFactors=FALSE)
