@@ -100,3 +100,4 @@ rm(bamona, bamona1, lu_sgcn, SGCN_bioticsCPP)
 
 
 #render(here("scripts","SGCN_DataCollection","markdown_BAMONA.rmd"))
+

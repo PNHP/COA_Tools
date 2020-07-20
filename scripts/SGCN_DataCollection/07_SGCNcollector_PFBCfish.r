@@ -31,7 +31,7 @@ source(here::here("scripts","00_PathsAndSettings.r"))
 loadSGCN("AF")
 
 # laod and assemble the fish data from the indivdual excel files
-setwd("E:/COA_Tools/_data/input/SGCN_data/PFBC_FishDPF") #E:\COA_Tools\_data\input\SGCN_data\PFBC_FishDPF
+setwd(here::here("_data/input/SGCN_data/PFBC_FishDPF")) #E:\COA_Tools\_data\input\SGCN_data\PFBC_FishDPF
 
 # load the csv to dataframes  #### I don't think this is needed anymore....
 #temp = list.files(pattern="*DPF.csv")

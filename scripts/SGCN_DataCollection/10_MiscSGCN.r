@@ -53,9 +53,10 @@ arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_Bombus")
 
 #############################################################################################################################
 # One Time Data from PSU, DougGross, and ANF #################################################################################
-birdsplus <- arc.open(here::here("_data","input","SGCN_data","birdsplus","birdsplus.shp")) 
+birdsplus <- arc.open(here::here("_data","input","SGCN_data","birdsplus","birdsplus_NAD83.shp")) 
 birdsplus <- arc.select(birdsplus) 
-birdsplus <- arc.data2sf(birdsplus) 
+birdsplus <- arc.data2sf(birdsplus)
+st_crs(birdsplus) <- 4269
 
 birdsplus <- birdsplus[which(birdsplus$SNAME %in% sgcnlist),]
 birdsplus[which(birdsplus$SNAME=="Gallinula galeata"),]$ELCODE <- "ABNME13030"

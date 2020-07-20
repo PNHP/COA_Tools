@@ -30,7 +30,7 @@ source(here::here("scripts","00_PathsAndSettings.r"))
 # read in SGCN data
 loadSGCN("AB")
 sgcnlist <- unique(lu_sgcn$SNAME)
-sgcnlist <- sgcnlist[!sgcnlist %in% "Anas discors"]
+#sgcnlist <- sgcnlist[!sgcnlist %in% "Anas discors"]
 
 # create a 2016 sgcnlist for the old blue winged teal
 sgcnlist2016 <- sgcnlist[!sgcnlist %in% "Anas discors"] # species not in the ebird dataset
