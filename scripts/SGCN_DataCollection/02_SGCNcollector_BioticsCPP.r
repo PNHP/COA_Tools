@@ -34,8 +34,14 @@ lu_sgcnBioticsELCODE <- biotics_crosswalk$ELCODE
 
 ########################################################################################
 # load in Conservation Planning Polygons
-cpps <- "https://maps.waterlandlife.org/arcgis/rest/services/PNHP/CPP/FeatureServer/0"
-cppCore <- arc.open(cpps)
+
+# use this if you are not within the WPC network---caution, it may not be displaying all the records
+#cpps <- "https://maps.waterlandlife.org/arcgis/rest/services/PNHP/CPP/FeatureServer/0"
+#cppCore <- arc.open(cpps)
+
+# use this to hit the enterprise gdb server
+cppCore <- arc.open(paste(serverPath,"PNHP.DBO.CPP_Core", sep=""))
+
 cppCore <- arc.select(cppCore, c("SNAME","EO_ID","Status"), where_clause="Status ='c' OR Status ='r'") 
 cppCore_sf <- arc.data2sf(cppCore)
 #### cppCore_sf <- cppCore_sf[which(cppCore_sf$SNAME %in% unique(lu_sgcn$SNAME)),] # bad SGCN names
