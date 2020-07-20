@@ -79,6 +79,28 @@ data_sgcn <- replace_with_na(data_sgcn, replace=list(USESA="",SPROT="",PBSSTATUS
 # get the primary macrogroup
 SQLquery_luPriMacrogroup <- paste("SELECT *"," FROM lu_PrimaryMacrogroup ")
 data_luPriMacrogroup <- dbGetQuery(db, statement = SQLquery_luPriMacrogroup )
+substrRight <- function(x, n){
+  substr(x, nchar(x)-n+1, nchar(x))
+}
+data_luPriMacrogroup$ELCODE <- substr(data_luPriMacrogroup$ELSeason, 1,10)
+data_luPriMacrogroup$season <- substrRight(data_luPriMacrogroup$ELSeason, 1)
+
+data_luPriMacrogroup <- data_luPriMacrogroup[c("PrimMacro","ELCODE","season")] 
+library(tidyr)
+
+data_luPriMacrogroup <- aggregate(data=data_luPriMacrogroup, PrimMacro~ELCODE+season, FUN=paste, collapse=", ")
+
+data_luPriMacrogroup <- data_luPriMacrogroup %>% spread(season, PrimMacro)
+
+data_luPriMacrogroup$b <- ifelse(is.na(data_luPriMacrogroup$b), NA, paste("B:",data_luPriMacrogroup$b, sep=" "))
+data_luPriMacrogroup$m <- ifelse(is.na(data_luPriMacrogroup$m), NA, paste("M:",data_luPriMacrogroup$m, sep=" "))
+data_luPriMacrogroup$w <- ifelse(is.na(data_luPriMacrogroup$w), NA, paste("W:",data_luPriMacrogroup$w, sep=" "))
+
+
+data_luPriMacrogroup1 <- data_luPriMacrogroup %>% unite("macrogroup", b,m,w,y, na.rm=TRUE, sep="; ")
+
+
+
 
 
 # disconnect the db
@@ -87,6 +109,8 @@ dbDisconnect(db)
 # merge the data into a single dataframe
 sws <- merge(data_sgcnXpu,data_NaturalBoundaries,by="unique_id",all.x=TRUE)
 rm(data_NaturalBoundaries)
+
+
 
 # get the county FIPS code and join the county names from the other table
 sws$county_FIPS <- substr(sws$unique_id,1,3)
@@ -135,6 +159,10 @@ sws_huc08agg_cast$m_prop <- NULL
 sws_huc08agg_cast$w_prop <- NULL
 sws_huc08agg_cast$y_prop <- NULL
 
+# merge the primary macrogroup info in
+sws_huc08agg_cast <- merge(sws_huc08agg_cast, data_luPriMacrogroup1, by="ELCODE", all.x=TRUE)
+
+
 # load the huc08 basemap
 huc08_shp <- arc.open(here::here("_data","output",updateName,"sws.gdb", "_huc08"))
 huc08_shpprj <- huc08_shp
@@ -152,7 +180,7 @@ for(i in 1:length(sgcnlist)){
   print(paste(sgcnlist[i],", which is species ",i," of ",length(sgcnlist), sep=""))
   sws_huc08_1a <- merge(huc08_shp,sws_huc08_1,by.x="HUC8",by.y="HUC08")
   sws_huc08_1a <- merge(sws_huc08_1a,data_sgcn,by="ELCODE", all.x=TRUE)
-  sws_huc08_1a <- sws_huc08_1a[c("HUC8","NAME","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","GRANK","SRANK","USESA","SPROT","PBSSTATUS","geometry")]  #    "ELCODE"              "OBJECTID"  "ELCODE",
+  sws_huc08_1a <- sws_huc08_1a[c("HUC8","NAME","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","GRANK","SRANK","USESA","SPROT","PBSSTATUS","ELCODE","macrogroup","geometry")]  #    "ELCODE"              "OBJECTID"  "ELCODE",
   arc.write(file.path(here::here("_data","output",updateName,"sws.gdb",paste("huc08",sgcnlist[i],sep="_"))),sws_huc08_1a ,overwrite=TRUE, shape_info=arc.shapeinfo(huc08_shpprj))
 }
 
@@ -179,6 +207,10 @@ sws_countyagg_cast$b_prop <- NULL
 sws_countyagg_cast$m_prop <- NULL
 sws_countyagg_cast$w_prop <- NULL
 sws_countyagg_cast$y_prop <- NULL
+
+# merge the primary macrogroup info in
+sws_countyagg_cast <- merge(sws_countyagg_cast, data_luPriMacrogroup1, by="ELCODE", all.x=TRUE)
+
 
 # load the county basemap
 county_shp <- arc.open(here::here("_data","output",updateName,"sws.gdb", "_county")) 
