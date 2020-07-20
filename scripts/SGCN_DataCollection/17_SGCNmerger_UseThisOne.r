@@ -95,7 +95,7 @@ sgcn_pfbc_ln <- tmp_ln[which(tmp_ln$Agency=="PFBC"|tmp_ln$Agency==""),]
 sgcn_pfbc_py <- tmp_py[which(tmp_py$Agency=="PFBC"|tmp_py$Agency==""),]
 sgcn_pfbc_pt <- tmp_pt[which(tmp_pt$Agency=="PFBC"|tmp_pt$Agency==""),]
 # copy the blankSGCN directory from the base folder to the output directory
-current_folder <- here::here("_data/SGCN_blank.gdb") 
+current_folder <- here::here("_data/templates/SGCN_blank.gdb") 
 new_folder <- here::here("_data","output",updateName,"SGCN_PFBC.gdb") 
 list_of_files <- list.files(path=current_folder, full.names=TRUE) 
 dir.create(new_folder)
@@ -112,7 +112,7 @@ sgcn_pgc_ln <- tmp_ln[which(tmp_ln$Agency=="PGC"|tmp_ln$Agency==""),]
 sgcn_pgc_py <- tmp_py[which(tmp_py$Agency=="PGC"|tmp_py$Agency==""),]
 sgcn_pgc_pt <- tmp_pt[which(tmp_pt$Agency=="PGC"|tmp_pt$Agency==""),]
 # copy the blankSGCN directory from the base folder to the output directory
-current_folder <- here::here("_data/SGCN_blank.gdb") 
+current_folder <- here::here("_data/templates/SGCN_blank.gdb") 
 new_folder <- here::here("_data","output",updateName,"SGCN_PGC.gdb") 
 list_of_files <- list.files(path=current_folder, full.names=TRUE) 
 dir.create(new_folder)
@@ -122,13 +122,7 @@ arc.write(path=here::here("_data","output",updateName,"SGCN_PGC.gdb","sgcn_pgc_l
 arc.write(path=here::here("_data","output",updateName,"SGCN_PGC.gdb","sgcn_pgc_pt"), sgcn_pgc_pt, overwrite=TRUE)
 arc.write(path=here::here("_data","output",updateName,"SGCN_PGC.gdb","sgcn_pgc_py"), sgcn_pgc_py, overwrite=TRUE)
 
-
-
-
-
 ##########################
-
-##### OLD
 
 sgcn_folder <- here::here("_data","output",updateName,"SGCN.gdb")
 subset(ogrDrivers(), grepl("GDB", name))
