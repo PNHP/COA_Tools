@@ -40,7 +40,8 @@ loadSGCN()
 # assemble TREC data
 TREC <- arc.open(here::here("_data","input","SGCN_data","TREC","SGCN_FromTREC.shp")) 
 TREC <- arc.select(TREC) 
-TREC <- arc.data2sf(TREC) 
+TREC <- arc.data2sf(TREC)
+st_crs(TREC) <- 4326
 
 TREC <- TREC[which(TREC$SNAME %in% sgcnlist),]
 

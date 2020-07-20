@@ -35,7 +35,7 @@ loadSGCN()
 lu_sgcn <- unique(lu_sgcn[c("ELCODE","SNAME","SCOMNAME","TaxaGroup")])
 
 # get data
-SGCN <- arc.open(path=here::here("_data/output/SGCN.gdb","allSGCNuse"))
+SGCN <- arc.open(path=here::here("_data","output",updateName,"SGCN.gdb","allSGCNuse"))
 SGCN <- arc.select(SGCN)
 
 
