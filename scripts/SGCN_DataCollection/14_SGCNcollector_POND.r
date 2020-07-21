@@ -19,16 +19,16 @@ rm(list=ls())
 if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
 require(here)
 
-#get paths listed in pathes and settings script
+#get paths listed in paths and settings script
 source(here::here("scripts","00_PathsAndSettings.r"))
 
 # read in SGCN data
 loadSGCN()
 
 #paths to POND feature service layers
-pond_pts <- 'https://maps.waterlandlife.org/arcgis/rest/services/PNHP/POND/FeatureServer/0'
-pond_species <- 'https://maps.waterlandlife.org/arcgis/rest/services/PNHP/POND/FeatureServer/3'
-pond_surveys <- 'https://maps.waterlandlife.org/arcgis/rest/services/PNHP/POND/FeatureServer/2'
+pond_pts <- "https://maps.waterlandlife.org/arcgis/rest/services/PNHP/POND/FeatureServer/0"
+pond_species <- "https://maps.waterlandlife.org/arcgis/rest/services/PNHP/POND/FeatureServer/3"
+pond_surveys <- "https://maps.waterlandlife.org/arcgis/rest/services/PNHP/POND/FeatureServer/2"
 
 #import all species records from POND
 species_fields <- c('refcode','species_type','sname','species_found')
