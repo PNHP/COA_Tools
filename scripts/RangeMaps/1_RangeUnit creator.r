@@ -79,29 +79,16 @@ data_sgcn <- replace_with_na(data_sgcn, replace=list(USESA="",SPROT="",PBSSTATUS
 # get the primary macrogroup
 SQLquery_luPriMacrogroup <- paste("SELECT *"," FROM lu_PrimaryMacrogroup ")
 data_luPriMacrogroup <- dbGetQuery(db, statement = SQLquery_luPriMacrogroup )
-substrRight <- function(x, n){
-  substr(x, nchar(x)-n+1, nchar(x))
-}
 data_luPriMacrogroup$ELCODE <- substr(data_luPriMacrogroup$ELSeason, 1,10)
 data_luPriMacrogroup$season <- substrRight(data_luPriMacrogroup$ELSeason, 1)
-
 data_luPriMacrogroup <- data_luPriMacrogroup[c("PrimMacro","ELCODE","season")] 
 library(tidyr)
-
 data_luPriMacrogroup <- aggregate(data=data_luPriMacrogroup, PrimMacro~ELCODE+season, FUN=paste, collapse=", ")
-
 data_luPriMacrogroup <- data_luPriMacrogroup %>% spread(season, PrimMacro)
-
 data_luPriMacrogroup$b <- ifelse(is.na(data_luPriMacrogroup$b), NA, paste("B:",data_luPriMacrogroup$b, sep=" "))
 data_luPriMacrogroup$m <- ifelse(is.na(data_luPriMacrogroup$m), NA, paste("M:",data_luPriMacrogroup$m, sep=" "))
 data_luPriMacrogroup$w <- ifelse(is.na(data_luPriMacrogroup$w), NA, paste("W:",data_luPriMacrogroup$w, sep=" "))
-
-
 data_luPriMacrogroup1 <- data_luPriMacrogroup %>% unite("PrimMacro", b,m,w,y, na.rm=TRUE, sep="; ")
-
-
-
-
 
 # disconnect the db
 dbDisconnect(db)
