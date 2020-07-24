@@ -34,7 +34,7 @@ lu_sgcnBioticsELCODE <- biotics_crosswalk$ELCODE
 
 ########################################################################################
 # load in Conservation Planning Polygons
-cpps <- "https://maps.waterlandlife.org/arcgis/rest/services/PNHP/CPP/FeatureServer/0"
+cpps <- "C://_COA//cpp.gdb//CPP_Core_1"
 cppCore <- arc.open(cpps)
 cppCore <- arc.select(cppCore, c("SNAME","EO_ID","Status"), where_clause="Status ='c' OR Status ='r'") 
 cppCore_sf <- arc.data2sf(cppCore)
@@ -234,6 +234,7 @@ rm(final_srcf_combined1)
 # add in TaxaGroup
 final_cppCore_sf <- merge(final_cppCore_sf, unique(lu_sgcn[c("SNAME","TaxaGroup")]), all.x=TRUE)
 final_srcf_combined <- merge(final_srcf_combined, unique(lu_sgcn[c("SNAME","TaxaGroup")]), all.x=TRUE)
+final_cppCore_sf$DataSource <- "PNHP CPP"
 
 
 # field alignment
