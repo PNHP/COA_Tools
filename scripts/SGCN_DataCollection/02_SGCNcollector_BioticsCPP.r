@@ -42,6 +42,7 @@ lu_sgcnBioticsELCODE <- biotics_crosswalk$ELCODE
 # use this to hit the enterprise gdb server
 cppCore <- arc.open(paste(serverPath,"PNHP.DBO.CPP_Core", sep=""))
 
+cppCore <- arc.open(cpps)
 cppCore <- arc.select(cppCore, c("SNAME","EO_ID","Status"), where_clause="Status ='c' OR Status ='r'") 
 cppCore_sf <- arc.data2sf(cppCore)
 #### cppCore_sf <- cppCore_sf[which(cppCore_sf$SNAME %in% unique(lu_sgcn$SNAME)),] # bad SGCN names
@@ -240,6 +241,7 @@ rm(final_srcf_combined1)
 # add in TaxaGroup
 final_cppCore_sf <- merge(final_cppCore_sf, unique(lu_sgcn[c("SNAME","TaxaGroup")]), all.x=TRUE)
 final_srcf_combined <- merge(final_srcf_combined, unique(lu_sgcn[c("SNAME","TaxaGroup")]), all.x=TRUE)
+final_cppCore_sf$DataSource <- "PNHP CPP"
 
 
 # field alignment

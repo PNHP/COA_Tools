@@ -19,6 +19,10 @@ require(here)
 
 source(here::here("scripts", "00_PathsAndSettings.r"))
 
+olddatabasename <- "coa_bridgetest_previous.sqlite" 
+olddatabasename <- here::here("_data","output",olddatabasename)
+
+
 db <- dbConnect(SQLite(), dbname=olddatabasename) # connect to the database
 sgcnXpu <- dbReadTable(db, "lu_sgcnXpu_all") # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
