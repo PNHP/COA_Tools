@@ -32,7 +32,7 @@ COA_actions_file <- list.files(path=here::here("_data/input"), pattern=".xlsx$")
 COA_actions_file
 #look at the output and choose which shapefile you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 2
+n <- 1
 COA_actions_file <- here::here("_data/input",COA_actions_file[n])
 
 #get a list of the sheets in the file

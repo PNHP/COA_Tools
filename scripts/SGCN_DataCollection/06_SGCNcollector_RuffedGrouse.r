@@ -126,3 +126,4 @@ woodcock_sf <- woodcock_sf[final_fields]
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_PGCwoodcock"), woodcock_sf, overwrite=TRUE) # write a feature class to the gdb
 woodcock_buffer_sf <- st_buffer(woodcock_sf, 100) # buffer the points by 100m
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_PGCwoodcock"), woodcock_buffer_sf, overwrite=TRUE) # write a feature class to the gdb
+
