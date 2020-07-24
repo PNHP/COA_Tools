@@ -11,7 +11,7 @@
 ##################################### SET PATH TO FOLDER AND FIELD VARIABLES #########################################################################
 #set folder where sws gdb and .mxds are included
 folder =  r'E:\COA_Tools\_data\output\_update2020q1' # r'C:\_Updated_2019_12_19'
-desiredFields = ['COUNTY_NAM','NAME','TaxaDisplay', 'SCOMNAME', 'SNAME', 'y', 'b', 'm', 'w', 'GRANK', 'SRANK', 'USESA', 'SPROT', 'PBSSTATUS', 'Shape', 'OBJECTID']
+desiredFields = ['COUNTY_NAM','NAME','TaxaDisplay', 'SCOMNAME', 'SNAME', 'y', 'b', 'm', 'w', 'Occurrence', 'GRANK', 'SRANK', 'USESA', 'SPROT', 'PBSSTATUS', 'PrimMacro', 'Shape', 'OBJECTID']
 ######################################################################################################################################################
 #import modules
 import arcpy, os, datetime
@@ -134,11 +134,13 @@ def edit_attributes(path):
     arcpy.AlterField_management(path,"m",new_field_alias="Migratory Species of Greatest Conservation Need")
     arcpy.AlterField_management(path,"w",new_field_alias="Wintering Species of Greatest Conservation Need")
     arcpy.AlterField_management(path,"y",new_field_alias="Year-round Species of Greatest Conservation Need")
+    arcpy.AlterField_management(path,"Occurrence",new_field_alias="Occurrence")
     arcpy.AlterField_management(path,"GRANK",new_field_alias="Global Rank")
     arcpy.AlterField_management(path,"SRANK",new_field_alias="State Rank")
     arcpy.AlterField_management(path,"USESA",new_field_alias="Federal Status")
     arcpy.AlterField_management(path,"SPROT",new_field_alias="State Status")
     arcpy.AlterField_management(path,"PBSSTATUS",new_field_alias="Pennsylvania Biological Survey Status")
+    arcpy.AlterField_management(path,"PrimMacro",new_field_alias="Primary Macrogroup")
 
 def format_mxd(mxd,df_name,fc,alltaxa):
     mxd = arcpy.mapping.MapDocument(mxd)

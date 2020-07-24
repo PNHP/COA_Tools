@@ -102,8 +102,8 @@ dir.create(new_folder)
 file.copy(from=file.path(list_of_files), to=new_folder,  overwrite=TRUE, recursive=FALSE, copy.mode=TRUE)
 # write the datasets
 arc.write(path=here::here("_data","output",updateName,"SGCN_PFBC.gdb","sgcn_pfbc_ln"), sgcn_pfbc_ln, overwrite=TRUE)
-arc.write(path=here::here("_data","output",updateName,"SGCN_PFBC.gdb","sgcn_pfbc_pt"), sgcn_pfbc_pt, overwrite=TRUE)
-arc.write(path=here::here("_data","output",updateName,"SGCN_PFBC.gdb","sgcn_pfbc_py"), sgcn_pfbc_py, overwrite=TRUE)
+arc.write(path=here::here("_data","output",updateName,"SGCN_PFBC.gdb","sgcn_pfbc_pt"), sgcn_pfbc_pt, overwrite=TRUE, validate=TRUE)
+arc.write(path=here::here("_data","output",updateName,"SGCN_PFBC.gdb","sgcn_pfbc_py"), sgcn_pfbc_py, overwrite=TRUE, validate=TRUE)
 
 
 ##############################################################################
@@ -118,9 +118,14 @@ list_of_files <- list.files(path=current_folder, full.names=TRUE)
 dir.create(new_folder)
 file.copy(from=file.path(list_of_files), to=new_folder,  overwrite=TRUE, recursive=FALSE, copy.mode=TRUE)
 # write the datasets
-arc.write(path=here::here("_data","output",updateName,"SGCN_PGC.gdb","sgcn_pgc_ln"), sgcn_pgc_ln, overwrite=TRUE)
-arc.write(path=here::here("_data","output",updateName,"SGCN_PGC.gdb","sgcn_pgc_pt"), sgcn_pgc_pt, overwrite=TRUE)
-arc.write(path=here::here("_data","output",updateName,"SGCN_PGC.gdb","sgcn_pgc_py"), sgcn_pgc_py, overwrite=TRUE)
+arc.write(path=here::here("_data","output",updateName,"SGCN_PGC.gdb","sgcn_pgc_pt"), sgcn_pgc_pt, overwrite=TRUE, validate=TRUE)  
+if(nrow(sgcn_pgc_ln)>0){
+  arc.write(path=here::here("_data","output",updateName,"SGCN_PGC.gdb","sgcn_pgc_ln"), sgcn_pgc_ln, overwrite=TRUE, validate=TRUE)
+} else {
+  print("empty ln feature class, skipping")
+}
+
+arc.write(path=here::here("_data","output",updateName,"SGCN_PGC.gdb","sgcn_pgc_py"), sgcn_pgc_py, overwrite=TRUE, validate=TRUE)
 
 ##########################
 
