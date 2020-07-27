@@ -98,6 +98,13 @@ woodcock <- read.csv(woodcock_file, stringsAsFactors = FALSE, na.strings = c("",
 #keep only positive records that have lat/long values
 woodcock <- woodcock[!is.na(woodcock$Value) & !is.na(woodcock$Latitude), ]
 
+# check for bad coordinates
+if(any(woodcock$Latitude==woodcock$Longitude)){
+  print("Mistake in the lat/lon pairs, matching values")
+} else {
+  print("no duplicate pairs in the coordinates")
+}
+
 #create fields and populate with SGCN data
 woodcock$SNAME <- "Scolopax minor"
 woodcock$SCOMNAME <- "American Woodcock"
