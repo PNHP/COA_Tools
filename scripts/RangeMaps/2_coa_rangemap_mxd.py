@@ -10,7 +10,7 @@
 
 ##################################### SET PATH TO FOLDER AND FIELD VARIABLES #########################################################################
 #set folder where sws gdb and .mxds are included
-folder =  r'E:\COA_Tools\_data\output\_update2020q1' # r'C:\_Updated_2019_12_19'
+folder =  r'C:\_COA\COA_Tools\_data\output\_update2020q2' # r'C:\_Updated_2019_12_19'
 desiredFields = ['COUNTY_NAM','NAME','TaxaDisplay', 'SCOMNAME', 'SNAME', 'y', 'b', 'm', 'w', 'GRANK', 'SRANK', 'USESA', 'SPROT', 'PBSSTATUS', 'Shape', 'OBJECTID']
 ######################################################################################################################################################
 #import modules
