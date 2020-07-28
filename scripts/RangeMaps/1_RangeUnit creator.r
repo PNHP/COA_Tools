@@ -79,19 +79,28 @@ data_sgcn <- replace_with_na(data_sgcn, replace=list(USESA="",SPROT="",PBSSTATUS
 # get the primary macrogroup
 SQLquery_luPriMacrogroup <- paste("SELECT *"," FROM lu_PrimaryMacrogroup ")
 data_luPriMacrogroup <- dbGetQuery(db, statement = SQLquery_luPriMacrogroup )
-
+data_luPriMacrogroup$ELCODE <- substr(data_luPriMacrogroup$ELSeason, 1,10)
+data_luPriMacrogroup$season <- substrRight(data_luPriMacrogroup$ELSeason, 1)
+data_luPriMacrogroup <- data_luPriMacrogroup[c("PrimMacro","ELCODE","season")] 
+library(tidyr)
+data_luPriMacrogroup <- aggregate(data=data_luPriMacrogroup, PrimMacro~ELCODE+season, FUN=paste, collapse=", ")
+data_luPriMacrogroup <- data_luPriMacrogroup %>% spread(season, PrimMacro)
+data_luPriMacrogroup$b <- ifelse(is.na(data_luPriMacrogroup$b), NA, paste("B:",data_luPriMacrogroup$b, sep=" "))
+data_luPriMacrogroup$m <- ifelse(is.na(data_luPriMacrogroup$m), NA, paste("M:",data_luPriMacrogroup$m, sep=" "))
+data_luPriMacrogroup$w <- ifelse(is.na(data_luPriMacrogroup$w), NA, paste("W:",data_luPriMacrogroup$w, sep=" "))
+data_luPriMacrogroup1 <- data_luPriMacrogroup %>% unite("PrimMacro", b,m,w,y, na.rm=TRUE, sep="; ")
 
 # disconnect the db
 dbDisconnect(db)
 
 # merge the data into a single dataframe
 sws <- merge(data_sgcnXpu,data_NaturalBoundaries,by="unique_id",all.x=TRUE)
-rm(data_NaturalBoundaries)
+#rm(data_NaturalBoundaries)
 
 # get the county FIPS code and join the county names from the other table
 sws$county_FIPS <- substr(sws$unique_id,1,3)
 sws <- merge(sws,data_countyname,by.x="county_FIPS",by.y="FIPS_COUNT", all.x=TRUE)
-rm(data_countyname, data_sgcnXpu)
+#rm(data_countyname, data_sgcnXpu)
 
 # extract the season code from the ELSeason
 sws$season <- substrRight(sws$ELSeason, 1)
@@ -106,15 +115,24 @@ sws$HUC08 <- str_pad(sws$HUC08, width=8, pad="0")
 # rearrange into a more sensible list
 sws <- sws[c("unique_id","HUC08","COUNTY_NAM","ELCODE","season","OccProb")]
 
-# make a table of the count of PUs by HUC08 just for informational purposes
+# make a table of the count of PUs by HUC08/county just for informational purposes
 PU_huc08 <- as.data.frame(table(sws$HUC08))
 PU_county <- as.data.frame(table(sws$COUNTY_NAM))
 
+#table(sws$ELCODE,sws$OccProb,sws$HUC08)
 
 ####
 # summarize by HUC08
 sws_huc08agg <- aggregate(unique_id ~ ELCODE+OccProb+HUC08+season, sws, function(x) length(x))
-sws_huc08agg_cast <- dcast(sws_huc08agg, ELCODE+HUC08~season,sum, value.var="unique_id")  
+
+# generate Huc08 occurrence summary
+a <- aggregate(unique_id ~ ELCODE+OccProb+HUC08, sws, function(x) length(x))
+b <- dcast(a, ELCODE+HUC08~OccProb, sum, value.var="unique_id")
+b$Occurrence <- NA
+b$Occurrence <- ifelse(b$k>0, "Known","Likely")
+
+
+sws_huc08agg_cast <- dcast(sws_huc08agg, ELCODE+HUC08~season, sum, value.var="unique_id")  
 sws_huc08agg_cast <- merge(sws_huc08agg_cast, PU_huc08 , by.x="HUC08", by.y="Var1")
 sws_huc08agg_cast$b <- sws_huc08agg_cast$b / sws_huc08agg_cast$Freq
 sws_huc08agg_cast$m <- sws_huc08agg_cast$m / sws_huc08agg_cast$Freq
@@ -135,6 +153,13 @@ sws_huc08agg_cast$m_prop <- NULL
 sws_huc08agg_cast$w_prop <- NULL
 sws_huc08agg_cast$y_prop <- NULL
 
+# merge the Huc08 occrence summary
+sws_huc08agg_cast <- merge(sws_huc08agg_cast, b[c("ELCODE","HUC08","Occurrence")], by=c("ELCODE","HUC08"), all.x=TRUE)
+
+# merge the primary macrogroup info in
+sws_huc08agg_cast <- merge(sws_huc08agg_cast, data_luPriMacrogroup1, by="ELCODE", all.x=TRUE)
+
+
 # load the huc08 basemap
 huc08_shp <- arc.open(here::here("_data","output",updateName,"sws.gdb", "_huc08"))
 huc08_shpprj <- huc08_shp
@@ -152,13 +177,20 @@ for(i in 1:length(sgcnlist)){
   print(paste(sgcnlist[i],", which is species ",i," of ",length(sgcnlist), sep=""))
   sws_huc08_1a <- merge(huc08_shp,sws_huc08_1,by.x="HUC8",by.y="HUC08")
   sws_huc08_1a <- merge(sws_huc08_1a,data_sgcn,by="ELCODE", all.x=TRUE)
-  sws_huc08_1a <- sws_huc08_1a[c("HUC8","NAME","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","GRANK","SRANK","USESA","SPROT","PBSSTATUS","geometry")]  #    "ELCODE"              "OBJECTID"  "ELCODE",
+  sws_huc08_1a <- sws_huc08_1a[c("HUC8","NAME","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","Occurrence","GRANK","SRANK","USESA","SPROT","PBSSTATUS","ELCODE","PrimMacro","geometry")]
   arc.write(file.path(here::here("_data","output",updateName,"sws.gdb",paste("huc08",sgcnlist[i],sep="_"))),sws_huc08_1a ,overwrite=TRUE, shape_info=arc.shapeinfo(huc08_shpprj))
 }
 
 ################
 # summarize by County
 sws_countyagg <- aggregate(unique_id ~ ELCODE+OccProb+COUNTY_NAM+season, sws, function(x) length(x))
+
+# generate county occurrence summary
+a <- aggregate(unique_id ~ ELCODE+OccProb+COUNTY_NAM, sws, function(x) length(x))
+b <- dcast(a, ELCODE+COUNTY_NAM~OccProb, sum, value.var="unique_id")
+b$Occurrence <- NA
+b$Occurrence <- ifelse(b$k>0, "Known","Likely")
+
 sws_countyagg_cast <- dcast(sws_countyagg, ELCODE+COUNTY_NAM~season,sum, value.var="unique_id")  #OccProb+
 sws_countyagg_cast <- merge(sws_countyagg_cast, PU_county , by.x="COUNTY_NAM", by.y="Var1")
 sws_countyagg_cast$b <- sws_countyagg_cast$b / sws_countyagg_cast$Freq
@@ -180,6 +212,12 @@ sws_countyagg_cast$m_prop <- NULL
 sws_countyagg_cast$w_prop <- NULL
 sws_countyagg_cast$y_prop <- NULL
 
+# merge the county occurrence summary
+sws_countyagg_cast <- merge(sws_countyagg_cast, b[c("ELCODE","COUNTY_NAM","Occurrence")], by=c("ELCODE","COUNTY_NAM"), all.x=TRUE)
+
+# merge the primary macrogroup info in
+sws_countyagg_cast <- merge(sws_countyagg_cast, data_luPriMacrogroup1, by="ELCODE", all.x=TRUE)
+
 # load the county basemap
 county_shp <- arc.open(here::here("_data","output",updateName,"sws.gdb", "_county")) 
 county_shpprj <- county_shp
@@ -197,7 +235,7 @@ for(i in 1:length(sgcnlist)){
   print(paste(sgcnlist[i],", which is species ",i," of ",length(sgcnlist), sep=""))
   sws_county_1a <- merge(county_shp,sws_county_1,by="COUNTY_NAM")
   sws_county_1a <- merge(sws_county_1a,data_sgcn,by="ELCODE", all.x=TRUE)
-  sws_county_1a <- sws_county_1a[c("COUNTY_NAM","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","GRANK","SRANK","USESA","SPROT","PBSSTATUS","geometry")] # "ELCODE",
+  sws_county_1a <- sws_county_1a[c("COUNTY_NAM","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","Occurrence","GRANK","SRANK","USESA","SPROT","PBSSTATUS","PrimMacro","geometry")] # "ELCODE",
   arc.write(file.path(here::here("_data","output",updateName,"sws.gdb",paste("county",sgcnlist[i],sep="_"))),sws_county_1a ,overwrite=TRUE, shape_info=arc.shapeinfo(county_shpprj))
 }
 
@@ -206,14 +244,14 @@ for(i in 1:length(sgcnlist)){
 huc08agg <- sws_huc08agg_cast
 huc08agg <- merge(huc08agg,data_sgcn,by="ELCODE", all.x=TRUE)
 huc08agg_all <- merge(huc08_shp, huc08agg, by.x="HUC8", by.y="HUC08")
-huc08agg_all <- huc08agg_all[c("ELCODE","HUC8","NAME","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","GRANK","SRANK","USESA","SPROT","PBSSTATUS")]
-arc.write(here::here("_data","output",updateName,"sws.gdb","_HUC08_SGCN"), huc08agg_all, overwrite=TRUE, shape_info=arc.shapeinfo(huc08_shpprj))
+huc08agg_all <- huc08agg_all[c("ELCODE","HUC8","NAME","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","Occurrence","GRANK","SRANK","USESA","SPROT","PBSSTATUS","PrimMacro")]
+arc.write(here::here("_data","output",updateName,"sws.gdb","_HUC08_SGCN"), huc08agg_all, overwrite=TRUE, validate=TRUE, shape_info=arc.shapeinfo(huc08_shpprj))
 
 countyagg <- sws_countyagg_cast
 countyagg <- merge(countyagg,data_sgcn,by="ELCODE", all.x=TRUE)
-countyagg <- countyagg[c("ELCODE","COUNTY_NAM","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","GRANK","SRANK","USESA","SPROT","PBSSTATUS")]
+countyagg <- countyagg[c("ELCODE","COUNTY_NAM","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","Occurrence","GRANK","SRANK","USESA","SPROT","PBSSTATUS","PrimMacro")]
 countyagg_all <- merge(county_shp, countyagg, by="COUNTY_NAM")
-arc.write(here::here("_data","output",updateName,"sws.gdb","_county_SGCN"), countyagg_all, overwrite=TRUE, shape_info=arc.shapeinfo(county_shpprj))
+arc.write(here::here("_data","output",updateName,"sws.gdb","_county_SGCN"), countyagg_all, overwrite=TRUE, validate=TRUE, shape_info=arc.shapeinfo(county_shpprj))
 
 
 
