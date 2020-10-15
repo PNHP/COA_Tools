@@ -36,9 +36,15 @@ lu_sgcn <- lu_sgcn[which(substr(lu_sgcn$ELSeason,1,4)=="IILE"),]
 
 # sgcnLepBiotics <- setdiff(lu_sgcn$SNAME, SGCN_bioticsCPP)
 
+
 # read in BAMONA data
-bamona_file <- "bamona_data_04_07_2020.csv"
-bamona <- read.csv(here::here("_data","input","SGCN_data","bamona", bamona_file), stringsAsFactors=FALSE)
+bamona_file <- list.files(path=here::here("_data","input","SGCN_data","bamona"), pattern=".csv$")  # --- make sure your excel file is not open.
+bamona_file
+#look at the output and choose which shapefile you want to run
+#enter its location in the list (first = 1, second = 2, etc)
+n <- 2
+bamona_file <- here::here("_data","input","SGCN_data","bamona", bamona_file[n])
+bamona <- read.csv(bamona_file, stringsAsFactors=FALSE)
 bamona_citation <- "Lotts, Kelly and Thomas Naberhaus, coordinators. 2017. Butterflies and Moths of North America. http://www.butterfliesandmoths.org/ (Version MMDDYYYY)"
 
 bamona_backup <- bamona
