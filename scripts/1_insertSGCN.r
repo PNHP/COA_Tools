@@ -19,11 +19,16 @@ require(here)
 source(here::here("scripts", "00_PathsAndSettings.r"))
 
 ## Read SGCN list in
-SGCN <- read.csv(here::here("_data","input","lu_SGCNnew.csv"), stringsAsFactors=FALSE) # read in the SGCN list
+SGCNlist <- here::here("_data","input","lu_SGCNnew.csv")
+SGCN <- read.csv(SGCNlist, stringsAsFactors=FALSE) # read in the SGCN list
+
+file.info(SGCNlist)$mtime
+
+
 
 # QC to make sure that the ELCODES match the first part of the ELSeason code.
 if(length(setdiff(SGCN$ELCODE, gsub("(.+?)(\\_.*)", "\\1", SGCN$ELSeason)))==0){
-  print("ELCODEs and ELSeason strings match")
+  print("ELCODEs and ELSeason strings match. You're good to go!")
 } else {
   print(paste("Codes for ", setdiff(SGCN$ELCODE, gsub("(.+?)(\\_.*)", "\\1", SGCN$ELSeason)), " do not match;", sep=""))
 }
@@ -34,6 +39,11 @@ SGCN$SCOMNAME <- trimws(SGCN$SCOMNAME, which="both")
 SGCN$ELSeason <- trimws(SGCN$ELSeason, which="both")
 SGCN$TaxaDisplay <- trimws(SGCN$TaxaDisplay, which="both")
 
+# remove hidden newline characters
+SGCN$SRANK <- gsub("[\r\n]", "", SGCN$SRANK)
+SGCN$GRANK <- gsub("[\r\n]", "", SGCN$GRANK)
+
+
 # compare to the ET
 #get the most recent ET
 ET_file <- list.files(path="P:/Conservation Programs/Natural Heritage Program/Data Management/Biotics Database Areas/Element Tracking/current element lists", pattern=".xlsx$")  # --- make sure your excel file is not open.
@@ -42,6 +52,9 @@ ET_file
 #enter its location in the list (first = 1, second = 2, etc)
 n <- 3
 ET_file <- file.path("P:/Conservation Programs/Natural Heritage Program/Data Management/Biotics Database Areas/Element Tracking/current element lists",ET_file[n])
+
+
+file.info(ET_file)$mtime
 
 #get a list of the sheets in the file
 ET_sheets <- getSheetNames(ET_file)
