@@ -112,26 +112,35 @@ dbWriteTable(db, "lu_BPreference", COA_references, overwrite=TRUE) # write the o
 dbDisconnect(db) # disconnect the db
 rm(COA_references)
 
+##########################################################
 ## research needs
-COA_actions_sheets # list the sheets
-#n <- 9 # enter its location in the list (first = 1, second = 2, etc)
-#SGCNresearch <- read.xlsx(xlsxFile=COA_actions_file, sheet=COA_actions_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE)
-# SGCNresearch <- SGCNresearch[c("SpeciesID","ELCODE","ELSeason","Group","SCOMNAME","ResearchQues_Edited","AgencySpecific","ResearchID","Priority")]
 SGCNresearch <- read.csv(here::here("_data","input","lu_SGCNresearch.csv"), stringsAsFactors=FALSE)
 
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
   dbWriteTable(db, "lu_SGCNresearch", SGCNresearch, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
 
+# write to file tracker
+filetracker <- data.frame(NameUpdate=sub('.', '', updateName), item="Research Needs", filename=(here::here("_data","input","lu_SGCNresearch.csv")), lastmoddate=file.info(here::here("_data","input","lu_SGCNresearch.csv"))$mtime)
+dbTracking <- dbConnect(SQLite(), dbname=trackingdatabasename) # connect to the database
+dbExecute(dbTracking, paste("DELETE FROM filetracker WHERE (NameUpdate='",sub('.', '', updateName),"' AND item='Research Needs')", sep="")) # 
+dbWriteTable(dbTracking, "filetracker", filetracker, append=TRUE, overwrite=FALSE) # write the table to the sqlite
+dbDisconnect(dbTracking) # disconnect the db
+rm(filetracker)
+
+
+##########################################################
 ## survey needs
-COA_actions_sheets # list the sheets
-# n <- 10 # enter its location in the list (first = 1, second = 2, etc)
-# SGCNsurvey <- read.xlsx(xlsxFile=COA_actions_file, sheet=COA_actions_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE)
-# SGCNsurvey <- SGCNsurvey[c("SpeciesID","ELCODE","ELSeason","Group","SCOMNAME","ResearchQues_Edited","AgencySpecific","ResearchID","Priority")]
 SGCNsurvey <- read.csv(here::here("_data","input","lu_SGCNsurvey.csv"), stringsAsFactors=FALSE)
 
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
   dbWriteTable(db, "lu_SGCNsurvey", SGCNsurvey, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
 
-
+# write to file tracker
+filetracker <- data.frame(NameUpdate=sub('.', '', updateName), item="Survey Needs", filename=(here::here("_data","input","lu_SGCNsurvey.csv")), lastmoddate=file.info(here::here("_data","input","lu_SGCNsurvey.csv"))$mtime)
+dbTracking <- dbConnect(SQLite(), dbname=trackingdatabasename) # connect to the database
+dbExecute(dbTracking, paste("DELETE FROM filetracker WHERE (NameUpdate='",sub('.', '', updateName),"' AND item='Survey Needs')", sep="")) # 
+dbWriteTable(dbTracking, "filetracker", filetracker, append=TRUE, overwrite=FALSE) # write the table to the sqlite
+dbDisconnect(dbTracking) # disconnect the db
+rm(filetracker)
