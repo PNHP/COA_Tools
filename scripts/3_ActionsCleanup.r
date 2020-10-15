@@ -15,7 +15,6 @@
 # clear the environments
 rm(list=ls())
 
-
 if (!requireNamespace("here", quietly=TRUE)) install.packages("here")
 require(here)
 
@@ -34,6 +33,14 @@ COA_actions_file
 #enter its location in the list (first = 1, second = 2, etc)
 n <- 2
 COA_actions_file <- here::here("_data/input",COA_actions_file[n])
+
+# write to file tracker
+filetracker <- data.frame(NameUpdate=sub('.', '', updateName), item="COA Actions", filename=(COA_actions_file), lastmoddate=file.info(COA_actions_file)$mtime)
+dbTracking <- dbConnect(SQLite(), dbname=trackingdatabasename) # connect to the database
+dbExecute(dbTracking, paste("DELETE FROM filetracker WHERE (NameUpdate='",sub('.', '', updateName),"' AND item='COA Actions')", sep="")) # 
+dbWriteTable(dbTracking, "filetracker", filetracker, append=TRUE, overwrite=FALSE) # write the table to the sqlite
+dbDisconnect(dbTracking) # disconnect the db
+rm(filetracker)
 
 #get a list of the sheets in the file
 COA_actions_sheets <- getSheetNames(COA_actions_file)

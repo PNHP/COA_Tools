@@ -69,6 +69,7 @@ dbTracking <- dbConnect(SQLite(), dbname=trackingdatabasename) # connect to the 
 dbExecute(dbTracking, paste("DELETE FROM filetracker WHERE (NameUpdate='",sub('.', '', updateName),"' AND item='ET File')", sep="")) # 
 dbWriteTable(dbTracking, "filetracker", filetracker, append=TRUE, overwrite=FALSE) # write the table to the sqlite
 dbDisconnect(dbTracking) # disconnect the db
+rm(filetracker)
 
 #get a list of the sheets in the file
 ET_sheets <- getSheetNames(ET_file)
@@ -114,6 +115,7 @@ dbWriteTable(db, "lu_SGCN", SGCN, overwrite=TRUE) # write the table to the sqlit
 dbDisconnect(db) # disconnect the db
 rm(SGCN)
 
+###########################################
 ## Taxa Group import
 taxagrp <- read.csv(here::here("_data","input","lu_taxagrp.csv"), stringsAsFactors=FALSE)
 taxagrp$OID <- NULL
