@@ -19,8 +19,11 @@ require(here)
 source(here::here("scripts", "00_PathsAndSettings.r"))
 
 # create an empty sqlite db
-# connect to the database
 db <- dbConnect(SQLite(), dbname=databasename) # creates an empty COA database
+dbDisconnect(db) # disconnect the db
 
-# disconnect the db
-dbDisconnect(db)
+# create an empty sqlite db for tracking
+dbTrack <- dbConnect(SQLite(), dbname=trackingdatabasename) # creates an empty COA database
+dbDisconnect(dbTrack) # disconnect the db
+
+

@@ -36,6 +36,9 @@ updateData <- here::here("_data","output",updateName,paste(updateName, "RData", 
 # output database name
 databasename <- here::here("_data","output",updateName,"coa_bridgetest.sqlite")
 
+# tracking database name
+trackingdatabasename <- here::here("_data","output",updateName,"coa_tracking.sqlite")
+
 # paths to biotics shapefiles
 biotics_path <- "W:/Heritage/Heritage_Data/Biotics_datasets.gdb"
 biotics_crosswalk <- here::here("_data","input","crosswalk_BioticsSWAP.csv") # note that nine species are not in Biotics at all
@@ -45,8 +48,8 @@ serverPath <- paste("C:/Users/",Sys.getenv("USERNAME"),"/AppData/Roaming/ESRI/Ar
 
 # cutoff year for records
 cutoffyear <- as.integer(format(Sys.Date(), "%Y")) - 25  # keep data that's only within 25 years
-cutoffyearK <- as.integer(format(Sys.Date(), "%Y")) - 25  # keep data that's only within 25 years
-cutoffyearL <- 1980  # keep data that's only within 25 years
+cutoffyearK <- as.integer(format(Sys.Date(), "%Y")) - 25  # keep data that's only within 25 years for known records
+cutoffyearL <- 1980  # 
 
 # final fields for arcgis
 final_fields <- c("ELCODE","ELSeason","SNAME","SCOMNAME","SeasonCode","DataSource","DataID","OccProb","LastObs","useCOA","TaxaGroup","geometry") 
