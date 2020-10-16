@@ -34,12 +34,7 @@ n <- 2
 trout_file <- here::here("_data","input","SGCN_data","PFBC_BrookTrout", trout_file[n])
 
 # write to file tracker
-filetracker <- data.frame(NameUpdate=sub('.', '', updateName), item="SGCN Brook Trout", filename=(trout_file), lastmoddate=file.info(trout_file)$mtime)
-dbTracking <- dbConnect(SQLite(), dbname=trackingdatabasename) # connect to the database
-dbExecute(dbTracking, paste("DELETE FROM filetracker WHERE (NameUpdate='",sub('.', '', updateName),"' AND item='SGCN Brook Trout')", sep="")) # 
-dbWriteTable(dbTracking, "filetracker", filetracker, append=TRUE, overwrite=FALSE) # write the table to the sqlite
-dbDisconnect(dbTracking) # disconnect the db
-rm(filetracker)
+trackfiles("SGCN Brook Trout", trout_file)
 
 # open file and do stuff
 brooktrout <- arc.open(trout_file) 
