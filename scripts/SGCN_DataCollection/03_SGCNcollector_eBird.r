@@ -32,12 +32,11 @@ loadSGCN("AB")
 sgcnlist <- unique(lu_sgcn$SNAME)
 #sgcnlist <- sgcnlist[!sgcnlist %in% "Anas discors"]
 
-# create a 2016 sgcnlist for the old blue winged teal
-sgcnlist2016 <- sgcnlist[!sgcnlist %in% "Anas discors"] # species not in the ebird dataset
-# create a 2018 and later sgcn list for the new blue winged teal
-sgcnlist2018 <- sgcnlist
-sgcnlist2018[sgcnlist2018=="Anas discors"] <- "Spatula discors"
-
+# create a list with the changes for the ebird taxonomy
+sgcnlistcrosswalk <- sgcnlist
+sgcnlistcrosswalk[sgcnlistcrosswalk=="Anas discors"] <- "Spatula discors"
+sgcnlistcrosswalk[sgcnlistcrosswalk=="Oreothlypis ruficapilla"] <- "Leiothlypis ruficapilla"
+sgcnlistcrosswalk[sgcnlistcrosswalk=="Ammodramus henslowii"] <- "Centronyx henslowii"
 
 # set the auk path
 auk_set_ebd_path(here::here("_data","input","SGCN_data","eBird"), overwrite=TRUE)
@@ -47,84 +46,94 @@ auk_set_ebd_path(here::here("_data","input","SGCN_data","eBird"), overwrite=TRUE
 fileList <- dir(path=here::here("_data","input","SGCN_data","eBird"), pattern = ".txt$")
 fileList
 #look at the output and choose which shapefile you want to run. enter its location in the list (first = 1, second = 2, etc)
-n <- 1
+n <- 5
 
-# read in the file using auk
+# # read in the file using auk
+# output_file <- "ebd_filtered2020_SGCN.txt"
+# ebd_filtered <- system.file(here::here("_data","input","SGCN_data","eBird",fileList[[n]]), package = "auk") %>% 
+#   auk_ebd() %>% 
+#   auk_species(species = sgcnlistcrosswalk) %>% 
+#   auk_filter(file = output_file)
+# 
+
 ## Note: it's good to run each of these in turn, as it can fail if you do all of them at once.
 f_in <- here::here("_data","input","SGCN_data","eBird",fileList[[n]]) #"C:/Users/dyeany/Documents/R/eBird/ebd.txt"
 f_out <- "ebd_filtered2016_SGCN.txt"
 ebd <- auk_ebd(f_in)
-ebd_filters <- auk_species(ebd, species=sgcnlist, taxonomy_version=2016)
+ebd_filters <- auk_species(ebd, species=sgcnlistcrosswalk, taxonomy_version=2019)
 ebd_filtered <- auk_filter(ebd_filters, file=f_out, overwrite=TRUE)
-ebd_df2016 <- read_ebd(ebd_filtered)
-ebd_df2016_backup <- ebd_df2016
+ebd_df <- read_ebd(ebd_filtered)
+ebd_df_backup <- ebd_df
 
-# 2018 eBird data ##############################################
-#get a list of what's in the directory
-fileList <- dir(path=here::here("_data","input","SGCN_data","eBird"), pattern = ".txt$")
-fileList
-#look at the output and choose which shapefile you want to run. enter its location in the list (first = 1, second = 2, etc)
-n <- 2
-# read in the file using auk
-## Note: it's good to run each of these in turn, as it can fail if you do all of them at once.
-f_in <- here::here("_data","input","SGCN_data","eBird",fileList[[n]]) #"C:/Users/dyeany/Documents/R/eBird/ebd.txt"
-f_out <- "ebd_filtered2018_SGCN.txt"
-ebd <- auk_ebd(f_in)
-ebd_filters <- auk_species(ebd, species=sgcnlist2018, taxonomy_version=2017)
-ebd_filtered <- auk_filter(ebd_filters, file=f_out, overwrite=TRUE)
-ebd_df2018 <- read_ebd(ebd_filtered)
-ebd_df2018_backup <- ebd_df2018
-
-# 2019 eBird data ##############################################
-#get a list of what's in the directory
-fileList <- dir(path=here::here("_data","input","SGCN_data","eBird"), pattern = ".txt$")
-fileList
-#look at the output and choose which shapefile you want to run. enter its location in the list (first = 1, second = 2, etc)
-n <- 3
-# read in the file using auk
-## Note: it's good to run each of these in turn, as it can fail if you do all of them at once.
-f_in <- here::here("_data","input","SGCN_data","eBird",fileList[[n]]) #"C:/Users/dyeany/Documents/R/eBird/ebd.txt"
-f_out <- "ebd_filtered2019_SGCN.txt"
-ebd <- auk_ebd(f_in)
-ebd_filters <- auk_species(ebd, species=sgcnlist2018, taxonomy_version=2017)
-ebd_filtered <- auk_filter(ebd_filters, file=f_out, overwrite=TRUE)
-ebd_df2019 <- read_ebd(ebd_filtered)
-ebd_df2019_backup <- ebd_df2019
+# # 2018 eBird data ##############################################
+# #get a list of what's in the directory
+# fileList <- dir(path=here::here("_data","input","SGCN_data","eBird"), pattern = ".txt$")
+# fileList
+# #look at the output and choose which shapefile you want to run. enter its location in the list (first = 1, second = 2, etc)
+# n <- 2
+# # read in the file using auk
+# ## Note: it's good to run each of these in turn, as it can fail if you do all of them at once.
+# f_in <- here::here("_data","input","SGCN_data","eBird",fileList[[n]]) #"C:/Users/dyeany/Documents/R/eBird/ebd.txt"
+# f_out <- "ebd_filtered2018_SGCN.txt"
+# ebd <- auk_ebd(f_in)
+# ebd_filters <- auk_species(ebd, species=sgcnlistcrosswalk, taxonomy_version=2017)
+# ebd_filtered <- auk_filter(ebd_filters, file=f_out, overwrite=TRUE)
+# ebd_df2018 <- read_ebd(ebd_filtered)
+# ebd_df2018_backup <- ebd_df2018
+# 
+# # 2019 eBird data ##############################################
+# #get a list of what's in the directory
+# fileList <- dir(path=here::here("_data","input","SGCN_data","eBird"), pattern = ".txt$")
+# fileList
+# #look at the output and choose which shapefile you want to run. enter its location in the list (first = 1, second = 2, etc)
+# n <- 3
+# # read in the file using auk
+# ## Note: it's good to run each of these in turn, as it can fail if you do all of them at once.
+# f_in <- here::here("_data","input","SGCN_data","eBird",fileList[[n]]) #"C:/Users/dyeany/Documents/R/eBird/ebd.txt"
+# f_out <- "ebd_filtered2019_SGCN.txt"
+# ebd <- auk_ebd(f_in)
+# ebd_filters <- auk_species(ebd, species=sgcnlistcrosswalk, taxonomy_version=2017)
+# ebd_filtered <- auk_filter(ebd_filters, file=f_out, overwrite=TRUE)
+# ebd_df2019 <- read_ebd(ebd_filtered)
+# ebd_df2019_backup <- ebd_df2019
 
 # do a bunch of checks for fixing that blue winged teal data.
   #"Spatula discors"   "Anas discors"
-ebd_df2018[which(ebd_df2018$scientific_name=="Spatula discors"),]$scientific_name <- "Anas discors"
-ebd_df2018[which(ebd_df2018$scientific_name=="Anas discors"),]
-ebd_df2019[which(ebd_df2019$scientific_name=="Spatula discors"),]$scientific_name <- "Anas discors" 
-ebd_df2019[which(ebd_df2019$scientific_name=="Anas discors"),] 
+ebd_df[which(ebd_df$scientific_name=="Spatula discors"),]$scientific_name <- "Anas discors"
+ebd_df[which(ebd_df$scientific_name=="Anas discors"),]
+ebd_df[which(ebd_df$scientific_name=="Leiothlypis ruficapilla"),]$scientific_name <- "Oreothlypis ruficapilla" 
+ebd_df[which(ebd_df$scientific_name=="Oreothlypis ruficapilla"),] 
+ebd_df[which(ebd_df$scientific_name=="Centronyx henslowii"),]$scientific_name <- "Ammodramus henslowii" 
+ebd_df[which(ebd_df$scientific_name=="Ammodramus henslowii"),] 
 
-# Combine 2016 and 2018 data ##################################
-setdiff(names(ebd_df2016), names(ebd_df2018))
 
-names(ebd_df2018)[names(ebd_df2018)=='state'] <- 'state_province'
-names(ebd_df2018)[names(ebd_df2018)=='state_code'] <- 'subnational1_code'
-names(ebd_df2018)[names(ebd_df2018)=='county_code'] <- 'subnational2_code'
-names(ebd_df2018)[names(ebd_df2018)=='state'] <- 'state_province'
-ebd_df2016$first_name <- NULL
-ebd_df2016$last_name <- NULL
-ebd_df2018$last_edited_date <- NULL
-ebd_df2018$breeding_bird_atlas_category <- NULL
-ebd_df2018$usfws_code <- NULL
-ebd_df2018$protocol_code <- NULL
-ebd_df2018$has_media <- NULL
-sortorder <- names(ebd_df2016)
-ebd_df2018 <- ebd_df2018[sortorder]
-
-# combine the merged 2016/2018 data with the 2019 data
-setdiff(names(ebd_df2016), names(ebd_df2019))
-names(ebd_df2019)[names(ebd_df2019)=='state'] <- 'state_province'
-names(ebd_df2019)[names(ebd_df2019)=='state_code'] <- 'subnational1_code'
-names(ebd_df2019)[names(ebd_df2019)=='county_code'] <- 'subnational2_code'
-sortorder <- names(ebd_df2016)
-ebd_df2019 <- ebd_df2019[sortorder]
-
-# merge the multiple years together
-ebd_df <- rbind(ebd_df2016,ebd_df2018, ebd_df2019)
+# # Combine 2016 and 2018 data ##################################
+# setdiff(names(ebd_df2016), names(ebd_df2018))
+# 
+# names(ebd_df)[names(ebd_df)=='state'] <- 'state_province'
+# names(ebd_df)[names(ebd_df)=='state_code'] <- 'subnational1_code'
+# names(ebd_df)[names(ebd_df)=='county_code'] <- 'subnational2_code'
+# names(ebd_df)[names(ebd_df)=='state'] <- 'state_province'
+# ebd_df2016$first_name <- NULL
+# ebd_df2016$last_name <- NULL
+# ebd_df2018$last_edited_date <- NULL
+# ebd_df2018$breeding_bird_atlas_category <- NULL
+# ebd_df2018$usfws_code <- NULL
+# ebd_df2018$protocol_code <- NULL
+# ebd_df2018$has_media <- NULL
+# sortorder <- names(ebd_df2016)
+# ebd_df2018 <- ebd_df2018[sortorder]
+# 
+# # combine the merged 2016/2018 data with the 2019 data
+# setdiff(names(ebd_df2016), names(ebd_df2019))
+# names(ebd_df2019)[names(ebd_df2019)=='state'] <- 'state_province'
+# names(ebd_df2019)[names(ebd_df2019)=='state_code'] <- 'subnational1_code'
+# names(ebd_df2019)[names(ebd_df2019)=='county_code'] <- 'subnational2_code'
+# sortorder <- names(ebd_df2016)
+# ebd_df2019 <- ebd_df2019[sortorder]
+# 
+# # merge the multiple years together
+# ebd_df <- rbind(ebd_df2016,ebd_df2018, ebd_df2019)
 
 # gets rid of the bad data lines
 ebd_df$latitude <- as.numeric(as.character(ebd_df$latitude))
