@@ -44,6 +44,17 @@ bamona_file
 #enter its location in the list (first = 1, second = 2, etc)
 n <- 2
 bamona_file <- here::here("_data","input","SGCN_data","bamona", bamona_file[n])
+
+# write to file tracker
+filetracker <- data.frame(NameUpdate=sub('.', '', updateName), item="SGCN BAMONA", filename=(bamona_file), lastmoddate=file.info(bamona_file)$mtime)
+dbTracking <- dbConnect(SQLite(), dbname=trackingdatabasename) # connect to the database
+dbExecute(dbTracking, paste("DELETE FROM filetracker WHERE (NameUpdate='",sub('.', '', updateName),"' AND item='SGCN BAMONA')", sep="")) # 
+dbWriteTable(dbTracking, "filetracker", filetracker, append=TRUE, overwrite=FALSE) # write the table to the sqlite
+dbDisconnect(dbTracking) # disconnect the db
+rm(filetracker)
+
+# read in the file
+
 bamona <- read.csv(bamona_file, stringsAsFactors=FALSE)
 bamona_citation <- "Lotts, Kelly and Thomas Naberhaus, coordinators. 2017. Butterflies and Moths of North America. http://www.butterfliesandmoths.org/ (Version MMDDYYYY)"
 
