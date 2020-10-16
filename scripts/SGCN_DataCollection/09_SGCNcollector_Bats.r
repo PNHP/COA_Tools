@@ -76,6 +76,14 @@ tricollb <- tricollb[c("ELCODE","ELSeason","SNAME","SCOMNAME","SeasonCode","Data
 # join the two species together
 bats <- rbind(eptefusc, tricollb)
 
+# check for coordinate errors
+plot(bats$Longitude, bats$Latitude)
+summary(bats$Latitude)
+summary(bats$Longitude)
+
+bats <- bats[which((bats$Longitude!=0&bats$Latitude!=0))&(bats$Longitude!=-140&bats$Latitude!=2040),]
+bats <- bats[which(bats$Longitude>-85),]
+
 # create a spatial layer
 bats_sf <- st_as_sf(bats, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
 library(lwgeom)
@@ -83,11 +91,13 @@ bats_sf <- st_make_valid(bats_sf)
 
 
 # st_dimension
-
 bats_sf <- st_transform(bats_sf, crs=customalbers) # reproject to custom albers
 bats_sf <- bats_sf[final_fields]
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_bats"), bats_sf, overwrite=TRUE, validate=TRUE) # write a feature class to the gdb
 bats_buffer_sf <- st_buffer(bats_sf, 100) # buffer the points by 100m
+bats_buffer_sf <- st_make_valid(bats_buffer_sf)
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_bats"), bats_buffer_sf, overwrite=TRUE, validate=TRUE) # write a feature class to the gdb
+
+
 
 
