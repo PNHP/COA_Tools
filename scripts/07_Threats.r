@@ -20,6 +20,7 @@ source(here::here("scripts", "00_PathsAndSettings.r"))
 
 ## Threats
 threats <- read.csv(here::here("_data","input","lu_threats.csv"), stringsAsFactors=FALSE)
+trackfiles("Threats", here::here("_data","input","lu_threats.csv")) # write to file tracker
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
   dbWriteTable(db, "lu_threats", threats, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
