@@ -29,12 +29,7 @@ SGCNlist_file <- here::here("_data","input",SGCNlist_file[n])
 SGCN <- read.csv(SGCNlist_file, stringsAsFactors=FALSE)
 
 # write to file tracker
-filetracker <- data.frame(NameUpdate=sub('.', '', updateName), item="SGCN List",filename=SGCNlist_file,lastmoddate=file.info(SGCNlist_file)$mtime)
-dbTracking <- dbConnect(SQLite(), dbname=trackingdatabasename) # connect to the database
-dbExecute(dbTracking, paste("DELETE FROM filetracker WHERE NameUpdate='",sub('.', '', updateName),"'", sep="")) # 
-dbWriteTable(dbTracking, "filetracker", filetracker, append=TRUE, overwrite=FALSE) # write the table to the sqlite
-dbDisconnect(dbTracking) # disconnect the db
-rm(filetracker)
+trackfiles("SGCN List", SGCNlist_file)
 
 # QC to make sure that the ELCODES match the first part of the ELSeason code.
 if(length(setdiff(SGCN$ELCODE, gsub("(.+?)(\\_.*)", "\\1", SGCN$ELSeason)))==0){
@@ -70,6 +65,8 @@ dbExecute(dbTracking, paste("DELETE FROM filetracker WHERE (NameUpdate='",sub('.
 dbWriteTable(dbTracking, "filetracker", filetracker, append=TRUE, overwrite=FALSE) # write the table to the sqlite
 dbDisconnect(dbTracking) # disconnect the db
 rm(filetracker)
+
+trackfiles("ET File", ET_file)
 
 #get a list of the sheets in the file
 ET_sheets <- getSheetNames(ET_file)

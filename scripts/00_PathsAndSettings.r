@@ -74,3 +74,12 @@ loadSGCN <- function(taxagroup) {
   dbDisconnect(db) # disconnect the db
 }
 
+# function to track which files are used
+trackfiles <- function(trackitem, fname) {
+  filetracker <- data.frame(NameUpdate=sub('.', '', updateName), item=trackitem, filename=(fname), lastmoddate=file.info(fname)$mtime)
+  dbTracking <- dbConnect(SQLite(), dbname=trackingdatabasename) # connect to the database
+  dbExecute(dbTracking, paste("DELETE FROM filetracker WHERE (NameUpdate='",sub('.', '', updateName),"' AND item='SGCN BAMONA')", sep="")) # 
+  dbWriteTable(dbTracking, "filetracker", filetracker, append=TRUE, overwrite=FALSE) # write the table to the sqlite
+  dbDisconnect(dbTracking) # disconnect the db
+  rm(filetracker)
+}

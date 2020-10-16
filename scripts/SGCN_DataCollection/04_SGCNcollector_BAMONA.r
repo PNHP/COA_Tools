@@ -42,16 +42,11 @@ bamona_file <- list.files(path=here::here("_data","input","SGCN_data","bamona"),
 bamona_file
 #look at the output and choose which shapefile you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 2
+n <- 3
 bamona_file <- here::here("_data","input","SGCN_data","bamona", bamona_file[n])
 
 # write to file tracker
-filetracker <- data.frame(NameUpdate=sub('.', '', updateName), item="SGCN BAMONA", filename=(bamona_file), lastmoddate=file.info(bamona_file)$mtime)
-dbTracking <- dbConnect(SQLite(), dbname=trackingdatabasename) # connect to the database
-dbExecute(dbTracking, paste("DELETE FROM filetracker WHERE (NameUpdate='",sub('.', '', updateName),"' AND item='SGCN BAMONA')", sep="")) # 
-dbWriteTable(dbTracking, "filetracker", filetracker, append=TRUE, overwrite=FALSE) # write the table to the sqlite
-dbDisconnect(dbTracking) # disconnect the db
-rm(filetracker)
+trackfiles("SGCN BAMONA", bamona_file)
 
 # read in the file
 

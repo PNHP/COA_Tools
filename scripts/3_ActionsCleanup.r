@@ -35,12 +35,7 @@ n <- 2
 COA_actions_file <- here::here("_data/input",COA_actions_file[n])
 
 # write to file tracker
-filetracker <- data.frame(NameUpdate=sub('.', '', updateName), item="COA Actions", filename=(COA_actions_file), lastmoddate=file.info(COA_actions_file)$mtime)
-dbTracking <- dbConnect(SQLite(), dbname=trackingdatabasename) # connect to the database
-dbExecute(dbTracking, paste("DELETE FROM filetracker WHERE (NameUpdate='",sub('.', '', updateName),"' AND item='COA Actions')", sep="")) # 
-dbWriteTable(dbTracking, "filetracker", filetracker, append=TRUE, overwrite=FALSE) # write the table to the sqlite
-dbDisconnect(dbTracking) # disconnect the db
-rm(filetracker)
+trackfiles("COA Actions", COA_actions_file)
 
 #get a list of the sheets in the file
 COA_actions_sheets <- getSheetNames(COA_actions_file)
@@ -121,13 +116,7 @@ db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
 dbDisconnect(db) # disconnect the db
 
 # write to file tracker
-filetracker <- data.frame(NameUpdate=sub('.', '', updateName), item="Research Needs", filename=(here::here("_data","input","lu_SGCNresearch.csv")), lastmoddate=file.info(here::here("_data","input","lu_SGCNresearch.csv"))$mtime)
-dbTracking <- dbConnect(SQLite(), dbname=trackingdatabasename) # connect to the database
-dbExecute(dbTracking, paste("DELETE FROM filetracker WHERE (NameUpdate='",sub('.', '', updateName),"' AND item='Research Needs')", sep="")) # 
-dbWriteTable(dbTracking, "filetracker", filetracker, append=TRUE, overwrite=FALSE) # write the table to the sqlite
-dbDisconnect(dbTracking) # disconnect the db
-rm(filetracker)
-
+trackfiles("Research Needs", here::here("_data","input","lu_SGCNresearch.csv"))
 
 ##########################################################
 ## survey needs
@@ -144,3 +133,5 @@ dbExecute(dbTracking, paste("DELETE FROM filetracker WHERE (NameUpdate='",sub('.
 dbWriteTable(dbTracking, "filetracker", filetracker, append=TRUE, overwrite=FALSE) # write the table to the sqlite
 dbDisconnect(dbTracking) # disconnect the db
 rm(filetracker)
+
+trackfiles("Survey Needs", here::here("_data","input","lu_SGCNsurvey.csv"))
