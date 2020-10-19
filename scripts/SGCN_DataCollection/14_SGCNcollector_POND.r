@@ -44,7 +44,7 @@ sgcn_species <- merge(x=sgcn_species, y=lu_sgcn, by.x='sname', by.y='ELCODE', al
 sgcn_species <- sgcn_species[sgcn_species$species_found=='Y',]
 
 #import all survey records from POND
-survey_fields <- c('wpc_id','refcode','start_date')
+survey_fields <- c('pool_id','refcode','start_date')
 su <- arc.open(pond_surveys)
 surveys <- arc.select(su,survey_fields)
 surveys$start_date <- strtrim(surveys$start_date,4)
@@ -53,17 +53,17 @@ surveys$start_date <- strtrim(surveys$start_date,4)
 sgcn_surveys <- merge(x=surveys, y=sgcn_species, by='refcode', all.y=TRUE)
 
 #import all vernal pool points from POND
-point_fields <- c('wpc_id','pool_name','Shape')
+point_fields <- c('pool_id','pool_name','Shape')
 p <- arc.open(pond_pts)
 pond_points <- arc.select(p,point_fields)
 pond_sf <- arc.data2sf(pond_points)
 st_crs(pond_sf) <- 3857 #set to web mercator
 
 #limit POND points to those with SGCN species in them
-sgcn_points <- merge(x=pond_sf, y=sgcn_surveys, by='wpc_id', all.y=TRUE)
+sgcn_points <- merge(x=pond_sf, y=sgcn_surveys, by='pool_id', all.y=TRUE)
 
 #change column names to match schema
-names(sgcn_points)[names(sgcn_points) %in% c('wpc_id','start_date','sname')] <- c('DataID','LastObs','ELCODE')
+names(sgcn_points)[names(sgcn_points) %in% c('pool_id','start_date','sname')] <- c('DataID','LastObs','ELCODE')
 
 #add SGCN columns and fill with info to match schema
 sgcn_points$DataSource <- 'PNHP POND'
