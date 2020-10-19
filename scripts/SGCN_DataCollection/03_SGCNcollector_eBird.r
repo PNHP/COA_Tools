@@ -148,7 +148,9 @@ ebd_df1 <- ebd_df[which(ebd_df$ELSeason %in% sgcnfinal),]
 # field alignment
 names(ebd_df1)[names(ebd_df1)=='season'] <- 'SeasonCode'
 
-write.csv(ebd_df1, "eBirdBACKUPOct.csv") 
+# this 
+write.csv(ebd_df1, "eBirdBACKUPOct.csv", row.names=FALSE) 
+ebd_df1 <- read.csv("eBirdBACKUPOct.csv", stringsAsFactors = FALSE)
 
 # create a spatial layer
 ebird_sf <- st_as_sf(ebd_df1, coords=c("longitude","latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
