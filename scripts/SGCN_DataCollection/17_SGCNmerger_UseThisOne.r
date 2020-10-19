@@ -151,4 +151,4 @@ for(name in final_list){
 }
 
 sgcn_final <- sgcn_sf[which(sgcn_sf$useCOA=='y'),]
-arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","allSGCNuse"), sgcn_final, overwrite=TRUE, validate=TRUE)
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","allSGCNuse"), sgcn_final, overwrite=TRUE)
