@@ -32,6 +32,8 @@ grouse_file
 n <- 1
 grouse_file <- here::here("_data/input/SGCN_data/PGC_Grouse", grouse_file[n])
 
+trackfiles("SGCN grouse", here::here("_data/input/SGCN_data/PGC_Grouse", grouse_file[n])) # write to file tracker
+
 grouse_file <- arc.open(grouse_file)
 grouse_file <- arc.select(grouse_file)
 grouse_sf <- arc.data2sf(grouse_file)
@@ -92,6 +94,8 @@ woodcock_file
 #enter its location in the list (first = 1, second = 2, etc)
 n <- 1
 woodcock_file <- here::here("_data/input/SGCN_data/PGC_Woodcock", woodcock_file[n])
+
+trackfiles("SGCN woodcock", woodcock_file) # write to file tracker
 
 #read in woodcock csv
 woodcock <- read.csv(woodcock_file, stringsAsFactors = FALSE, na.strings = c("", "NA"))
