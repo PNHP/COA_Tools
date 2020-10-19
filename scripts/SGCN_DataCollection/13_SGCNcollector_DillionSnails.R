@@ -35,6 +35,8 @@ lu_sgcn <- lu_sgcn[which(lu_sgcn$TaxaGroup=="inv_snailf"),]
 
 snails <- read.xlsx(xlsxFile=here::here("_data","input","SGCN_data","Snails","PA-data-from_Dillon-14Jan14.xlsx"), sheet="Sheet1", skipEmptyRows=FALSE, rowNames=FALSE)
 
+trackfiles("SGCN AquaticSnails", here::here("_data","input","SGCN_data","Snails","PA-data-from_Dillon-14Jan14.xlsx")) # write to file tracker
+
 # subset to the species group one wants to query
 snails <- snails[which(snails$SCI_NAME %in% lu_sgcn$SNAME),]
 
