@@ -26,7 +26,9 @@ loadSGCN()
 # read in the bat data 
 # note that this is partially processed bat data, and not raw bat data from PGC
 eptefusc <- read.csv(here::here("_data","input","SGCN_data","PGC_bats","EptesicusFuscus","BigBrownBat.csv"), stringsAsFactors=FALSE)
+trackfiles("Bats EpteFusc", here::here("_data","input","SGCN_data","PGC_bats","EptesicusFuscus","BigBrownBat.csv")) # write to file tracker
 tricollb <- read.csv(here::here("_data","input","SGCN_data","PGC_bats","TriColoredLittleBrownBats","TriColored_LittleBrownBats.csv"), stringsAsFactors=FALSE)
+trackfiles("Bats Tricolored", here::here("_data","input","SGCN_data","PGC_bats","TriColoredLittleBrownBats","TriColored_LittleBrownBats.csv")) # write to file tracker
 
 names(eptefusc)
 names(tricollb)
