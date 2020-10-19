@@ -31,6 +31,8 @@ birds_info <-  merge(lu_sgcn, birdcodes, by="SNAME")
 PtCt <- read.csv(here::here("_data","input","SGCN_data","bba_ptct","BBA_PtCt.csv"), stringsAsFactors=FALSE)
 PtCt$OBJECTID <- NULL
 
+trackfiles("SGCN bba ptct", here::here("_data","input","SGCN_data","bba_ptct","BBA_PtCt.csv")) # write to file tracker
+
 # take out the coordinates of the point counts and put them into a new data frame for later
 PtCtLocations <- PtCt[,c("BBA","GPS_N","GPS_W")]
 PtCt$GPS_N <- NULL
