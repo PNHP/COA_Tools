@@ -25,8 +25,6 @@ rm(list=ls())
 # load packages
 if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
 require(here)
-# if (!requireNamespace("rmarkdown", quietly = TRUE)) install.packages("rmarkdown")
-#   require(rmarkdown)
 
 source(here::here("scripts","00_PathsAndSettings.r"))
 
@@ -36,19 +34,14 @@ load(file=updateData)
 # read in SGCN data
 loadSGCN()
 
-
 # assemble TREC data
+trackfiles("SGCN TREC", here::here("_data","input","SGCN_data","TREC","SGCN_FromTREC.shp")) # write to file tracker
 TREC <- arc.open(here::here("_data","input","SGCN_data","TREC","SGCN_FromTREC.shp")) 
 TREC <- arc.select(TREC) 
 TREC <- arc.data2sf(TREC)
 st_crs(TREC) <- 4326
 
 TREC <- TREC[which(TREC$SNAME %in% sgcnlist),]
-
-
-
-
-#TREC <- TREC[c("TaxaGroup","ELCODE","SNAME","SCOMNAME","DataSource","DataID","SeasonCode","OccProb","LastObs","ELSeason","useCOA")]
 
 TREC$LastObs <- year(as.Date(TREC$date))
 TREC$useCOA <- ifelse(TREC$LastObs>=cutoffyear&TREC$date!=" ", "y", "n")
@@ -58,6 +51,8 @@ TREC$SeasonCode <- ifelse(TREC$season==" ", "y", substr(TREC$season,1,1))
 TREC$ELSeason <- paste(TREC$ELCODE,TREC$SeasonCode, sep="_")
 TREC$DataSource <- "TREC"
 TREC$OccProb <- "k"
+
+TREC <- TREC[which(TREC$ELSeason %in% lu_sgcn$ELSeason),]
 
 TREC_sf <- TREC
 
