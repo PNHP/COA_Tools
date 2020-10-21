@@ -64,6 +64,7 @@ inatrecs <- ldply(a)
 
 # make a backup
 write.csv(inatrecs, "inatrecsOct2020.csv", row.names = FALSE)
+inatrecs <- read.csv("inatrecsOct2020.csv", stringsAsFactors = FALSE)
 
 # how many species did we get records for?
 unique(inatrecs$scientific_name)
@@ -117,7 +118,6 @@ inatrecs1 <- inatrecs[which(inatrecs$geoprivacy!="obscured"),]
 inatrecs1 <- inatrecs1[which(inatrecs1$taxon_geoprivacy!="true"),]
 inatrecs1 <- inatrecs1[which(inatrecs$coordinates_obscured!="true"),]
 
-
 # positional accuracy
 summary(inatrecs1$positional_accuracy)
 inatrecs1 <- inatrecs1[which(inatrecs1$positional_accuracy<=150),]
@@ -164,7 +164,7 @@ names(inatrecs2)[names(inatrecs2)=='url'] <- 'DataID'
 
 inatrecs2$LastObs <- year(parse_date_time(inatrecs2$observed_on, orders=c("ymd","mdy")))
 
-inatrecs2 <- inatrecs2[which(!is.na(inatrecs2$year)),] # deletes one without a year
+inatrecs2 <- inatrecs2[which(!is.na(inatrecs2$LastObs)),] # deletes one without a year
 
 inatrecs2$useCOA <- NA
 inatrecs2$useCOA <- with(inatrecs2, ifelse(inatrecs2$LastObs >= cutoffyear, "y", "n"))
@@ -189,7 +189,6 @@ inatrecs3 <- inatrecs3[which(!inatrecs3 %in% drop_from_eBird) ]
 # field alignment
 names(inatrecs3)[names(inatrecs3)=='season'] <- 'SeasonCode'
 
-# create a spatial layer
 inat_sf <- st_as_sf(inatrecs3, coords=c("longitude","latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
 inat_sf <- st_transform(inat_sf, crs=customalbers) # reproject to the custom albers
 inat_sf <- inat_sf[final_fields]
