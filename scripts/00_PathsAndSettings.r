@@ -26,7 +26,8 @@ arc.check_product()
 
 # update name
 updateName <- "_update2020q3"
-
+updateNameprev <- "_update2020q2"
+  
 # create a directory for this update unless it already exists
 ifelse(!dir.exists(here::here("_data","output",updateName)), dir.create(here::here("_data","output",updateName)), FALSE)
 
