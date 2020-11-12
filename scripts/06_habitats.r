@@ -26,7 +26,7 @@ SpecificHab_file <- list.files(path=here::here("_data/input"), pattern=".xlsx$")
 SpecificHab_file
 #look at the output and choose which shapefile you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 2
+n <- 3
 SpecificHab_file <- here::here("_data/input", SpecificHab_file[n])
 
 trackfiles("Specific Habitats", SpecificHab_file) # write to file tracker
@@ -39,6 +39,12 @@ SpecificHab_sheets # list the sheets
 n <- 6 # enter its location in the list (first = 1, second = 2, etc)
 SpecificHabitatReq <- read.xlsx(xlsxFile=SpecificHab_file, sheet=SpecificHab_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE)
 SpecificHabitatReq <- SpecificHabitatReq[c("ELSEASON","SNAME","SCOMNAME","Group","SpecificHabitatRequirements" )]
+
+# check to make sure all the ELCODEs are correct
+loadSGCN()
+
+a <- SpecificHabitatReq[!SpecificHabitatReq$ELSEASON %in% unique(lu_sgcn$ELSeason),]
+b <- SpecificHabitatReq[!SpecificHabitatReq$SNAME %in% unique(lu_sgcn$SNAME),]
 
 # write to the database
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
