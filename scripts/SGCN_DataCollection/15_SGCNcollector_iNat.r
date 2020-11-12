@@ -116,7 +116,7 @@ inatrecs <- inatrecs[which(inatrecs$captive_cultivated!="true"),]
 # remove obscured records
 inatrecs1 <- inatrecs[which(inatrecs$geoprivacy!="obscured"),]
 inatrecs1 <- inatrecs1[which(inatrecs1$taxon_geoprivacy!="true"),]
-inatrecs1 <- inatrecs1[which(inatrecs$coordinates_obscured!="true"),]
+inatrecs1 <- inatrecs1[which(inatrecs1$coordinates_obscured!="true"),]
 
 # positional accuracy
 summary(inatrecs1$positional_accuracy)
