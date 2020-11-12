@@ -21,8 +21,6 @@ source(here::here("scripts", "00_PathsAndSettings.r"))
 # load packages
 if (!requireNamespace("stringr", quietly=TRUE)) install.packages("stringr")
   require(stringr)
-if (!requireNamespace("reticulate", quietly=TRUE)) install.packages("reticulate")
-  require(reticulate)
 if (!requireNamespace("naniar", quietly=TRUE)) install.packages("naniar")
   require(naniar)
 if (!requireNamespace("reshape2", quietly=TRUE)) install.packages("reshape2")
@@ -158,6 +156,11 @@ sws_huc08agg_cast <- merge(sws_huc08agg_cast, b[c("ELCODE","HUC08","Occurrence")
 
 # merge the primary macrogroup info in
 sws_huc08agg_cast <- merge(sws_huc08agg_cast, data_luPriMacrogroup1, by="ELCODE", all.x=TRUE)
+
+# TEMP for Testing  #######################
+save.image(file=here::here("_data","output",updateName, "tempSWS.RData"))
+load(here::here("_data","output",updateName, "tempSWS.RData"))
+###########################################
 
 
 # load the huc08 basemap

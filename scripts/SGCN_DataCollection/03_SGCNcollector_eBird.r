@@ -24,6 +24,8 @@ rm(list=ls())
 # load packages
 if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
   require(here)
+if (!requireNamespace("auk", quietly = TRUE)) install.packages("auk")
+require(auk)
 
 source(here::here("scripts","00_PathsAndSettings.r"))
 
