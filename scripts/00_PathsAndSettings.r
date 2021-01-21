@@ -40,6 +40,7 @@ trackingdatabasename <- here::here("_data","output",updateName,paste0("coa_track
 
 # paths to biotics shapefiles
 biotics_path <- "W:/Heritage/Heritage_Data/Biotics_datasets.gdb"
+bioticsFeatServ_path <- "https://maps.waterlandlife.org/arcgis/rest/services/PNHP/Biotics/FeatureServer"
 biotics_crosswalk <- here::here("_data","input","crosswalk_BioticsSWAP.csv") # note that nine species are not in Biotics at all
 
 # paths to to server path to access cpp shapefiles, we connect to the cpp file in '02_SGCNcollector_BioticsCPP.r'

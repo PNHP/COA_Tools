@@ -58,17 +58,17 @@ rm(cppCore)
 lu_srcfeature_names <- c("SF_ID","EO_ID","ELCODE","SNAME","SCOMNAME","ELSUBID","LU_TYPE","LU_DIST","LU_UNIT","USE_CLASS","EST_RA")
 
 # read in source points 
-srcfeat_points <- arc.open(paste(biotics_path,"eo_sourcept",sep="/")) 
+srcfeat_points <- arc.open(paste0(bioticsFeatServ_path,"/2"))  # 2 is the number of the EO points 
 srcfeat_points <- arc.select(srcfeat_points, lu_srcfeature_names)
 srcfeat_points_SGCN <- srcfeat_points[which(srcfeat_points$ELCODE %in% lu_sgcnBioticsELCODE),] # subset to SGCN
 srcfeat_points_SGCN <- srcfeat_points_SGCN[which(!is.na(srcfeat_points_SGCN$EO_ID)),] # drop independent source features
 # read in source lines 
-srcfeat_lines <- arc.open(paste(biotics_path,"eo_sourceln",sep="/")) 
+srcfeat_lines <- arc.open(paste0(bioticsFeatServ_path,"/3")) # 3 is the number of the EO lines 
 srcfeat_lines <- arc.select(srcfeat_lines, lu_srcfeature_names)
 srcfeat_lines_SGCN <- srcfeat_lines[which(srcfeat_lines$ELCODE %in% lu_sgcnBioticsELCODE),] # subset to SGCN
 srcfeat_lines_SGCN <- srcfeat_lines_SGCN[which(!is.na(srcfeat_lines_SGCN$EO_ID)),] # drop independent source features
 # read in source polygons 
-srcfeat_polygons <- arc.open(paste(biotics_path,"eo_sourcepy",sep="/"))  
+srcfeat_polygons <- arc.open(paste0(bioticsFeatServ_path,"/4"))  # 4 is the number of the EO polys 
 srcfeat_polygons <- arc.select(srcfeat_polygons, lu_srcfeature_names)
 srcfeat_polygons_SGCN <- srcfeat_polygons[which(srcfeat_polygons$ELCODE %in% lu_sgcnBioticsELCODE),] # subset to SGCN
 srcfeat_polygons_SGCN <- srcfeat_polygons_SGCN[which(!is.na(srcfeat_polygons_SGCN$EO_ID)),] # drop independent source features
@@ -80,7 +80,7 @@ rm(srcfeat_points,srcfeat_lines,srcfeat_polygons,lu_srcfeature_names)
 lu_EOID <- unique(c(srcfeat_points_SGCN$EO_ID, srcfeat_lines_SGCN$EO_ID, srcfeat_polygons_SGCN$EO_ID))
 
 # read in the point reps layer to get last obs dates and such
-ptreps <- arc.open(paste(biotics_path,"eo_ptreps",sep="/"))  
+ptreps <- arc.open(paste0(bioticsFeatServ_path,"/0"))  # 0 is the pt reps
 ptreps <- arc.select(ptreps, c("EO_ID","EST_RA","PREC_BCD","LASTOBS_YR")) # , lu_srcfeature_names
 ptreps_SGCN <- ptreps[which(ptreps$EO_ID %in% lu_EOID),]
 ptreps_SGCN <- as.data.frame(ptreps_SGCN) # drop the spatial part
