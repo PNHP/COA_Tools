@@ -41,8 +41,7 @@ lu_sgcnBioticsELCODE <- biotics_crosswalk$ELCODE
 
 # use this to hit the enterprise gdb server
 cppCore <- arc.open(paste(serverPath,"PNHP.DBO.CPP_Core", sep=""))
-
-cppCore <- arc.open(cpps)
+#cppCore <- arc.open(cpps)
 cppCore <- arc.select(cppCore, c("SNAME","EO_ID","Status"), where_clause="Status ='c' OR Status ='r'") 
 cppCore_sf <- arc.data2sf(cppCore)
 #### cppCore_sf <- cppCore_sf[which(cppCore_sf$SNAME %in% unique(lu_sgcn$SNAME)),] # bad SGCN names
@@ -56,7 +55,7 @@ rm(cppCore)
 
 # create a vector of field names for the arc.select statement below
 lu_srcfeature_names <- c("SF_ID","EO_ID","ELCODE","SNAME","SCOMNAME","ELSUBID","LU_TYPE","LU_DIST","LU_UNIT","USE_CLASS","EST_RA")
-
+arc.check_portal()  # may need to update bridge to most recent version if it crashes: https://github.com/R-ArcGIS/r-bridge/issues/46
 # read in source points 
 srcfeat_points <- arc.open(paste0(bioticsFeatServ_path,"/2"))  # 2 is the number of the EO points 
 srcfeat_points <- arc.select(srcfeat_points, lu_srcfeature_names)
@@ -162,10 +161,8 @@ rm(srcf_pt_sf1,srcf_ln_sf1,srcf_py_sf1)
 # merge into one
 srcf_combined <- rbind(srcf_pt_sf1buf,srcf_ln_sf1buf,srcf_py_sf1buf)
 
-
-
 srcf_combined$useCOA <- with(srcf_combined, ifelse(srcf_combined$LastObs>=cutoffyearL & srcf_combined$buffer<1000, "y", "n"))
-#add the occurence probability
+#add the occurrence probability
 srcf_combined$OccProb = with(srcf_combined, ifelse(LastObs>=cutoffyearK , "k", ifelse(LastObs<cutoffyearK & LastObs>=cutoffyearL, "l", "u")))
 
 
