@@ -38,6 +38,10 @@ sgcnXpu_models <- sgcnXpu[which((sgcnXpu$OccProb!="k") & !(substr(sgcnXpu$ELSeas
 # remove models that might be considered "bad", like eastern meadowlark
 sgcnXpu_models <- sgcnXpu_models[which(sgcnXpu_models$ELSeason!="ABPBXB2020_b"),]
 
+# get a summary of species that have models
+speciesListModels <- unique(sgcnXpu_models$ELSeason)
+a <- as.data.frame(table(sgcnXpu_models$ELSeason, sgcnXpu_models$OccProb))
+
 ## read in the new table the known occurrences
 sgcnXpu_newK <- arc.open(here::here("_data","output",updateName,"SGCN.gdb","SGCNxPU_occurrence"))
 sgcnXpu_newK <- arc.select(sgcnXpu_newK, c("unique_id","ELSeason","OccProb","PERCENTAGE")) 
