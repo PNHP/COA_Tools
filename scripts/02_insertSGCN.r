@@ -12,7 +12,6 @@
 # clear the environments
 rm(list=ls())
 
-
 if (!requireNamespace("here", quietly=TRUE)) install.packages("here")
 require(here)
 
@@ -48,8 +47,13 @@ SGCN$TaxaDisplay <- trimws(SGCN$TaxaDisplay, which="both")
 SGCN$SRANK <- gsub("[\r\n]", "", SGCN$SRANK)
 SGCN$GRANK <- gsub("[\r\n]", "", SGCN$GRANK)
 
-
 # compare to the ET
+
+
+arc.check_portal()
+ET <- arc.open("https://maps.waterlandlife.org/arcgis/rest/services/PNHP/Biotics/FeatureServer/5")
+ET <- arc.select(ET)
+
 #get the most recent ET
 ET_file <- list.files(path="P:/Conservation Programs/Natural Heritage Program/Data Management/Biotics Database Areas/Element Tracking/current element lists", pattern=".xlsx$")  # --- make sure your excel file is not open.
 ET_file

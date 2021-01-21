@@ -23,8 +23,8 @@ require(dplyr)
 arc.check_product() 
 
 # update name
-updateName <- "_update2020q3"
-updateNameprev <- "_update2020q2"
+updateName <- "_update2020q4"
+updateNameprev <- "_update2020q3"
   
 # create a directory for this update unless it already exists
 ifelse(!dir.exists(here::here("_data","output",updateName)), dir.create(here::here("_data","output",updateName)), FALSE)
@@ -36,7 +36,7 @@ updateData <- here::here("_data","output",updateName,paste(updateName, "RData", 
 databasename <- here::here("_data","output",updateName,"coa_bridgetest.sqlite")
 
 # tracking database name
-trackingdatabasename <- here::here("_data","output",updateName,"coa_tracking.sqlite")
+trackingdatabasename <- here::here("_data","output",updateName,paste0("coa_tracking",updateName,".sqlite"))
 
 # paths to biotics shapefiles
 biotics_path <- "W:/Heritage/Heritage_Data/Biotics_datasets.gdb"
