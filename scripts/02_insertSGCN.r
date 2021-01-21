@@ -48,38 +48,12 @@ SGCN$SRANK <- gsub("[\r\n]", "", SGCN$SRANK)
 SGCN$GRANK <- gsub("[\r\n]", "", SGCN$GRANK)
 
 # compare to the ET
-
-
-arc.check_portal()
-ET <- arc.open("https://maps.waterlandlife.org/arcgis/rest/services/PNHP/Biotics/FeatureServer/5")
-ET <- arc.select(ET)
-
 #get the most recent ET
-ET_file <- list.files(path="P:/Conservation Programs/Natural Heritage Program/Data Management/Biotics Database Areas/Element Tracking/current element lists", pattern=".xlsx$")  # --- make sure your excel file is not open.
-ET_file
-#look at the output and choose which shapefile you want to run
-#enter its location in the list (first = 1, second = 2, etc)
-n <- 3
-ET_file <- file.path("P:/Conservation Programs/Natural Heritage Program/Data Management/Biotics Database Areas/Element Tracking/current element lists",ET_file[n])
+arc.check_portal()  # may need to update bridge to most recent version if it crashes: https://github.com/R-ArcGIS/r-bridge/issues/46
+ET <- arc.open(paste0(bioticsFeatServ_path,"/5"))  # 5 is the number of the ET
+ET <- arc.select(ET, c("ELSUBID","ELCODE","SNAME","SCOMNAME","GRANK","SRANK","SRANK_CHGDT","SRANK_RVWDT","EO_TRACK","SGCN","SENSITV_SP"), where_clause="SGCN='Y'")
+# write to file tracker  REMOVED for now
 
-# write to file tracker
-filetracker <- data.frame(NameUpdate=sub('.', '', updateName), item="ET File", filename=(ET_file), lastmoddate=file.info(ET_file)$mtime)
-dbTracking <- dbConnect(SQLite(), dbname=trackingdatabasename) # connect to the database
-dbExecute(dbTracking, paste("DELETE FROM filetracker WHERE (NameUpdate='",sub('.', '', updateName),"' AND item='ET File')", sep="")) # 
-dbWriteTable(dbTracking, "filetracker", filetracker, append=TRUE, overwrite=FALSE) # write the table to the sqlite
-dbDisconnect(dbTracking) # disconnect the db
-rm(filetracker)
-
-trackfiles("ET File", ET_file)
-
-#get a list of the sheets in the file
-ET_sheets <- getSheetNames(ET_file)
-#look at the output and choose which excel sheet you want to load
-# Enter the actions sheet (eg. "lu_actionsLevel2") 
-ET_sheets # list the sheets
-n <- 1 # enter its location in the list (first = 1, second = 2, etc)
-ET <- read.xlsx(xlsxFile=ET_file, sheet=ET_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE,  detectDates = TRUE)
-ET <- ET[c("ELCODE","SCIENTIFIC.NAME","COMMON.NAME","G.RANK","S.RANK","SRANK.CHANGE.DATE","SRANK.REVIEW.DATE")] # which(ET$SGCN.STATUS=="Y"),
 
 SGCNtest <- merge(SGCN[c("ELCODE","SNAME","SCOMNAME","GRANK","SRANK")], ET, by.x="ELCODE", by.y="ELCODE", all.x = TRUE)
 
