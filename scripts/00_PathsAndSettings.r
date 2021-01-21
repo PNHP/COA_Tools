@@ -47,8 +47,8 @@ biotics_crosswalk <- here::here("_data","input","crosswalk_BioticsSWAP.csv") # n
 serverPath <- paste("C:/Users/",Sys.getenv("USERNAME"),"/AppData/Roaming/ESRI/ArcGISPro/Favorites/PNHP.PGH-gis0.sde/",sep="")
 
 # cutoff year for records
-cutoffyear <- as.integer(format(Sys.Date(), "%Y")) - 25  # keep data that's only within 25 years
-cutoffyearK <- as.integer(format(Sys.Date(), "%Y")) - 25  # keep data that's only within 25 years for known records
+cutoffyear <- as.integer(substr(updateName, 8, 11)) - 25  # keep data that's only within 25 years
+cutoffyearK <- cutoffyear # keep data that's only within 25 years for known records
 cutoffyearL <- 1980  # 
 
 # final fields for arcgis
