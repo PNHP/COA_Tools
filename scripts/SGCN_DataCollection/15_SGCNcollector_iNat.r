@@ -37,14 +37,14 @@ loadSGCN()
 # }
 # 
 # 
-
+SGCNinat <- sgcnlist
 SGCNinat <- sgcnlist[which(!sgcnlist %in% SGCN_bioticsCPP)]
 SGCNinat <- SGCNinat[order(SGCNinat)]
 
 a <- list()
 k <- NULL
 for(x in 1:length(SGCNinat)){
-  #get metadata on teh number of occurrences
+  #get metadata on the number of occurrences
   print(paste("getting metadata from iNaturalist for ",SGCNinat[x],".", sep="") )
   try(k <- get_inat_obs(taxon_name=SGCNinat[x], bounds=c(39.7198, -80.519891, 42.26986,	-74.689516) , geo=TRUE, meta=TRUE) ) # this step first queries iNat to see if there are any records present, if there are it actually downloads them.
   Sys.sleep(10) # this is too throttle our requests so we don't overload their servers
@@ -63,16 +63,14 @@ for(x in 1:length(SGCNinat)){
 inatrecs <- ldply(a)
 
 # make a backup
-write.csv(inatrecs, "inatrecsOct2020.csv", row.names = FALSE)
-inatrecs <- read.csv("inatrecsOct2020.csv", stringsAsFactors = FALSE)
+write.csv(inatrecs, "inatrecsNov2020.csv", row.names = FALSE)
+inatrecs <- read.csv("inatrecsNov2020.csv", stringsAsFactors = FALSE)
 
 # how many species did we get records for?
 unique(inatrecs$scientific_name)
 table(inatrecs$scientific_name,inatrecs$captive_cultivated)
 
 # ones that match the sgcn
-
-
 SGCNinat <- as.data.frame(SGCNinat)
 names(SGCNinat) <- "SNAME"
 SGCNinat$match <- "yes"
@@ -83,7 +81,7 @@ names(speciesmatch) <- "SNAME"
 speciesmatch <- merge(speciesmatch, SGCNinat, all.x=TRUE)
 speciesmatch$SNAME <- as.character(speciesmatch$SNAME)
 
-print("The following species do match the original SGNC list:")
+print("The following species do not match the original SGNC list:")
 speciesmatch[which(is.na(speciesmatch$match)),]$SNAME
 
 inatrecs[which(inatrecs$scientific_name=="Bonasa umbellus umbellus"),]$scientific_name <- "Bonasa umbellus"
@@ -107,6 +105,8 @@ inatrecs[which(inatrecs$scientific_name=="Spinus pinus pinus"),]$scientific_name
 
 unique(inatrecs$scientific_name)
 
+
+
 # remove the E. invaria records as we have no idea...
 inatrecs <- inatrecs[which(inatrecs$scientific_name!="Ephemerella invaria"),]
 
@@ -115,7 +115,7 @@ inatrecs <- inatrecs[which(inatrecs$captive_cultivated!="true"),]
 
 # remove obscured records
 inatrecs1 <- inatrecs[which(inatrecs$geoprivacy!="obscured"),]
-inatrecs1 <- inatrecs1[which(inatrecs1$taxon_geoprivacy!="true"),]
+inatrecs1 <- inatrecs1[which(inatrecs1$taxon_geoprivacy!="open"|inatrecs1$taxon_geoprivacy!=""),]
 inatrecs1 <- inatrecs1[which(inatrecs1$coordinates_obscured!="true"),]
 
 # positional accuracy
@@ -123,17 +123,20 @@ summary(inatrecs1$positional_accuracy)
 inatrecs1 <- inatrecs1[which(inatrecs1$positional_accuracy<=150),]
 
 # not research grade
+#inatgraph$resgrade <- ifelse(inatgraph$quality_grade!="research", "remove", "keep")
 inatrecs1 <- inatrecs1[which(inatrecs1$quality_grade=="research"),]
 
-unique(inatrecs1$scientific_name)
+#unique(inatrecs1$scientific_name)
 
 # sort just to make it cleaner
+
 inatrecs1 <- inatrecs1[order(inatrecs1$scientific_name),]
 
 #bird season
 inatrecs1$dayofyear <- yday(inatrecs1$datetime) ## Add day of year to eBird dataset based on the observation date.
 inatrecs1birds <- inatrecs1[which(inatrecs1$iconic_taxon_name=="Aves"),]
 inatrecs1nobirds <- inatrecs1[which(inatrecs1$iconic_taxon_name!="Aves"),]
+
 
 birdseason <- read.csv(here::here("scripts","SGCN_DataCollection","lu_eBird_birdseason.csv"), colClasses = c("character","character","integer","integer"),stringsAsFactors=FALSE)
 
@@ -154,6 +157,7 @@ inatrecs1birds <- inatrecs1birds[!is.na(inatrecs1birds$season),]
 inatrecs1nobirds$season <- NA
 
 inatrecs2 <- rbind(inatrecs1birds, inatrecs1nobirds)
+
 
 # add additional fields 
 inatrecs2$DataSource <- "iNaturalist"
