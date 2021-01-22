@@ -77,23 +77,34 @@ plotsSubset <- plots[which(plots$Plot_Num %in% plotlist),]
 
 # make the joins
 birdplots <- merge(plotsSubset, waterfowl1, by.x=c("Statum","Plot_Num"), by.y=c("stratum_id","state_plot_number"), all.y=TRUE)
-birdplots <- birdplots[which(is.na(birdplots$FID)),]  # why is there not '24' stratum
+birdplots <- birdplots[which(!is.na(birdplots$NW_Lat)),]  # why is there not '24' stratum
 
 # wetlands
 nwi <- arc.open(paste("C:/Users/ctracey/AppData/Roaming/ESRI/ArcGISPro/Favorites/StateLayers.Default.pgh-gis0.sde/","StateLayers.DBO.USFWS_NWI", sep=""))
 nwi <- arc.select(nwi)
 nwi <- arc.data2sf(nwi)
-nwi <- st_buffer(nwi, dist = 0)
+nwi <- st_buffer(nwi, dist=0)
+nwi <- st_transform(nwi, customalbers)
 
 # spatial work
-birdplots_new <- st_transform(birdplots, st_crs(nwi))
-birdplots_new <- sf::st_buffer(birdplots_new, dist = 0)
+birdplots_new <- st_transform(birdplots, customalbers)
+birdplots_new <- st_buffer(birdplots_new, dist=0)
 
-a <- st_intersection(birdplots_new, nwi)
+waterfowlSGCN <- st_intersection(birdplots_new, nwi)
 
-plot(a)
-#birdplots_centroid <- st_centroid(birdplots)
+waterfowlSGCN$DataID <- "PGCwaterfowl"
+waterfowlSGCN$SeasonCode <- "b"
+waterfowlSGCN$Environment <- "t"
+waterfowlSGCN$LastObs <- waterfowlSGCN$year
+waterfowlSGCN$DataSource <- "PGC waterfowl"
+waterfowlSGCN$OccProb <- "k"
+waterfowlSGCN$useCOA <- "y"
 
-arc.write(path=here::here("_data","input","SGCN_data","PGC_Waterfowl","Waterfowl_Output.shp"), a, overwrite=TRUE, validate=TRUE) # write a feature class into the geodatabase
+waterfowlSGCN <- merge(waterfowlSGCN, lu_sgcn, by=c("SNAME","SeasonCode"), all.x=TRUE)
+
+#keep only final fields and write source point and final feature classes to SGCN GDB
+waterfowlSGCN <- waterfowlSGCN[final_fields]
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_PGCwaterfowl"), waterfowlSGCN, overwrite=TRUE) # write a feature class to the gdb
+
 
 
