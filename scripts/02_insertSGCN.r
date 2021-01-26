@@ -58,20 +58,25 @@ ET <- arc.select(ET, c("ELSUBID","ELCODE","SNAME","SCOMNAME","GRANK","SRANK","SR
 SGCNtest <- merge(SGCN[c("ELCODE","SNAME","SCOMNAME","GRANK","SRANK")], ET, by.x="ELCODE", by.y="ELCODE", all.x = TRUE)
 
 SGCNtest$matchGRANK <- ifelse(SGCNtest$GRANK.x==SGCNtest$GRANK.y,"yes","no")
-if(is.null(SGCNtest[which(SGCNtest$matchGRANK=="no"),]$GNAME)){
+if(all(SGCNtest$matchGRANK=="yes")){
   print("GRANK strings match. You're good to go!")
 } else {
-  print(paste("GRANKS for ", SGCNtest[which(SGCNtest$matchGRANK=="no"),]$GNAME , " do not match;", sep=""))
+  print(paste("GRANKS for ", SGCNtest[which(SGCNtest$matchGRANK=="no"),"SNAME.x"] , " do not match;", sep=""))
 }
 
 SGCNtest$matchSRANK <- ifelse(SGCNtest$SRANK.x==SGCNtest$SRANK.y,"yes","no")
-if(is.null(SGCNtest[which(SGCNtest$matchSRANK=="no"),]$SNAME)){
+if(all(SGCNtest$matchSRANK=="yes")){
   print("GRANK strings match. You're good to go!")
 } else {
-  print(paste("SRANKS for ", SGCNtest[which(SGCNtest$matchSRANK=="no"),]$SNAME , " do not match;", sep=""))
+  print(paste("SRANKS for ", SGCNtest[which(SGCNtest$matchSRANK=="no"),"SNAME.x"] , " do not match;", sep=""))
 }
 
 SGCNtest <- SGCNtest[which(SGCNtest$matchGRANK=="no"|SGCNtest$matchSRANK=="no"),] # edit this down to just the changes
+SGCNtest$ELSUBID <- NULL
+SGCNtest$EO_TRACK <- NULL
+SGCNtest$SGCN <- NULL
+SGCNtest$SENSITV_SP <- NULL
+
 names(SGCNtest) <- c("ELCODE","SGCN_SNAME","SGCN_SCOMNAME","SGCN_GRANK","SGCN_SRANK","ET_SNAME","ET_SCOMNAME","ET_GRANK","ET_SRANK","ET_SRANK.CHANGE.DATE","ET_SRANK.REVIEW.DATE","matchGRANK","matchSRANK") 
 
 SGCNtest$Name <- sub('.', '', updateName) #insert the update name and remove the first character
