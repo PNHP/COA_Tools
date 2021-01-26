@@ -15,7 +15,6 @@ rm(list=ls())
 
 if (!requireNamespace("here", quietly=TRUE)) install.packages("here")
 require(here)
-
 source(here::here("scripts", "00_PathsAndSettings.r"))
 
 # create an empty sqlite db
@@ -24,9 +23,14 @@ dbDisconnect(db) # disconnect the db
 
 # create an empty sqlite db for tracking
 dbTrack <- dbConnect(SQLite(), dbname=trackingdatabasename) # creates an empty COA database
-a <- c("TEXT","TEXT","TEXT","REAL")
-names(a) <- c("NameUpdate","item","filename","lastmoddate")
-dbCreateTable(dbTrack, "filetracker", a)  # , "item"=TEXT, "filename"=TEXT, "lastmoddate"=REAL
+# create rank changes tracker
+a <- c("TEXT", "TEXT", "TEXT", "TEXT", "TEXT", "TEXT", "TEXT", "TEXT", "TEXT", "REAL", "REAL", "TEXT", "TEXT", "TEXT")
+names(a) <- c("ELCODE","SGCN_SNAME","SGCN_SCOMNAME","SGCN_GRANK","SGCN_SRANK", "ET_SNAME", "ET_SCOMNAME", "ET_GRANK", "ET_SRANK", "ET_SRANK.CHANGE.DATE", "ET_SRANK.REVIEW.DATE", "matchGRANK", "matchSRANK", "Name")
+dbCreateTable(dbTrack, "changed_ranks", a)  # , "item"=TEXT, "filename"=TEXT, "lastmoddate"=REAL
+# create file tracker
+b <- c("TEXT","TEXT","TEXT","REAL")
+names(b) <- c("NameUpdate","item","filename","lastmoddate")
+dbCreateTable(dbTrack, "filetracker", b)  # , "item"=TEXT, "filename"=TEXT, "lastmoddate"=REAL
 dbDisconnect(dbTrack) # disconnect the db
 
 
