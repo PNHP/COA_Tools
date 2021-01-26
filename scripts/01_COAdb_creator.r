@@ -24,6 +24,9 @@ dbDisconnect(db) # disconnect the db
 
 # create an empty sqlite db for tracking
 dbTrack <- dbConnect(SQLite(), dbname=trackingdatabasename) # creates an empty COA database
+a <- c("TEXT","TEXT","TEXT","REAL")
+names(a) <- c("NameUpdate","item","filename","lastmoddate")
+dbCreateTable(dbTrack, "filetracker", a)  # , "item"=TEXT, "filename"=TEXT, "lastmoddate"=REAL
 dbDisconnect(dbTrack) # disconnect the db
 
 
