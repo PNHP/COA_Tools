@@ -59,18 +59,25 @@ arc.check_portal()  # may need to update bridge to most recent version if it cra
 # read in source points 
 srcfeat_points <- arc.open(paste0(bioticsFeatServ_path,"/2"))  # 2 is the number of the EO points 
 srcfeat_points <- arc.select(srcfeat_points, lu_srcfeature_names)
+srcfeat_points <- arc.data2sf(srcfeat_points)
 srcfeat_points_SGCN <- srcfeat_points[which(srcfeat_points$ELCODE %in% lu_sgcnBioticsELCODE),] # subset to SGCN
 srcfeat_points_SGCN <- srcfeat_points_SGCN[which(!is.na(srcfeat_points_SGCN$EO_ID)),] # drop independent source features
 # read in source lines 
 srcfeat_lines <- arc.open(paste0(bioticsFeatServ_path,"/3")) # 3 is the number of the EO lines 
 srcfeat_lines <- arc.select(srcfeat_lines, lu_srcfeature_names)
+srcfeat_lines <- arc.data2sf(srcfeat_lines)
 srcfeat_lines_SGCN <- srcfeat_lines[which(srcfeat_lines$ELCODE %in% lu_sgcnBioticsELCODE),] # subset to SGCN
 srcfeat_lines_SGCN <- srcfeat_lines_SGCN[which(!is.na(srcfeat_lines_SGCN$EO_ID)),] # drop independent source features
 # read in source polygons 
 srcfeat_polygons <- arc.open(paste0(bioticsFeatServ_path,"/4"))  # 4 is the number of the EO polys 
-srcfeat_polygons <- arc.select(srcfeat_polygons, lu_srcfeature_names)
+options(useFancyQuotes = FALSE)
+ex <- paste("ELCODE IN (", paste(sQuote(lu_sgcnBioticsELCODE), sep=" ", collapse=", "),")", sep="")
+srcfeat_polygons <- arc.select(srcfeat_polygons, lu_srcfeature_names, where_clause=ex )
+srcfeat_polygons <- arc.data2sf(srcfeat_polygons)
 srcfeat_polygons_SGCN <- srcfeat_polygons[which(srcfeat_polygons$ELCODE %in% lu_sgcnBioticsELCODE),] # subset to SGCN
 srcfeat_polygons_SGCN <- srcfeat_polygons_SGCN[which(!is.na(srcfeat_polygons_SGCN$EO_ID)),] # drop independent source features
+
+
 
 # clean up
 rm(srcfeat_points,srcfeat_lines,srcfeat_polygons,lu_srcfeature_names)
@@ -85,9 +92,9 @@ ptreps_SGCN <- ptreps[which(ptreps$EO_ID %in% lu_EOID),]
 ptreps_SGCN <- as.data.frame(ptreps_SGCN) # drop the spatial part
 
 # convert to simple features
-srcf_pt_sf <- arc.data2sf(srcfeat_points_SGCN)
-srcf_ln_sf <- arc.data2sf(srcfeat_lines_SGCN)
-srcf_py_sf <- arc.data2sf(srcfeat_polygons_SGCN)
+srcf_pt_sf <- srcfeat_points_SGCN
+srcf_ln_sf <- srcfeat_lines_SGCN
+srcf_py_sf <- srcfeat_polygons_SGCN
 
 # clean up
 rm(ptreps, srcfeat_points_SGCN, srcfeat_lines_SGCN, srcfeat_polygons_SGCN)
@@ -253,8 +260,8 @@ final_srcf_combined <- final_srcf_combined[final_fields]
 # write a feature class to the gdb
 st_crs(final_cppCore_sf) <- customalbers
 st_crs(final_srcf_combined) <- customalbers
-arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_cppCore"), final_cppCore_sf, overwrite=TRUE)
-arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_Biotics"), final_srcf_combined, overwrite=TRUE)
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_cppCore"), final_cppCore_sf, overwrite=TRUE, validate=TRUE)
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_Biotics"), final_srcf_combined, overwrite=TRUE, validate=TRUE)
 
 BioticsCPP_ELSeason <- unique(c(final_cppCore_sf$ELSeason, final_srcf_combined$ELSeason))
 
