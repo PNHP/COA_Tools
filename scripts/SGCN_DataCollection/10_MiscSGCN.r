@@ -58,7 +58,7 @@ trackfiles("SGCN MiscBirdData", here::here("_data","input","SGCN_data","birdsplu
 birdsplus <- arc.open(here::here("_data","input","SGCN_data","birdsplus","birdsplus.shp")) 
 birdsplus <- arc.select(birdsplus) 
 birdsplus <- arc.data2sf(birdsplus)
-st_crs(birdsplus) <- 4269
+#st_crs(birdsplus) <- 4269
 
 birdsplus <- birdsplus[which(birdsplus$SNAME %in% sgcnlist),]
 birdsplus[which(birdsplus$SNAME=="Gallinula galeata"),]$ELCODE <- "ABNME13030"

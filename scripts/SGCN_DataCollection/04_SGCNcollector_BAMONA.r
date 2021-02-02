@@ -42,7 +42,7 @@ bamona_file <- list.files(path=here::here("_data","input","SGCN_data","bamona"),
 bamona_file
 #look at the output and choose which shapefile you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 3
+n <- 1
 bamona_file <- here::here("_data","input","SGCN_data","bamona", bamona_file[n])
 
 # write to file tracker
@@ -78,10 +78,7 @@ NotInBamona
 #DELETE SGCN_bioticsCPP <- read.csv("SGCN_bioticsCPP.csv", stringsAsFactors=FALSE)
 bamona1 <- bamona1[which(!bamona1$SNAME %in% SGCN_bioticsCPP),]
 
-
 table(bamona1$SNAME)
-
-
 
 # add in useCOA
 bamona1$useCOA <- NA

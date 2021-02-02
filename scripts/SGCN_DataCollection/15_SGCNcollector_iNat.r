@@ -103,6 +103,7 @@ inatrecs[which(inatrecs$scientific_name=="Phanogomphus borealis"),]$scientific_n
 inatrecs[which(inatrecs$scientific_name=="Sthenopis pretiosus"),]$scientific_name <- "Sthenopis auratus"
 inatrecs[which(inatrecs$scientific_name=="Spinus pinus pinus"),]$scientific_name <- "Spinus pinus"
 
+
 unique(inatrecs$scientific_name)
 
 
