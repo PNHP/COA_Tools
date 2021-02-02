@@ -22,6 +22,8 @@ require(here)
 #get paths listed in paths and settings script
 source(here::here("scripts","00_PathsAndSettings.r"))
 
+arc.check_portal()
+
 # read in SGCN data
 loadSGCN()
 

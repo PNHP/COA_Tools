@@ -51,6 +51,10 @@ names(waterfowl2020)[which(names(waterfowl2020)=="Plot")] <- "state_plot_number"
 
 waterfowl2020$state_plot_number <- stringr::str_pad(waterfowl2020$state_plot_number, width=3, side="left", pad="0") 
 
+waterfowl2020[which(waterfowl2020$Stratum==241),"Stratum"] <- 24
+waterfowl2020[which(waterfowl2020$Stratum==242),"Stratum"] <- 24
+waterfowl2020[which(waterfowl2020$Stratum==243),"Stratum"] <- 24
+
 # join up the two datasets
 intersect(names(waterfowl), names(waterfowl2020))
 
@@ -104,7 +108,7 @@ waterfowlSGCN <- merge(waterfowlSGCN, lu_sgcn, by=c("SNAME","SeasonCode"), all.x
 
 #keep only final fields and write source point and final feature classes to SGCN GDB
 waterfowlSGCN <- waterfowlSGCN[final_fields]
-arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_PGCwaterfowl"), waterfowlSGCN, overwrite=TRUE) # write a feature class to the gdb
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_PGCwaterfowl"), waterfowlSGCN, overwrite=TRUE, validate = TRUE) # write a feature class to the gdb
 
 
 
