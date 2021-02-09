@@ -10,21 +10,49 @@ require(RSQLite)
 library(ggplot2)
 library(grid)
 library(scales)
-
-
-#here::here("_data","output","reporting")
+if (!requireNamespace("knitr", quietly = TRUE)) install.packages("knitr")
+require(knitr)
+if (!requireNamespace("tinytex", quietly = TRUE)) install.packages("tinytex")
+require(tinytex)
+if (!requireNamespace("english", quietly = TRUE)) install.packages("english")
+require(english)
 
 source(here::here("scripts","00_PathsAndSettings.r"))
+
+# function to generate the pdf
+#knit2pdf(here::here("scripts","template_Formatted_NHA_PDF.rnw"), output=paste(pdf_filename, ".tex", sep=""))
+makePDF <- function(rnw_template, pdf_filename) {
+  knit(here::here("scripts","Reporting", rnw_template), output=paste(pdf_filename, ".tex",sep=""))
+  call <- paste0("xelatex -interaction=nonstopmode ", pdf_filename , ".tex")
+  system(call)
+  system(paste0("biber ",pdf_filename))
+  system(call) # 2nd run to apply citation numbers
+}
+
+# function to delete .txt, .log etc if pdf is created successfully.
+deletepdfjunk <- function(pdf_filename){
+  fn_ext <- c(".aux",".out",".run.xml",".bcf",".blg",".tex",".log",".bbl",".toc") #
+  if (file.exists(paste(pdf_filename, ".pdf",sep=""))){
+    for(i in 1:NROW(fn_ext)){
+      fn <- paste(pdf_filename, fn_ext[i],sep="")
+      if (file.exists(fn)){
+        file.remove(fn)
+      }
+    }
+  }
+}
+
+
+
 
 # load the sgcn datasets
 print(paste("We are on the",updateName, "update. Adjust your numbers below as appropiate", sep=" "))
 databasename_new <- here::here("_data","output",updateName,"coa_bridgetest.sqlite")
-databasename_prev <- here::here("_data","output","_update2020q1","coa_bridgetest.sqlite")
-databasename_6m <- here::here("_data","output","_update2019q4","coa_bridgetest.sqlite")
+databasename_prev <- here::here("_data","output",updateNameprev,"coa_bridgetest.sqlite")
+databasename_6m <- here::here("_data","output","_update2020q2","coa_bridgetest.sqlite")
 
 # load the SGCN
 loadSGCN()
-
 
 ######################################################################################
 # get 6 MONTHS AGO lu_sgcn and lu_sgcnXpu data from sqlite database
@@ -61,6 +89,10 @@ dbDisconnect(db) # disconnect the db
 
 SGCNnew <- unique(lu_sgcnXpu_new$ELSeason)
 SGCNnewNoSeason <- unique(substr(lu_sgcnXpu_new$ELSeason,1,10))
+
+
+save.image(file = "my_work_space.RData")
+
 
 #######################
 # compare records between years
@@ -217,13 +249,17 @@ write.csv(missingSGCNsummary,paste(here::here("_data","output","reporting"),"/mi
 
 #####
 # get the species that are missing from the PU data for the 6m period
-missingSGCN6m <- setdiff(lu_sgcn$ELCODE, substr(SGCNnew, 1, 10))
+missingSGCN6m <- setdiff(lu_sgcn$ELCODE, substr(SGCN6m, 1, 10))
 missingSGCN6m <- lu_sgcn[lu_sgcn$ELCODE %in% missingSGCN6m,]
 missingSGCN6m <- merge(missingSGCN6m, lu_taxagrp, by.x="TaxaGroup", by.y="code")
 
 missingSGCN6msummary <- missingSGCN6m %>% group_by(taxadisplay) %>% tally()
 write.csv(missingSGCN6msummary,paste(here::here("_data","output","reporting"),"/missingSGCN6m.csv", sep="")) 
 
+# comparison of the six month to now
+missingCompare <- merge(missingSGCN6msummary, missingSGCNsummary, by="taxadisplay")
+names(missingCompare) <- c("taxadisplay", "n_6m", "n_now")
+missingCompare$difference <- missingCompare$n_6m - missingCompare$n_now
 
 ################################################
 
@@ -246,61 +282,70 @@ SGCN_sf <- merge(SGCN_sf, lu_taxagrp, by.x="TaxaGroup", by.y="code")
 SGCN_sf$LastObs <- as.numeric(SGCN_sf$LastObs)
 SGCN_sf <- SGCN_sf[which(SGCN_sf$LastObs>=1980),]
 
-taxalist <- unique(SGCN_sf$taxadisplay)
-
-for(i in 1:length(taxalist)){
-  SGCN_sf_sub <- SGCN_sf[which(SGCN_sf$taxadisplay==taxalist[i]),]
-  SGCN_sf_sub$include <- factor(ifelse(SGCN_sf_sub$LastObs>=1994,"less than 25 years","older than 25 years"))
-  levels(SGCN_sf_sub$include) <- c("less than 25 years","older than 25 years")
-  # make the histogram
-  h <- ggplot(data=SGCN_sf_sub , aes(LastObs, fill=include)) +
-    geom_histogram(binwidth=1) +
-    scale_fill_manual(values=c("blue","red"), drop=FALSE) +
-    scale_x_continuous(breaks=seq(1980, 2020, by=5), labels=waiver(), limits=c(1980, 2020)) +
-    xlab("Observation Date") +
-    ylab("Number of Records") +
-    theme_minimal() +
-    theme(legend.position="top") +
-    theme(legend.title=element_blank()) +
-    theme(legend.text=element_text(size=15)) +
-    theme(axis.text=element_text(size=14), axis.title=element_text(size=15)) +
-    theme(axis.text.x=element_text(angle=60, hjust=1))
-  png(filename = paste("lastobs_",taxalist[i],".png",sep=""), width=600, height=600, units = "px", )
-  print(h)
-  dev.off()
-  
-  # make the map
-  library(USAboundaries)
-  library(USAboundariesData)
-  SGCN_sf_sub <- st_buffer(SGCN_sf_sub, 1000)
-  counties <- us_counties(map_date = NULL, resolution = c("high"), states="PA")
-  counties <- st_transform(counties, st_crs(SGCN_sf_sub))
-  p <- ggplot() +
-    geom_sf(data=SGCN_sf_sub, mapping=aes(fill=include), alpha=0.9, color=NA) +
-    scale_fill_manual(values=c("blue","red"), drop=FALSE) +
-    geom_sf(data=counties, aes(), colour="black", fill=NA)  +
-    scale_x_continuous(limits=c(-215999, 279249)) +
-    scale_y_continuous(limits=c(80036, 364574)) +
-    theme_void() +
-    theme(legend.position="top") +
-    theme(legend.title=element_blank()) +
-    theme(legend.text=element_text(size=15)) +
-    theme(axis.text=element_blank(), axis.title=element_text(size=15))
-  png(filename = paste("lastobsmap_",taxalist[i],".png",sep=""), width=600, height=450, units = "px", )
-  print(p)
-  dev.off()
-  
-  # # combine into two graphs
-  # require(gridExtra)
-  # grid.arrange(h, p, ncol=2)
-}
+# taxalist <- unique(SGCN_sf$taxadisplay)
+# 
+# for(i in 1:length(taxalist)){
+#   SGCN_sf_sub <- SGCN_sf[which(SGCN_sf$taxadisplay==taxalist[i]),]
+#   SGCN_sf_sub$include <- factor(ifelse(SGCN_sf_sub$LastObs>=1994,"less than 25 years","older than 25 years"))
+#   levels(SGCN_sf_sub$include) <- c("less than 25 years","older than 25 years")
+#   # make the histogram
+#   h <- ggplot(data=SGCN_sf_sub , aes(LastObs, fill=include)) +
+#     geom_histogram(binwidth=1) +
+#     scale_fill_manual(values=c("blue","red"), drop=FALSE) +
+#     scale_x_continuous(breaks=seq(1980, 2020, by=5), labels=waiver(), limits=c(1980, 2020)) +
+#     xlab("Observation Date") +
+#     ylab("Number of Records") +
+#     theme_minimal() +
+#     theme(legend.position="top") +
+#     theme(legend.title=element_blank()) +
+#     theme(legend.text=element_text(size=15)) +
+#     theme(axis.text=element_text(size=14), axis.title=element_text(size=15)) +
+#     theme(axis.text.x=element_text(angle=60, hjust=1))
+#   png(filename = paste("lastobs_",taxalist[i],".png",sep=""), width=600, height=600, units = "px", )
+#   print(h)
+#   dev.off()
+# 
+#   # make the map
+#   SGCN_sf_sub <- st_buffer(SGCN_sf_sub, 1000)
+#   #counties <- us_counties(map_date = NULL, resolution = c("high"), states="PA")
+#   #counties <- st_transform(counties, st_crs(SGCN_sf_sub))
+#   p <- ggplot() +
+#     geom_sf(data=SGCN_sf_sub, mapping=aes(fill=include), alpha=0.9, color=NA) +
+#     scale_fill_manual(values=c("blue","red"), drop=FALSE) +
+#     #geom_sf(data=counties, aes(), colour="black", fill=NA)  +
+#     scale_x_continuous(limits=c(-215999, 279249)) +
+#     scale_y_continuous(limits=c(80036, 364574)) +
+#     theme_void() +
+#     theme(legend.position="top") +
+#     theme(legend.title=element_blank()) +
+#     theme(legend.text=element_text(size=15)) +
+#     theme(axis.text=element_blank(), axis.title=element_text(size=15))
+#   png(filename = paste("lastobsmap_",taxalist[i],".png",sep=""), width=600, height=450, units = "px", )
+#   print(p)
+#   dev.off()
+# 
+#   # # combine into two graphs
+#   # require(gridExtra)
+#   # grid.arrange(h, p, ncol=2)
+# }
 
 # get old data
 # get new data
-SGCN_prev <- arc.open(path=here::here("_data/output/","_update2020q1","SGCN.gdb","allSGCNuse"))
+SGCN_prev <- arc.open(path=here::here("_data/output/","_update2020q3","SGCN.gdb","allSGCNuse"))
 SGCN_prev <- arc.select(SGCN_prev)
 SGCN_prev_sf <- arc.data2sf(SGCN_prev)
 
 
 
+
+
+
+##############################################################################################################
+## Write the output document for the intro ###############
+setwd(here::here("_data/output",updateName)) #, "countyIntros", nameCounty, sep="/")
+pdf_filename <- paste(updateName,"_SixMonthReport",sep="") # ,gsub("[^0-9]", "", Sys.time() )
+makePDF("SixMonthReporting.rnw", pdf_filename) # user created function
+deletepdfjunk(pdf_filename) # user created function # delete .txt, .log etc if pdf is created successfully.
+setwd(here::here()) # return to the main wd
+beepr::beep(sound=10, expr=NULL)
 
