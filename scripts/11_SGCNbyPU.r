@@ -29,6 +29,8 @@ dbDisconnect(db) # disconnect the db
 
 unique(sgcnXpu$OccProb)
 
+sgcnXpu[which(sgcnXpu$OccProb=="confirmed"),"OccProb"] <- "k" # replace these bad values from whereever they are coming from!
+
 # subset out the known occurrences from the older dataset
 sgcnXpu_oldK <- sgcnXpu[which(sgcnXpu$OccProb=="k" | (substr(sgcnXpu$ELSeason,start=1,stop=2)=="AF" & sgcnXpu$OccProb=="l")),]
 
@@ -49,6 +51,8 @@ sgcnXpu_newK$OccProb <- tolower(sgcnXpu_newK$OccProb) # put this in lower case s
 colOrder <- names(sgcnXpu_oldK) # get the sort order of the old df
 sgcnXpu_newK <- sgcnXpu_newK[c(colOrder)] # apply the sort order
 sgcnXpu_newK <-as.data.frame(sgcnXpu_newK) # convert from arc.data to just a df
+
+unique(sgcnXpu$OccProb)
 
 # bind the new Known table to the model based table
 sgcnXpu_newTable <- rbind(sgcnXpu_newK,sgcnXpu_models)
