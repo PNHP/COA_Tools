@@ -58,6 +58,8 @@ for county in county_list:
     intersect = os.path.join(outGDB, county)
     classFeatures = ["ELSeason", "OccProb"]
     arcpy.TabulateIntersection_analysis(pu_lyr, "unique_id", join_features, intersect, classFeatures)
+    count = arcpy.GetCount_management(intersect)
+    print('{} County has {} records'.format(county, count[0]))
     merge_list.append(intersect)
 
 merge = arcpy.Merge_management(merge_list, os.path.join(outGDB, "SGCNxPU_occurrence"))
