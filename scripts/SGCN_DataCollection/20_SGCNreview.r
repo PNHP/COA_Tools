@@ -125,9 +125,36 @@ loadSGCN()
 # collapse sgcn down to one season
 lu_sgcn <- unique(lu_sgcn[c("ELCODE","SNAME","SCOMNAME","TaxaGroup")])
 
+# add in taxa display
+db <- dbConnect(SQLite(), dbname=databasename)
+taxagrp <- dbGetQuery(db, statement="SELECT * FROM lu_taxagrp")
+dbDisconnect(db)
+
+
+lu_sgcn <- merge(lu_sgcn, taxagrp[c("code","taxadisplay")], by.x="TaxaGroup", by.y="code")
+
 # get data
 SGCN <- arc.open(path=here::here("_data","output",updateName,"SGCN.gdb","allSGCNuse"))
 SGCN <- arc.select(SGCN)
+
+unique(SGCN$DataSource)
+
+# replace some values
+SGCN[SGCN=="PGC Grouse Data"] <- "PGC"
+SGCN[SGCN=="PGC Woodcock Data"] <- "PGC"
+SGCN[SGCN=="PGC_DougGross"] <- "PGC"
+SGCN[SGCN=="PGC waterfowl"] <- "PGC"
+SGCN[SGCN=="PFBC_DPF"] <- "PFBC"
+SGCN[SGCN=="bat_EPFUabc"] <- "PGC"
+SGCN[SGCN=="bat_EPFUcontrap"] <- "PGC"
+SGCN[SGCN=="bat_EPFUhiber"] <- "PGC"
+SGCN[SGCN=="bat_EPFUPGCtrap"] <- "PGC"
+SGCN[SGCN=="bat_LANOcontrap"] <- "PGC"
+SGCN[SGCN=="bat_LANOPGCtrap"] <- "PGC"
+SGCN[SGCN=="PNHP CPP"] <- "PGC"
+           
+
+
 
 # aggregate data by min/max year
 SGCNrecordcount <- aggregate(LastObs~SNAME+DataSource, data=SGCN, FUN=length)
@@ -141,33 +168,28 @@ SGCNsummary <- merge(SGCNrecordcount, SGCN_Max, by=c("SNAME","DataSource"))
 SGCNsummary <- merge(SGCNsummary, SGCN_Min, by=c("SNAME","DataSource"))
 SGCNsummary <- merge(SGCNsummary, lu_sgcn, by="SNAME", all.x=TRUE)
 
-
-
 # rearrange the column names
-SGCNsummary <- SGCNsummary[c("TaxaGroup","SCOMNAME","SNAME","DataSource","RecordCount","MinYear","MaxYear")]
-
+SGCNsummary <- SGCNsummary[c("taxadisplay","SCOMNAME","SNAME","DataSource","RecordCount","MinYear","MaxYear")]
 # sort
-SGCNsummary <- SGCNsummary[order(SGCNsummary$TaxaGroup,SGCNsummary$SCOMNAME,SGCNsummary$DataSource),]
-
-# replace some values
-SGCNsummary[SGCNsummary=="PGC Grouse Data"] <- "PGC"
-SGCNsummary[SGCNsummary=="PGC_DougGross"] <- "PGC"
-SGCNsummary[SGCNsummary=="PFBC_DPF"] <- "PFBC"
-
+SGCNsummary <- SGCNsummary[order(SGCNsummary$taxadisplay,SGCNsummary$SCOMNAME,SGCNsummary$DataSource),]
 # rename columns
 names(SGCNsummary) <- c("Taxonomic Group","Common Name","Scientific Name","Data Source","Record Count","MinYear","MaxYear")
 
-
-write.csv(SGCNsummary, here::here("_data","output",updateName,paste("SGCNsummary",updateName,".csv",sep="")), row.names=FALSE)
-
-                      
+SGCNsummary <- SGCNsummary[which(!is.na(SGCNsummary$`Taxonomic Group`)),]
 
 
+a1 <- "The following information regarding Wildlife Action Plan Conservation Opportunity Area Tool data sources, number of records for each data source, and the record dates is provided by the Pennsylvania Natural Heritage Program (PNHP) for reference purposes. Please contact Pennsylvania Game Commission (birds, mammals, terrestrial invertebrates; PGCSWAP@pa.gov) or Pennsylvania Fish & Boat Commission (fish, amphibians, reptiles, aquatic or terrestrial invertebrates; RA-FBSWAP@pa.gov) for more information."
+b1 <- "KEY: BAMONA = Butterflies and Moths of North America; BBA_PtCt = Pennsylvania Breeding Bird Atlas point counts (Wilson et al. 2012); DillonSnails = aquatic snail records contributed by an expert in the field; eBird = free bird sighting database administered by Cornell Lab of Ornithology (ebird.org); GBIF = Global Biodiversity Information Facility, an open access index of species occurrence records (more information can be found at https://www.gbif.org/en/what-is-gbif); iNaturalist = (www.inaturalist.org); PFBC = Pennsylvania Fish & Boat Commission data; PGC = Pennsylvania Game Commission data; PNHP Biotics = Pennsylvania Natural Heritage Program database of unique, threatened or endangered species that is linked with NatureServe, a global biodiversity conservation organization (more information can be found at http://www.natureserve.org/conservation-tools/biotics-5); PNHP POND = Pond Observation Networked Database, a database of vernal pool data; PSU-Brittingham-Miller = bird data from a Pennsylvania State University research lab; TREC = Tom Ridge Environmental Center in Erie, PA; USFS-NRS = SGNC data contributed by the Allegheny National Forest; Xerces = Xerces Society, an invertebrate conservation organization (more information can be found at https://xerces.org/)." 
 
 
+options(useFancyQuotes = FALSE)
+sink(here::here("_data","output",updateName,paste("SGCNsummary",updateName,".csv",sep="")))
+cat(paste(dQuote(a1),"\n" , sep=" "))
+cat(paste(dQuote(b1),"\n" , sep=" "))
+cat("\n")
+write.table(SGCNsummary, row.names=FALSE, col.names=TRUE, sep=",")
+sink()                      
+options(useFancyQuotes = TRUE)
 
-######################
-#Fix trec data
-###lu_sgcnXpu_notrec <- lu_sgcnXpu[which(lu_sgcnXpu$)]
 
 
