@@ -42,78 +42,88 @@ deletepdfjunk <- function(pdf_filename){
   }
 }
 
+`%nin%` <- Negate(`%in%`)
 
-
-
-# load the sgcn datasets
-print(paste("We are on the",updateName, "update. Adjust your numbers below as appropiate", sep=" "))
-databasename_new <- here::here("_data","output",updateName,"coa_bridgetest.sqlite")
-databasename_prev <- here::here("_data","output",updateNameprev,"coa_bridgetest.sqlite")
-databasename_6m <- here::here("_data","output","_update2020q2","coa_bridgetest.sqlite")
-
-# load the SGCN
+######################################################################################
+# load the current SGCN list
 loadSGCN()
+
+# assign the database names for the updates
+databasename_now <- here::here("_data","output",updateName,"coa_bridgetest.sqlite") # most recent update
+databasename_6m <- here::here("_data","output",updateName6m,"coa_bridgetest.sqlite") # update from six months ago
+
+# various variables
+lu_sgcn_SQLquery <- "SELECT ELSeason, ELCODE, SCOMNAME, SNAME, TaxaDisplay, SeasonCode FROM lu_sgcn"
+lu_sgcnXpu_SQLquery <- "SELECT unique_id, OccProb, PERCENTAGE, ELSeason FROM lu_sgcnXpu_all"
 
 ######################################################################################
 # get 6 MONTHS AGO lu_sgcn and lu_sgcnXpu data from sqlite database
 db <- dbConnect(SQLite(), dbname=databasename_6m)
-lu_sgcn_SQLquery <- "SELECT ELSeason, ELCODE, SCOMNAME, SNAME, TaxaDisplay, SeasonCode FROM lu_sgcn"
-lu_sgcnXpu_SQLquery <- "SELECT unique_id, OccProb, PERCENTAGE, ELSeason FROM lu_sgcnXpu_all"
-lu_sgcn_6m <- dbGetQuery(db, statement = lu_sgcn_SQLquery)
-lu_sgcnXpu_6m <- dbGetQuery(db, statement = lu_sgcnXpu_SQLquery)
+lu_sgcn_6m <- dbGetQuery(db, statement=lu_sgcn_SQLquery)
+lu_sgcnXpu_6m <- dbGetQuery(db, statement=lu_sgcnXpu_SQLquery)
 dbDisconnect(db) # disconnect the db
 # get a count of the previous SGCN
-SGCN6m <- unique(lu_sgcnXpu_6m$ELSeason)
-SGCN6mNoSeason <- unique(substr(lu_sgcnXpu_6m$ELSeason,1,10))
+cnt_SGCN6m <- unique(lu_sgcnXpu_6m$ELSeason)
+cnt_SGCN6mNoSeason <- unique(substr(lu_sgcnXpu_6m$ELSeason,1,10))
+# check for missing SGCN in the SGCNxPU table
+missingSGCN_6m <- setdiff(lu_sgcn_6m$ELSeason, cnt_SGCN6m)
+cat(paste("The following ",length(missingSGCN_6m)," ELSeason codes are not found within the SGCNxPU table:", sep=""))
+cat(paste(missingSGCN_6m, collapse = ", "))
+# check for SGCN in the SGCNxPU table that are missing in the lu_sgcn table
+extraSGCN_6m <- setdiff(cnt_SGCN6m, lu_sgcn_6m$ELSeason)
+cat(paste("The following ",length(extraSGCN_6m)," ELSeason codes from the SGCNxPU table are not in the lu_sgcn table:", sep=""))
+cat(paste(extraSGCN_6m, collapse = ", "))
+cat("we're going to delete these so they don't interfere with the reporting.")
+lu_sgcnXpu_6mA <- lu_sgcnXpu_6m[which(lu_sgcnXpu_6m$ELSeason %nin% extraSGCN_6m),]
+cat(paste("This removes ",nrow(lu_sgcnXpu_6m)-nrow(lu_sgcnXpu_6mA)," bad records.", sep=""))
+lu_sgcnXpu_6m <- lu_sgcnXpu_6mA
+rm(lu_sgcnXpu_6mA)
+# rerun the counts about 15 lines above to reflect the new data
+cnt_SGCN6m <- unique(lu_sgcnXpu_6m$ELSeason)
+cnt_SGCN6mNoSeason <- unique(substr(lu_sgcnXpu_6m$ELSeason,1,10))
+
+#setdiff(unique(lu_sgcn_6m$ELCODE), cnt_SGCN6mNoSeason)
 
 ######################################################################################
-# get PREVIOUS lu_sgcn and lu_sgcnXpu data from sqlite database
-db <- dbConnect(SQLite(), dbname=databasename_prev)
-lu_sgcn_SQLquery <- "SELECT ELSeason, ELCODE, SCOMNAME, SNAME, TaxaDisplay, SeasonCode FROM lu_sgcn"
-lu_sgcnXpu_SQLquery <- "SELECT unique_id, OccProb, PERCENTAGE, ELSeason FROM lu_sgcnXpu_all"
-lu_sgcn_prev <- dbGetQuery(db, statement = lu_sgcn_SQLquery)
-lu_sgcnXpu_prev <- dbGetQuery(db, statement = lu_sgcnXpu_SQLquery)
+# get NOW lu_sgcn and lu_sgcnXpu data from sqlite database
+db <- dbConnect(SQLite(), dbname=databasename_now)
+lu_sgcn_now <- dbGetQuery(db, statement=lu_sgcn_SQLquery)
+lu_sgcnXpu_now <- dbGetQuery(db, statement=lu_sgcnXpu_SQLquery)
 dbDisconnect(db) # disconnect the db
-# get a count of the previous SGCN
-SGCNprev <- unique(lu_sgcnXpu_prev$ELSeason)
-SGCNprevNoSeason <- unique(substr(lu_sgcnXpu_prev$ELSeason,1,10))
+# get a count of the current SGCN
+cnt_SGCNnow <- unique(lu_sgcnXpu_now$ELSeason)
+cnt_SGCNnowNoSeason <- unique(substr(lu_sgcnXpu_now$ELSeason,1,10))
+# check for missing SGCN in the SGCNxPU table
+missingSGCN_now <- setdiff(lu_sgcn_now$ELSeason, cnt_SGCNnow)
+cat(paste("The following ",length(missingSGCN_now)," ELSeason codes are not found within the SGCNxPU table:", sep=""))
+cat(paste(missingSGCN_now, collapse = ", "))
+# check for SGCN in the SGCNxPU table that are missing in the lu_sgcn table
+extraSGCN_now <- setdiff(cnt_SGCNnow, lu_sgcn_now$ELSeason)
+cat(paste("The following ",length(extraSGCN_now)," ELSeason codes from the SGCNxPU table are not in the lu_sgcn table:", sep=""))
+cat(paste(extraSGCN_now, collapse = ", "))
+cat("we're going to delete these so they don't interfere with the reporting.")
+lu_sgcnXpu_nowA <- lu_sgcnXpu_now[which(lu_sgcnXpu_now$ELSeason %nin% extraSGCN_now),]
+cat(paste("This removes ",nrow(lu_sgcnXpu_now)-nrow(lu_sgcnXpu_nowA)," bad records.", sep=""))
+lu_sgcnXpu_now <- lu_sgcnXpu_nowA
+rm(lu_sgcnXpu_nowA)
+# rerun the counts about 15 lines above to reflect the new data
+cnt_SGCNnow <- unique(lu_sgcnXpu_now$ELSeason)
+cnt_SGCNnowNoSeason <- unique(substr(lu_sgcnXpu_now$ELSeason,1,10))
+# save.image(file = "my_work_space.RData")
+# load(file = "my_work_space.RData")
 
 ######################################################################################
-# get NEW lu_sgcn and lu_sgcnXpu data from sqlite database
-db <- dbConnect(SQLite(), dbname=databasename_new)
-lu_sgcn_SQLquery <- "SELECT ELSeason, ELCODE, SCOMNAME, SNAME, TaxaDisplay, SeasonCode FROM lu_sgcn"
-lu_sgcnXpu_SQLquery <- "SELECT unique_id, OccProb, PERCENTAGE, ELSeason FROM lu_sgcnXpu_all"
-lu_sgcn_new <- dbGetQuery(db, statement = lu_sgcn_SQLquery)
-lu_sgcnXpu_new <- dbGetQuery(db, statement = lu_sgcnXpu_SQLquery)
-dbDisconnect(db) # disconnect the db
-
-SGCNnew <- unique(lu_sgcnXpu_new$ELSeason)
-SGCNnewNoSeason <- unique(substr(lu_sgcnXpu_new$ELSeason,1,10))
-
-
-save.image(file = "my_work_space.RData")
-load(file = "my_work_space.RData")
-
-#######################
-# compare records between years
-
-SGCNadded <- setdiff(SGCNnewNoSeason, SGCNprevNoSeason)
-SGCNadded <- lu_sgcn_new[lu_sgcn_new$ELCODE %in% SGCNadded,]
-SGCNlost <- setdiff(SGCNprevNoSeason,SGCNnewNoSeason)
-SGCNlost <- lu_sgcn_prev[lu_sgcn_prev$ELCODE %in% SGCNlost,]
-
-SGCNadded6m <- setdiff(SGCNnewNoSeason, SGCN6mNoSeason)
-SGCNadded6m <- lu_sgcn_new[lu_sgcn_new$ELCODE %in% SGCNadded6m,]
-SGCNlost6m <- setdiff(SGCN6mNoSeason,SGCNnewNoSeason)
+# compare records between 6 month reporting periods
+SGCNadded6m <- setdiff(cnt_SGCNnowNoSeason, cnt_SGCN6mNoSeason)
+SGCNadded6m <- lu_sgcn_now[lu_sgcn_now$ELCODE %in% SGCNadded6m,]
+SGCNlost6m <- setdiff(cnt_SGCN6mNoSeason, cnt_SGCNnowNoSeason)
 SGCNlost6m <- lu_sgcn_6m[lu_sgcn_6m$ELCODE %in% SGCNlost6m,]
 
-
-ChangeSummary <- data.frame(SGCNcount=c(length(SGCN6m),length(SGCNprev),length(SGCNnew)),SGCNcountNoSeason=c(length(SGCN6mNoSeason),length(SGCNprevNoSeason),length(SGCNnewNoSeason)), row.names = c("6 months ago","Previous Update","Update"))
+ChangeSummary <- data.frame(SGCNcount=c(length(cnt_SGCN6m),length(cnt_SGCNnow)),SGCNcountNoSeason=c(length(cnt_SGCN6mNoSeason),length(cnt_SGCNnowNoSeason)), row.names = c("6 months ago","Update"))
 
 # which planning units showed the greatest change
 PUcount_6m <- lu_sgcnXpu_6m %>% group_by(unique_id) %>% tally()
-PUcount_prev <- lu_sgcnXpu_prev %>% group_by(unique_id) %>% tally()
-PUcount_new <- lu_sgcnXpu_new %>% group_by(unique_id) %>% tally()
+PUcount_now <- lu_sgcnXpu_now %>% group_by(unique_id) %>% tally()
 
 PUcount_compare <- merge(PUcount_prev, PUcount_new, by="unique_id", all=TRUE)
 names(PUcount_compare) <- c("unique_id","n_old", "n_new")
@@ -152,7 +162,7 @@ library(scales)
 ggplot(data=PUcount_compare6m, aes(PUcount_compare6m$diff)) +
   geom_histogram(binwidth=1) +
   scale_y_continuous(trans='log10', breaks=trans_breaks('log10', function(x) 10^x), labels=trans_format('log10', math_format(10^.x))) +
-labs(title="Change in SGCN Richness of Attributed Planning Units", x ="Difference between the number of SGCN between two data updates", y = "log of count") +
+  labs(title="Change in SGCN Richness of Attributed Planning Units", x ="Difference between the number of SGCN between two data updates", y = "log of count") +
   theme_minimal()
 
 # number of occupied planning units
@@ -289,7 +299,7 @@ for(i in 1:length(taxalist)){
   png(filename = paste(here::here("_data/output",updateName,"figuresReporting"),"/","lastobs_",taxalist[i],".png",sep=""), width=600, height=600, units = "px", )
   print(h)
   dev.off()
-
+  
   # make the map
   SGCN_sf_sub <- st_buffer(SGCN_sf_sub, 1000)
   #counties <- us_counties(map_date = NULL, resolution = c("high"), states="PA")
@@ -308,7 +318,7 @@ for(i in 1:length(taxalist)){
   png(filename = paste(here::here("_data/output",updateName,"figuresReporting"),"/","lastobsmap_",taxalist[i],".png",sep=""), width=600, height=450, units = "px", )
   print(p)
   dev.off()
-
+  
   # # combine into two graphs
   # require(gridExtra)
   # grid.arrange(h, p, ncol=2)
@@ -322,13 +332,13 @@ SGCN_prev_sf <- arc.data2sf(SGCN_prev)
 
 # update tracking content
 db <- dbConnect(SQLite(), dbname="E:/COA_Tools/_data/output/COA_QuarterlyTracking.sqlite")
-  updatetracker_SQLquery <- "SELECT * FROM updateMain"
-  updatetracker <- dbGetQuery(db, statement=updatetracker_SQLquery)
+updatetracker_SQLquery <- "SELECT * FROM updateMain"
+updatetracker <- dbGetQuery(db, statement=updatetracker_SQLquery)
 dbDisconnect(db) 
 
 db <- dbConnect(SQLite(), dbname="E:/COA_Tools/_data/output/COA_QuarterlyTracking.sqlite")
-  updateNotes_SQLquery <- "SELECT * FROM updateNotes"
-  updatenotes <- dbGetQuery(db, statement=updateNotes_SQLquery)
+updateNotes_SQLquery <- "SELECT * FROM updateNotes"
+updatenotes <- dbGetQuery(db, statement=updateNotes_SQLquery)
 dbDisconnect(db) 
 
 
