@@ -18,7 +18,7 @@
 \urlstyle{same}
 %\usepackage{siunitx}
 \usepackage{graphicx}
-\graphicspath{ {../../z_BaseImages/}{../../z_BaseImages/EO_images/}{../../z_BaseImages/introMaps/}{../../z_BaseImages/introImages/}{photos/}{../../DraftSiteAccounts/z_photos} }
+\graphicspath{ {../../templates/images_reporting/} }
 \usepackage[style=authoryear,hyperref=false]{biblatex}
 \addbibresource{../../citations/PNHP_refs.bib}
 % \usepackage{cite}
@@ -60,105 +60,56 @@ State Wildlife Action Plan Implementation: Conservation Action Mapping
 Progress Report 1 - June 30, 2020
 Western Pennsylvania Conservancy
 
-
 \section*{Overview}
 \noindent Three main databases are maintained under this project:
 \begin{enumerate}
  \item{Species of Greatest Conservation Need (SGCN) Geodatabase – A geodatabase of SGCN location information compiled from various sources (e.g., PNHP Biotics, eBird and other community science databases, PGC/PFBC databases). A subset of these records are used to create the modeled SGCN distribution data in the Conservation Opportunity Area (COA) tool.}
  \item{SQLite Database – This database is delivered to NatureServe and drives the COA tool. This database contains tabular information about species distribution linked to planning units as well as other data about actions, threats, land ownership, etc.}
- \item{Range Map Geodatabase – This data base is derived from the SQLite Database and consists of county and HUC8 range maps for all mapped SGCN. This database is delivered to NatureServe and drives the SGCN range map portion of the COA tool. Additionally, two .mxd files with the map symbology, one each for county and Hydrologic Unit Code (HUC) 8 boundaries, are delivered to NatureServe for inclusion into the COA tool.}
+ \item{Range Map Geodatabase – This data base is derived from the SQLite Database and consists of county and HUC8 range maps for all mapped SGCN. This database is delivered to NatureServe and drives the SGCN range map portion of the COA tool. Additionally, two .mxd files with the map symbology, one each for county and Hydrologic Unit Code (HUC) 8 boundaries, are delivered to NatureServe for inclusion into the COA tool.\\}
 \end{enumerate}
 
 \noindent A diagram of the workflow and relationships between these three databases are presented below:
 
+  \begin{center}
+    \includegraphics[width=0.85\textwidth]{SGCN_diagram.png}
+  \end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{General Updates and Comments}
 \noindent Two updates to the COA databases were provided during this reporting period:
+\begin{center}
+\begin{tabular}{cccc} 
+ \hline
+ Update	& Time period	& Delivered to PGC-PFBC	& Delivered to NatureServe \\
+ \hline 
+<<label=updatesincluded, echo=FALSE, results='asis'>>=
+for(i in 1:nrow(updatetracker)) {
+  cat(paste0(updatetracker$UpdateNameDisplay[i], " & NA & ", updatetracker$DateCommisions[i], " & ", updatetracker$DateNS[i], " \\\\"))
+}
+ @
+ \hline
+\end{tabular}
+\end{center}
 
+\noindent As noted previously, agency copies of the geodatabases were limited to their jurisdictional species plus terrestrial invertebrates. \\ 
 
+\noindent \Sexpr{updatenotes[which(updatenotes$NoteType=="general"),"NoteContent"]} \\
 
-
-\noindent As noted previously, agency copies of the geodatabases were limited to their jurisdictional species plus terrestrial invertebrates.  
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Description of Updates in COA tool database content}
 \noindent The following sections describe substantive changes in the SGCN geodatabase, the SQLite database for the COA tool, and the Range Map geodatabase. Not all changes and updates have been described here, instead we focused on the most important and relevant changes.
 
 \subsection*{Changes in SGCN Geodatabase}
-\noindent The number of records increased from approximately \Sexpr{comma(nrow(SGCN_prev_sf))} records to \Sexpr{comma(nrow(SGCN_sf))}.  A spreadsheet indicating the number of records available for each SGCN for the June 2020 update can be found at 
+\noindent The number of records increased from approximately \Sexpr{comma(nrow(SGCN_prev_sf))} records to \Sexpr{comma(nrow(SGCN_sf))}.  A spreadsheet indicating the number of records available for each SGCN for the June 2020 update can be found at \\
 \Sexpr{paste("https://wildlifeactionmap.pa.gov/sites/default/files/","SGCNsummary", updateName,".csv", sep="")}.
-
 
 \subsection*{Data by Taxonomic Groups}
 \noindent The following is an overview of each major taxonomic group of SGCN that presents current SGCN data relative to the 25-year cutoff for most taxonomic groups.  Histograms and maps showing these are presented below. Note that the data presented as of the Quarter 2, 2020 update (i.e. Quarter 1 data is not shown. Due to size and scale limitations of the maps, we recommend that any detailed analysis of the spatial data be undertaken by using the spatial data provided to PFBC and PGC.  When known, we’ve provided additional details, data harvesting, and survey needs to fill in data gaps. Some of this data gathering (e.g., field surveys) are beyond the scope of this project, but could be supported by additional funding (e.g., State Wildlife Grants, Wild Resources Conservation Program, PA Department of Agriculture).\\
 
-
-<<fig=true,echo=false>>=
-
-taxalist <- unique(SGCN_sf$taxadisplay)
-
-for(i in 1:length(taxalist)){
-  SGCN_sf_sub <- SGCN_sf[which(SGCN_sf$taxadisplay==taxalist[i]),]
-  SGCN_sf_sub$include <- factor(ifelse(SGCN_sf_sub$LastObs>=1994,"less than 25 years","older than 25 years"))
-  levels(SGCN_sf_sub$include) <- c("less than 25 years","older than 25 years")
-  # make the histogram
-  h <- ggplot(data=SGCN_sf_sub , aes(LastObs, fill=include)) +
-    geom_histogram(binwidth=1) +
-    scale_fill_manual(values=c("blue","red"), drop=FALSE) +
-    scale_x_continuous(breaks=seq(1980, 2020, by=5), labels=waiver(), limits=c(1980, 2020)) +
-    xlab("Observation Date") +
-    ylab("Number of Records") +
-    theme_minimal() +
-    theme(legend.position="top") +
-    theme(legend.title=element_blank()) +
-    theme(legend.text=element_text(size=15)) +
-    theme(axis.text=element_text(size=14), axis.title=element_text(size=15)) +
-    theme(axis.text.x=element_text(angle=60, hjust=1))
-  png(filename = paste("lastobs_",taxalist[i],".png",sep=""), width=600, height=600, units = "px", )
-  print(h)
-  dev.off()
-
-  # make the map
-  SGCN_sf_sub <- st_buffer(SGCN_sf_sub, 1000)
-  #counties <- us_counties(map_date = NULL, resolution = c("high"), states="PA")
-  #counties <- st_transform(counties, st_crs(SGCN_sf_sub))
-  p <- ggplot() +
-    geom_sf(data=SGCN_sf_sub, mapping=aes(fill=include), alpha=0.9, color=NA) +
-    scale_fill_manual(values=c("blue","red"), drop=FALSE) +
-    #geom_sf(data=counties, aes(), colour="black", fill=NA)  +
-    scale_x_continuous(limits=c(-215999, 279249)) +
-    scale_y_continuous(limits=c(80036, 364574)) +
-    theme_void() +
-    theme(legend.position="top") +
-    theme(legend.title=element_blank()) +
-    theme(legend.text=element_text(size=15)) +
-    theme(axis.text=element_blank(), axis.title=element_text(size=15))
-  png(filename = paste("lastobsmap_",taxalist[i],".png",sep=""), width=600, height=450, units = "px", )
-  print(p)
-  dev.off()
-
-
-  # # combine into two graphs
-  # require(gridExtra)
-  # grid.arrange(h, p, ncol=2)
-}
-
-
-
-# % \begin{frame}
-# %   \begin{figure}
-# %     \centering
-
-
-@
-%     \caption{Here goes the caption.}
-%     \label{fig:p1}
-%   \end{figure}
-% \end{frame}
-
-
 \subsection*{Changes in SQLite Database}
 
 \subsubsection*{Species Data}
-\noindent In this update, we increased the number of SGCN from 505 (537 including seasons) in April 2019 to 523 (547 including seasons) in November 2019.  While it appears that 18 SGCN were added into the COA tool for this update, the actual data are a little more complicated—35 SGCN were added, with 17 SGCN removed from the tool. Fifteen SGCN removed were freshwater snails with last observation dates beyond the 25-year cutoff that thus aged out of inclusion in the COA tool.\\  
+\noindent In this update, we increased the number of SGCN from \Sexpr{length(unique(substr(sgcnCount6m$ELSeason,1,10)))} (\Sexpr{length(unique(sgcnCount6m$ELSeason))} including seasons) in April 2019 to \Sexpr{length(unique(substr(sgcnCount_new$ELSeason,1,10)))} (\Sexpr{length(unique(sgcnCount_new$ELSeason))} including seasons) in November 2019.  While it appears that \Sexpr{words(length(unique(substr(sgcnCount_new$ELSeason,1,10)))-length(unique(substr(sgcnCount6m$ELSeason,1,10))))} SGCN were added into the COA tool for this update, the actual data are a little more complicated---35 SGCN were added, with 17 SGCN removed from the tool. Fifteen SGCN removed were freshwater snails with last observation dates beyond the 25-year cutoff that thus aged out of inclusion in the COA tool.\\  
 
 \noindent Of the 2,908,000 possible planning units, the number of planning units with at least one SGCN present decreased by 244 from 2,907,955 to 2,907,711 between the two time periods! For both time periods, more than 99\% of planning units report at least one SGCN (known or likely presence). However, a more careful examination of the data shows changes in richness among individual planning units as the graph below indicates:
 
@@ -168,7 +119,6 @@ ggplot(data=PUcount_compare6m, aes(PUcount_compare6m$diff)) +
   scale_y_continuous(trans='log10', breaks=trans_breaks('log10', function(x) 10^x), labels=trans_format('log10', math_format(10^.x))) +
 labs(title="Change in SGCN Richness of Attributed Planning Units", x ="Difference between the number of SGCN between two data updates", y = "log of count") +
   theme_minimal()
-
 @
 \begin{center}
 \includegraphics{figure/importanceFig-1.pdf}    %place it
@@ -178,10 +128,35 @@ labs(title="Change in SGCN Richness of Attributed Planning Units", x ="Differenc
 
 \noindent The number of planning unit by SGCN intersections decreased by 3,385,730 from 47,640,975 to 44,255,245 records between December 2019 to June 2020. Across SGCN, this ranged from a loss of 3,659,577 records (Eastern Meadowlark, due to improved mapping) to a gain of 22,939 records (Barn Owl, largely due to the inclusion of new records into Biotics). Between the two time periods, 126 SGCN had no change in the number of records. These data are outlined in the scatterplot presented below. Points that occur above the dashed 1:1 line indicated species that gained additional planning units between the December 2019 and the June 2020 updates. Increases in planning units typically are due to the incorporation of new records for a particular taxon but can also results from changes in mapping of existing records (e.g. CPP revision). Species that fall below the line show a decrease in planning units between the two time periods. Reasons for declines typically are due to particular occurrences falling outside the 25-year moving window for inclusion as a ‘known’ occurrence in the COA tool but may also result from revising the mapping of existing records.\\
 
+<<changePU, fig.width=7.0, fig.height=6.5, include=FALSE, echo=FALSE>>=
+# find the top/bottom five values for the six month period
+upvalues <- sort(sgcnCount6m$diff)[1:5]
+downvalues <- sort(sgcnCount6m$diff, decreasing = TRUE)[1:5]
+labvalue <- c(upvalues, downvalues)
+sgcnCount6m$label <- NA
+sgcnCount6m[which(sgcnCount6m$diff %in% labvalue),]$label <- "yes"
+sgcnCount6m$labeltext <- paste(sgcnCount6m$SCOMNAME," (",sgcnCount6m$diff,")", sep="")
+grob1 <- grobTree(textGrob("Increase in Planning Units", x=0.1,  y=0.95, just="left", gp=gpar(col="black", fontsize=16, fontface="italic")))
+grob2 <- grobTree(textGrob("Decrease in Planning Units", x=0.95,  y=0.1, just="right", gp=gpar(col="black", fontsize=16, fontface="italic")))
+ggplot(sgcnCount6m, aes(x=a6mCount, y=NewCount, color=taxadisplay)) + 
+  geom_point() +
+  scale_x_continuous(trans='log10', breaks=trans_breaks('log10', function(x) 10^x), labels=trans_format('log10', math_format(10^.x))) +
+  scale_y_continuous(trans='log10', breaks=trans_breaks('log10', function(x) 10^x), labels=trans_format('log10', math_format(10^.x))) +
+  geom_abline(intercept=0, slope=1, color="grey51", linetype = "dashed") +
+  geom_text(aes(label=ifelse(label=="yes", labeltext, ""), hjust="left", vjust="top", fontsize=12), show.legend=FALSE ) +
+  annotation_custom(grob1) + 
+  annotation_custom(grob2) + 
+  labs(title="Change in Attributed Planning Units", x="April 2019", y="October 2019") +
+  theme_minimal()
+@
+\begin{center}
+\includegraphics{figure/changePU-1.pdf}    %place it
+\end{center}
+
 \noindent The following table presents a summary of the missing data as occurring in the SGCN x Planning Unit dataset--—representing the SGCN that appear in the COA tool (i.e. extant records).\\
 
 \begin{longtable}{p{3in}C{1in}C{1in}}
-%\caption{\textit{Natural Heritage Areas categorized by significance. The results of the Natural Heritage Inventory are summarized in order of their ecological significance based on the number and degree of rarity of species they support. Significance ranks are \textit{Global}, \textit{Regional}, \textit{State}, and \textit{Local}.}}
+%\caption{\textit{.}}
 \label{tab:missingSGCN}\\
 \hline
 \textbf{Taxnomic Group} & \textbf{Count Prev 6m} & \textbf{Count Current} \\
@@ -204,22 +179,21 @@ for(i in 1:nrow(missingCompare)){
 \noindent Habitat Suitability Models (i.e., Species Distribution Models) have been incorporated for 36 birds and 12 invertebrates (complete list available at https://wildlifeactionmap.pa.gov/data-information). These models originate from the 2nd Pennsylvania Breeding Bird Atlas, with additional models for wetland butterflies provided by an RCN-grant funded project in the mid-Atlantic region. Recently, we have produced or have access to additional models for mussels (SWG-funded projects) and many other taxonomic groups (NatureServe Map of Biodiversity Importance). We plan to evaluate the applicability of these models for the COA tool and include in a subsequent update. As part of this analysis we also plan to evaluate the probability thresholds used in models currently in the tool, as there is some evidence that these may be overpredicting habitat. 
 
 \subsubsection*{Tabular SQLite Data}
-\noindent No major structural changes or alterations their tabular SQLite data has been made for this update. Complete documentation of any code changes can be seen in the versioning information on the COA GitHub website (https://github.com/PNHP/COA_Tools).
+\noindent \Sexpr{updatenotes[which(updatenotes$NoteType=="TabularSQLiteData"),"NoteContent"]} \\
 
 \subsection*{Changes in Range Maps}
-\noindent The addition of Primary Macrogroup and Occurrence Probability fields in the range maps were added for the Quarter 2 updates.
+\noindent \Sexpr{updatenotes[which(updatenotes$NoteType=="rangemaps"),"NoteContent"]} \\
 
 \subsection*{Tool Error Checking}
-\noindent We continue to make investments in QC/QA processes for more efficient COA Tool data preparation. Many of these changes are noted above (e.g., taxonomy, ELCODEs, orphaned records due to bad linking), but checks are being added as issues arise and addressed.
+\noindent \Sexpr{updatenotes[which(updatenotes$NoteType=="ToolErrorChecking"),"NoteContent"]} \\
 
 \section*{Other Tool Changes}
-\noindent No other major tool changes have been made during this reporting period.
+\noindent \Sexpr{updatenotes[which(updatenotes$NoteType=="othertoolchanges"),"NoteContent"]}
 
 \section*{Future Work}
 The following work is planned for future updates as data availability and capacity allow:
 \begin{itemize}
- \item Improved taxonomic checking to prevent omission by taxonomy and better deal with synonymy.
- \item Creation of a database to house COA tool data (e.g., taxonomy, ranks, actions, etc.) that will simplify data updating.
+\Sexpr{updatenotes[which(updatenotes$NoteType=="futurework"),"NoteContent"]} 
 \end{itemize} 
 
 \afterpage{\clearpage}
