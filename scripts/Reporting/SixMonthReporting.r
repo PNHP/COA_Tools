@@ -125,81 +125,48 @@ ChangeSummary <- data.frame(SGCNcount=c(length(cnt_SGCN6m),length(cnt_SGCNnow)),
 PUcount_6m <- lu_sgcnXpu_6m %>% group_by(unique_id) %>% tally()
 PUcount_now <- lu_sgcnXpu_now %>% group_by(unique_id) %>% tally()
 
-PUcount_compare <- merge(PUcount_prev, PUcount_new, by="unique_id", all=TRUE)
-names(PUcount_compare) <- c("unique_id","n_old", "n_new")
-PUcount_compare$diff <- PUcount_compare$n_new-PUcount_compare$n_old
-
-nrow(PUcount_compare[which(PUcount_compare$diff==0),]) # number of zero values
-nrow(PUcount_compare[which(PUcount_compare$diff==1),]) # number of zero values
-nrow(PUcount_compare[which(PUcount_compare$diff==15),]) # number of zero values
-nrow(PUcount_compare[which(PUcount_compare$diff>=1),]) # number of zero values
-nrow(PUcount_compare[which(PUcount_compare$diff<=-1),]) # number of zero values
-nrow(PUcount_compare[which(PUcount_compare$diff==-1),]) # number of zero values
-nrow(PUcount_compare[which(PUcount_compare$diff==-4),]) # number of zero values
-
-PUcount_compare6m <- merge(PUcount_6m, PUcount_new, by="unique_id", all=TRUE)
-names(PUcount_compare6m) <- c("unique_id","n_old", "n_new")
-PUcount_compare6m$diff <- PUcount_compare6m$n_new-PUcount_compare6m$n_old
+PUcount_compare6m <- merge(PUcount_6m, PUcount_now, by="unique_id", all=TRUE)
+names(PUcount_compare6m) <- c("unique_id","n_6m", "n_now")
+PUcount_compare6m$diff <- PUcount_compare6m$n_now-PUcount_compare6m$n_6m
 
 summary(PUcount_compare6m)
 
-nrow(PUcount_compare6m[which(PUcount_compare6m$diff==0),]) # number of zero values
-nrow(PUcount_compare6m[which(PUcount_compare6m$diff==1),]) # number of zero values
-max(PUcount_compare6m$diff, na.rm=TRUE)
-nrow(PUcount_compare6m[which(PUcount_compare6m$diff==max(PUcount_compare6m$diff, na.rm=TRUE)),]) # number of zero values
-nrow(PUcount_compare6m[which(PUcount_compare6m$diff>=1),]) # number of zero values
-nrow(PUcount_compare6m[which(PUcount_compare6m$diff<=-1),]) # number of zero values
-nrow(PUcount_compare6m[which(PUcount_compare6m$diff==-1),]) # number of zero values
-min(PUcount_compare6m$diff, na.rm=TRUE)
-nrow(PUcount_compare6m[which(PUcount_compare6m$diff==min(PUcount_compare6m$diff, na.rm=TRUE)),]) # number of zero values
+PUchng <- nrow(PUcount_6m)-nrow(PUcount_now)
 
+PUchng_max <- max(PUcount_compare6m$diff, na.rm=TRUE)
+PUchng_min <- min(PUcount_compare6m$diff, na.rm=TRUE)
 
+PUcnt_total <- 2908000  
+PUcnt_nochange <- nrow(PUcount_compare6m[which(PUcount_compare6m$diff==0),]) # number of zero values
+PUcnt_max <- nrow(PUcount_compare6m[which(PUcount_compare6m$diff==PUchng_max),]) # number of PU units with a maximum change 
+PUcnt_min <- nrow(PUcount_compare6m[which(PUcount_compare6m$diff==PUchng_min),]) # number of PU units with a minimum change 
+PUcnt_ge1 <- nrow(PUcount_compare6m[which(PUcount_compare6m$diff>=1),]) # number of PU where the change was more than 1
+PUcnt_le1 <- nrow(PUcount_compare6m[which(PUcount_compare6m$diff<=-1),]) # number of PU where the change was less than 1
+PUcnt_plus1 <- nrow(PUcount_compare6m[which(PUcount_compare6m$diff==1),]) # number of differences of 1
+PUcnt_minus1 <- nrow(PUcount_compare6m[which(PUcount_compare6m$diff==-1),]) # number of differences of -1
 
-
-
-library(ggplot2)
-library(scales)
-ggplot(data=PUcount_compare6m, aes(PUcount_compare6m$diff)) +
-  geom_histogram(binwidth=1) +
-  scale_y_continuous(trans='log10', breaks=trans_breaks('log10', function(x) 10^x), labels=trans_format('log10', math_format(10^.x))) +
-  labs(title="Change in SGCN Richness of Attributed Planning Units", x ="Difference between the number of SGCN between two data updates", y = "log of count") +
-  theme_minimal()
+# !!! The above is used to plot the PU_Richness fig in the .rnw !!! #
 
 # number of occupied planning units
 sgcnCount_6m <- aggregate(unique_id~ELSeason, data=lu_sgcnXpu_6m, FUN=length)
-names(sgcnCount_6m) <- c("ELSeason","a6mCount")
-sgcnCount_prev <- aggregate(unique_id~ELSeason, data=lu_sgcnXpu_prev, FUN=length)
-names(sgcnCount_prev) <- c("ELSeason","PrevCount")
-sgcnCount_new <- aggregate(unique_id~ELSeason, data=lu_sgcnXpu_new, FUN=length)
-names(sgcnCount_new) <- c("ELSeason","NewCount")
+names(sgcnCount_6m) <- c("ELSeason","Count_6m")
+sgcnCount_now <- aggregate(unique_id~ELSeason, data=lu_sgcnXpu_now, FUN=length)
+names(sgcnCount_now) <- c("ELSeason","Count_Now")
+sgcnCount6m <- merge(sgcnCount_6m, sgcnCount_now, all=TRUE)
+sgcnCount6m$diff <- sgcnCount6m$Count_Now - sgcnCount6m$Count_6m
 
-sgcnCount <- merge(sgcnCount_prev, sgcnCount_new, all=TRUE)
-sgcnCount$diff <- sgcnCount$NewCount - sgcnCount$PrevCount
-
-sgcnCount6m <- merge(sgcnCount_6m, sgcnCount_new, all=TRUE)
-sgcnCount6m$diff <- sgcnCount6m$NewCount - sgcnCount6m$a6mCount
-
-
-
-print(paste(nrow(sgcnCount[which(sgcnCount$diff==0),]), " SGCN had no change in the number of records.", sep=""))
 print(paste(nrow(sgcnCount6m[which(sgcnCount6m$diff==0),]), " SGCN had no change in the number of records in the 6 month comparison.", sep=""))
 
-
-
-sgcnCount <- merge(sgcnCount, lu_sgcn, by="ELSeason")
 sgcnCount6m <- merge(sgcnCount6m, lu_sgcn, by="ELSeason")
 
-
-db <- dbConnect(SQLite(), dbname=databasename_new)
+db <- dbConnect(SQLite(), dbname=databasename_now)
 lu_taxagrp_SQLquery <- "SELECT * FROM lu_taxagrp"
 lu_taxagrp <- dbGetQuery(db, statement=lu_taxagrp_SQLquery)
 dbDisconnect(db) # disconnect the db
 
-sgcnCount <- merge(sgcnCount, lu_taxagrp, by="ELSeason", by.x="TaxaGroup", by.y="code")
 sgcnCount6m <- merge(sgcnCount6m, lu_taxagrp, by="ELSeason", by.x="TaxaGroup", by.y="code")
 
 # rename the invert
-sgcnCount[which(substr(sgcnCount$taxadisplay,1,12)=="Invertebrate"),]$taxadisplay <- "Invertebrate"
 sgcnCount6m[which(substr(sgcnCount6m$taxadisplay,1,12)=="Invertebrate"),]$taxadisplay <- "Invertebrate"
 
 
