@@ -92,7 +92,7 @@ SGCNnewNoSeason <- unique(substr(lu_sgcnXpu_new$ELSeason,1,10))
 
 
 save.image(file = "my_work_space.RData")
-
+load(file = "my_work_space.RData")
 
 #######################
 # compare records between years
@@ -193,47 +193,27 @@ sgcnCount[which(substr(sgcnCount$taxadisplay,1,12)=="Invertebrate"),]$taxadispla
 sgcnCount6m[which(substr(sgcnCount6m$taxadisplay,1,12)=="Invertebrate"),]$taxadisplay <- "Invertebrate"
 
 
-# find the top/bottom five values for the quarter
-upvalues <- sort(sgcnCount$diff)[1:5]
-downvalues <- sort(sgcnCount$diff, decreasing = TRUE)[1:5]
-labvalue <- c(upvalues, downvalues)
-sgcnCount$label <- NA
-sgcnCount[which(sgcnCount$diff %in% labvalue),]$label <- "yes"
-sgcnCount$labeltext <- paste(sgcnCount$SCOMNAME," (",sgcnCount$diff,")", sep="")
-grob1 <- grobTree(textGrob("Increase in Planning Units", x=0.1,  y=0.95, just="left", gp=gpar(col="black", fontsize=16, fontface="italic")))
-grob2 <- grobTree(textGrob("Decrease in Planning Units", x=0.95,  y=0.1, just="right", gp=gpar(col="black", fontsize=16, fontface="italic")))
-ggplot(sgcnCount, aes(x=PrevCount, y=NewCount, color=taxadisplay)) + 
-  geom_point() +
-  scale_x_continuous(trans='log10', breaks=trans_breaks('log10', function(x) 10^x), labels=trans_format('log10', math_format(10^.x))) +
-  scale_y_continuous(trans='log10', breaks=trans_breaks('log10', function(x) 10^x), labels=trans_format('log10', math_format(10^.x))) +
-  geom_abline(intercept=0, slope=1, color="grey51", linetype = "dashed") +
-  geom_text(aes(label=ifelse(label=="yes", labeltext, ""), hjust="left", vjust="top"), show.legend=FALSE ) +
-  annotation_custom(grob1) + 
-  annotation_custom(grob2) + 
-  #annotation_logticks() +
-  labs(title="Change in Attributed Planning Units", x="April 2019", y="October 2019") +
-  theme_minimal()
+# # find the top/bottom five values for the quarter
+# upvalues <- sort(sgcnCount$diff)[1:5]
+# downvalues <- sort(sgcnCount$diff, decreasing = TRUE)[1:5]
+# labvalue <- c(upvalues, downvalues)
+# sgcnCount$label <- NA
+# sgcnCount[which(sgcnCount$diff %in% labvalue),]$label <- "yes"
+# sgcnCount$labeltext <- paste(sgcnCount$SCOMNAME," (",sgcnCount$diff,")", sep="")
+# grob1 <- grobTree(textGrob("Increase in Planning Units", x=0.1,  y=0.95, just="left", gp=gpar(col="black", fontsize=16, fontface="italic")))
+# grob2 <- grobTree(textGrob("Decrease in Planning Units", x=0.95,  y=0.1, just="right", gp=gpar(col="black", fontsize=16, fontface="italic")))
+# ggplot(sgcnCount, aes(x=PrevCount, y=NewCount, color=taxadisplay)) + 
+#   geom_point() +
+#   scale_x_continuous(trans='log10', breaks=trans_breaks('log10', function(x) 10^x), labels=trans_format('log10', math_format(10^.x))) +
+#   scale_y_continuous(trans='log10', breaks=trans_breaks('log10', function(x) 10^x), labels=trans_format('log10', math_format(10^.x))) +
+#   geom_abline(intercept=0, slope=1, color="grey51", linetype = "dashed") +
+#   geom_text(aes(label=ifelse(label=="yes", labeltext, ""), hjust="left", vjust="top"), show.legend=FALSE ) +
+#   annotation_custom(grob1) + 
+#   annotation_custom(grob2) + 
+#   #annotation_logticks() +
+#   labs(title="Change in Attributed Planning Units", x="April 2019", y="October 2019") +
+#   theme_minimal()
 
-# find the top/bottom five values for the six month period
-upvalues <- sort(sgcnCount6m$diff)[1:5]
-downvalues <- sort(sgcnCount6m$diff, decreasing = TRUE)[1:5]
-labvalue <- c(upvalues, downvalues)
-sgcnCount6m$label <- NA
-sgcnCount6m[which(sgcnCount6m$diff %in% labvalue),]$label <- "yes"
-sgcnCount6m$labeltext <- paste(sgcnCount6m$SCOMNAME," (",sgcnCount6m$diff,")", sep="")
-grob1 <- grobTree(textGrob("Increase in Planning Units", x=0.1,  y=0.95, just="left", gp=gpar(col="black", fontsize=16, fontface="italic")))
-grob2 <- grobTree(textGrob("Decrease in Planning Units", x=0.95,  y=0.1, just="right", gp=gpar(col="black", fontsize=16, fontface="italic")))
-ggplot(sgcnCount6m, aes(x=a6mCount, y=NewCount, color=taxadisplay)) + 
-  geom_point() +
-  scale_x_continuous(trans='log10', breaks=trans_breaks('log10', function(x) 10^x), labels=trans_format('log10', math_format(10^.x))) +
-  scale_y_continuous(trans='log10', breaks=trans_breaks('log10', function(x) 10^x), labels=trans_format('log10', math_format(10^.x))) +
-  geom_abline(intercept=0, slope=1, color="grey51", linetype = "dashed") +
-  geom_text(aes(label=ifelse(label=="yes", labeltext, ""), hjust="left", vjust="top", fontsize=12), show.legend=FALSE ) +
-  annotation_custom(grob1) + 
-  annotation_custom(grob2) + 
-  #annotation_logticks() +
-  labs(title="Change in Attributed Planning Units", x="April 2019", y="October 2019") +
-  theme_minimal()
 
 
 
@@ -282,52 +262,57 @@ SGCN_sf <- merge(SGCN_sf, lu_taxagrp, by.x="TaxaGroup", by.y="code")
 SGCN_sf$LastObs <- as.numeric(SGCN_sf$LastObs)
 SGCN_sf <- SGCN_sf[which(SGCN_sf$LastObs>=1980),]
 
-# taxalist <- unique(SGCN_sf$taxadisplay)
-# 
-# for(i in 1:length(taxalist)){
-#   SGCN_sf_sub <- SGCN_sf[which(SGCN_sf$taxadisplay==taxalist[i]),]
-#   SGCN_sf_sub$include <- factor(ifelse(SGCN_sf_sub$LastObs>=1994,"less than 25 years","older than 25 years"))
-#   levels(SGCN_sf_sub$include) <- c("less than 25 years","older than 25 years")
-#   # make the histogram
-#   h <- ggplot(data=SGCN_sf_sub , aes(LastObs, fill=include)) +
-#     geom_histogram(binwidth=1) +
-#     scale_fill_manual(values=c("blue","red"), drop=FALSE) +
-#     scale_x_continuous(breaks=seq(1980, 2020, by=5), labels=waiver(), limits=c(1980, 2020)) +
-#     xlab("Observation Date") +
-#     ylab("Number of Records") +
-#     theme_minimal() +
-#     theme(legend.position="top") +
-#     theme(legend.title=element_blank()) +
-#     theme(legend.text=element_text(size=15)) +
-#     theme(axis.text=element_text(size=14), axis.title=element_text(size=15)) +
-#     theme(axis.text.x=element_text(angle=60, hjust=1))
-#   png(filename = paste("lastobs_",taxalist[i],".png",sep=""), width=600, height=600, units = "px", )
-#   print(h)
-#   dev.off()
-# 
-#   # make the map
-#   SGCN_sf_sub <- st_buffer(SGCN_sf_sub, 1000)
-#   #counties <- us_counties(map_date = NULL, resolution = c("high"), states="PA")
-#   #counties <- st_transform(counties, st_crs(SGCN_sf_sub))
-#   p <- ggplot() +
-#     geom_sf(data=SGCN_sf_sub, mapping=aes(fill=include), alpha=0.9, color=NA) +
-#     scale_fill_manual(values=c("blue","red"), drop=FALSE) +
-#     #geom_sf(data=counties, aes(), colour="black", fill=NA)  +
-#     scale_x_continuous(limits=c(-215999, 279249)) +
-#     scale_y_continuous(limits=c(80036, 364574)) +
-#     theme_void() +
-#     theme(legend.position="top") +
-#     theme(legend.title=element_blank()) +
-#     theme(legend.text=element_text(size=15)) +
-#     theme(axis.text=element_blank(), axis.title=element_text(size=15))
-#   png(filename = paste("lastobsmap_",taxalist[i],".png",sep=""), width=600, height=450, units = "px", )
-#   print(p)
-#   dev.off()
-# 
-#   # # combine into two graphs
-#   # require(gridExtra)
-#   # grid.arrange(h, p, ncol=2)
-# }
+
+
+# making the taxa maps ############################################################################################################
+save.image(file = "my_work_space.RData")
+
+taxalist <- unique(SGCN_sf$taxadisplay)
+
+for(i in 1:length(taxalist)){
+  SGCN_sf_sub <- SGCN_sf[which(SGCN_sf$taxadisplay==taxalist[i]),]
+  SGCN_sf_sub$include <- factor(ifelse(SGCN_sf_sub$LastObs>=1994,"less than 25 years","older than 25 years"))
+  levels(SGCN_sf_sub$include) <- c("less than 25 years","older than 25 years")
+  # make the histogram
+  h <- ggplot(data=SGCN_sf_sub , aes(LastObs, fill=include)) +
+    geom_histogram(binwidth=1) +
+    scale_fill_manual(values=c("blue","red"), drop=FALSE) +
+    scale_x_continuous(breaks=seq(1980, 2020, by=5), labels=waiver(), limits=c(1980, 2020)) +
+    xlab("Observation Date") +
+    ylab("Number of Records") +
+    theme_minimal() +
+    theme(legend.position="top") +
+    theme(legend.title=element_blank()) +
+    theme(legend.text=element_text(size=15)) +
+    theme(axis.text=element_text(size=14), axis.title=element_text(size=15)) +
+    theme(axis.text.x=element_text(angle=60, hjust=1))
+  png(filename = paste(here::here("_data/output",updateName,"figuresReporting"),"/","lastobs_",taxalist[i],".png",sep=""), width=600, height=600, units = "px", )
+  print(h)
+  dev.off()
+
+  # make the map
+  SGCN_sf_sub <- st_buffer(SGCN_sf_sub, 1000)
+  #counties <- us_counties(map_date = NULL, resolution = c("high"), states="PA")
+  #counties <- st_transform(counties, st_crs(SGCN_sf_sub))
+  p <- ggplot() +
+    geom_sf(data=SGCN_sf_sub, mapping=aes(fill=include), alpha=0.9, color=NA) +
+    scale_fill_manual(values=c("blue","red"), drop=FALSE) +
+    #geom_sf(data=counties, aes(), colour="black", fill=NA)  +
+    scale_x_continuous(limits=c(-215999, 279249)) +
+    scale_y_continuous(limits=c(80036, 364574)) +
+    theme_void() +
+    theme(legend.position="top") +
+    theme(legend.title=element_blank()) +
+    theme(legend.text=element_text(size=15)) +
+    theme(axis.text=element_blank(), axis.title=element_text(size=15))
+  png(filename = paste(here::here("_data/output",updateName,"figuresReporting"),"/","lastobsmap_",taxalist[i],".png",sep=""), width=600, height=450, units = "px", )
+  print(p)
+  dev.off()
+
+  # # combine into two graphs
+  # require(gridExtra)
+  # grid.arrange(h, p, ncol=2)
+}
 
 # get old data
 # get new data
@@ -335,7 +320,16 @@ SGCN_prev <- arc.open(path=here::here("_data/output/","_update2020q3","SGCN.gdb"
 SGCN_prev <- arc.select(SGCN_prev)
 SGCN_prev_sf <- arc.data2sf(SGCN_prev)
 
+# update tracking content
+db <- dbConnect(SQLite(), dbname="E:/COA_Tools/_data/output/COA_QuarterlyTracking.sqlite")
+  updatetracker_SQLquery <- "SELECT * FROM updateMain"
+  updatetracker <- dbGetQuery(db, statement=updatetracker_SQLquery)
+dbDisconnect(db) 
 
+db <- dbConnect(SQLite(), dbname="E:/COA_Tools/_data/output/COA_QuarterlyTracking.sqlite")
+  updateNotes_SQLquery <- "SELECT * FROM updateNotes"
+  updatenotes <- dbGetQuery(db, statement=updateNotes_SQLquery)
+dbDisconnect(db) 
 
 
 
