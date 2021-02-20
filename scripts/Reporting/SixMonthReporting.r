@@ -48,6 +48,12 @@ deletepdfjunk <- function(pdf_filename){
 # load the current SGCN list
 loadSGCN()
 
+# load in the taxanomic groups
+db <- dbConnect(SQLite(), dbname=databasename_now)
+lu_taxagrp_SQLquery <- "SELECT * FROM lu_taxagrp"
+lu_taxagrp <- dbGetQuery(db, statement=lu_taxagrp_SQLquery)
+dbDisconnect(db) # disconnect the db
+
 # assign the database names for the updates
 databasename_now <- here::here("_data","output",updateName,"coa_bridgetest.sqlite") # most recent update
 databasename_6m <- here::here("_data","output",updateName6m,"coa_bridgetest.sqlite") # update from six months ago
@@ -81,6 +87,7 @@ rm(lu_sgcnXpu_6mA)
 # rerun the counts about 15 lines above to reflect the new data
 cnt_SGCN6m <- unique(lu_sgcnXpu_6m$ELSeason)
 cnt_SGCN6mNoSeason <- unique(substr(lu_sgcnXpu_6m$ELSeason,1,10))
+missingSGCN_6m <- setdiff(lu_sgcn_6m$ELSeason, cnt_SGCN6m)
 
 #setdiff(unique(lu_sgcn_6m$ELCODE), cnt_SGCN6mNoSeason)
 
@@ -109,6 +116,7 @@ rm(lu_sgcnXpu_nowA)
 # rerun the counts about 15 lines above to reflect the new data
 cnt_SGCNnow <- unique(lu_sgcnXpu_now$ELSeason)
 cnt_SGCNnowNoSeason <- unique(substr(lu_sgcnXpu_now$ELSeason,1,10))
+missingSGCN_now <- setdiff(lu_sgcn_now$ELSeason, cnt_SGCNnow)
 # save.image(file = "my_work_space.RData")
 # load(file = "my_work_space.RData")
 
@@ -147,84 +155,53 @@ PUcnt_minus1 <- nrow(PUcount_compare6m[which(PUcount_compare6m$diff==-1),]) # nu
 
 # !!! The above is used to plot the PU_Richness fig in the .rnw !!! #
 
+#######################
 # number of occupied planning units
 sgcnCount_6m <- aggregate(unique_id~ELSeason, data=lu_sgcnXpu_6m, FUN=length)
 names(sgcnCount_6m) <- c("ELSeason","Count_6m")
 sgcnCount_now <- aggregate(unique_id~ELSeason, data=lu_sgcnXpu_now, FUN=length)
 names(sgcnCount_now) <- c("ELSeason","Count_Now")
-sgcnCount6m <- merge(sgcnCount_6m, sgcnCount_now, all=TRUE)
-sgcnCount6m$diff <- sgcnCount6m$Count_Now - sgcnCount6m$Count_6m
-
-print(paste(nrow(sgcnCount6m[which(sgcnCount6m$diff==0),]), " SGCN had no change in the number of records in the 6 month comparison.", sep=""))
-
-sgcnCount6m <- merge(sgcnCount6m, lu_sgcn, by="ELSeason")
-
-db <- dbConnect(SQLite(), dbname=databasename_now)
-lu_taxagrp_SQLquery <- "SELECT * FROM lu_taxagrp"
-lu_taxagrp <- dbGetQuery(db, statement=lu_taxagrp_SQLquery)
-dbDisconnect(db) # disconnect the db
-
-sgcnCount6m <- merge(sgcnCount6m, lu_taxagrp, by="ELSeason", by.x="TaxaGroup", by.y="code")
+# merge the two together and calculate the difference
+SGCNxPU_Count <- merge(sgcnCount_6m, sgcnCount_now, all=TRUE)
+SGCNxPU_Count$diff <- SGCNxPU_Count$Count_Now - SGCNxPU_Count$Count_6m
+# print out something informative 
+print(paste(nrow(SGCNxPU_Count[which(SGCNxPU_Count$diff==0),]), " SGCN had no change in the number of records in the 6 month comparison.", sep=""))
+# merge in the SGCN and taxagroup information
+SGCNxPU_Count <- merge(SGCNxPU_Count, lu_sgcn, by="ELSeason")
+SGCNxPU_Count <- merge(SGCNxPU_Count, lu_taxagrp, by="ELSeason", by.x="TaxaGroup", by.y="code")
 
 # rename the invert
-sgcnCount6m[which(substr(sgcnCount6m$taxadisplay,1,12)=="Invertebrate"),]$taxadisplay <- "Invertebrate"
+SGCNxPU_Count[which(substr(SGCNxPU_Count$taxadisplay,1,12)=="Invertebrate"),]$taxadisplay <- "Invertebrate"
 
-
-# # find the top/bottom five values for the quarter
-# upvalues <- sort(sgcnCount$diff)[1:5]
-# downvalues <- sort(sgcnCount$diff, decreasing = TRUE)[1:5]
-# labvalue <- c(upvalues, downvalues)
-# sgcnCount$label <- NA
-# sgcnCount[which(sgcnCount$diff %in% labvalue),]$label <- "yes"
-# sgcnCount$labeltext <- paste(sgcnCount$SCOMNAME," (",sgcnCount$diff,")", sep="")
-# grob1 <- grobTree(textGrob("Increase in Planning Units", x=0.1,  y=0.95, just="left", gp=gpar(col="black", fontsize=16, fontface="italic")))
-# grob2 <- grobTree(textGrob("Decrease in Planning Units", x=0.95,  y=0.1, just="right", gp=gpar(col="black", fontsize=16, fontface="italic")))
-# ggplot(sgcnCount, aes(x=PrevCount, y=NewCount, color=taxadisplay)) + 
-#   geom_point() +
-#   scale_x_continuous(trans='log10', breaks=trans_breaks('log10', function(x) 10^x), labels=trans_format('log10', math_format(10^.x))) +
-#   scale_y_continuous(trans='log10', breaks=trans_breaks('log10', function(x) 10^x), labels=trans_format('log10', math_format(10^.x))) +
-#   geom_abline(intercept=0, slope=1, color="grey51", linetype = "dashed") +
-#   geom_text(aes(label=ifelse(label=="yes", labeltext, ""), hjust="left", vjust="top"), show.legend=FALSE ) +
-#   annotation_custom(grob1) + 
-#   annotation_custom(grob2) + 
-#   #annotation_logticks() +
-#   labs(title="Change in Attributed Planning Units", x="April 2019", y="October 2019") +
-#   theme_minimal()
-
-
+SGCNxPU_Total_6m <- sum(SGCNxPU_Count$Count_6m)
+SGCNxPU_Total_now <- sum(SGCNxPU_Count$Count_Now)
+SGCNxPU_Total_diff <- SGCNxPU_Total_6m - SGCNxPU_Total_now
 
 
 
 #####
 # get the species that are missing from the PU data
-missingSGCN <- setdiff(lu_sgcn$ELCODE, substr(SGCNnew, 1, 10))
-missingSGCN <- lu_sgcn[lu_sgcn$ELCODE %in% missingSGCN,]
-missingSGCN <- merge(missingSGCN, lu_taxagrp, by.x="TaxaGroup", by.y="code")
-
-missingSGCNsummary <- missingSGCN %>% group_by(taxadisplay) %>% tally()
-write.csv(missingSGCNsummary,paste(here::here("_data","output","reporting"),"/missingSGCN.csv", sep="")) 
+missingSGCN <- lu_sgcn_now[lu_sgcn_now$ELSeason %in% missingSGCN_now,]
+missingSGCNnowsummary <- missingSGCN %>% group_by(TaxaDisplay) %>% tally()
+write.csv(missingSGCNnowsummary,paste(here::here("_data","output",updateName),"/missingSGCN_now.csv", sep="")) 
 
 #####
 # get the species that are missing from the PU data for the 6m period
-missingSGCN6m <- setdiff(lu_sgcn$ELCODE, substr(SGCN6m, 1, 10))
-missingSGCN6m <- lu_sgcn[lu_sgcn$ELCODE %in% missingSGCN6m,]
-missingSGCN6m <- merge(missingSGCN6m, lu_taxagrp, by.x="TaxaGroup", by.y="code")
 
-missingSGCN6msummary <- missingSGCN6m %>% group_by(taxadisplay) %>% tally()
-write.csv(missingSGCN6msummary,paste(here::here("_data","output","reporting"),"/missingSGCN6m.csv", sep="")) 
+missingSGCN6m <- lu_sgcn_6m[lu_sgcn_6m$ELSeason %in% missingSGCN_6m,]
+missingSGCN6msummary <- missingSGCN6m %>% group_by(TaxaDisplay) %>% tally()
+write.csv(missingSGCN6msummary,paste(here::here("_data","output",updateName),"/missingSGCN_6m.csv", sep="")) 
 
 # comparison of the six month to now
-missingCompare <- merge(missingSGCN6msummary, missingSGCNsummary, by="taxadisplay")
-names(missingCompare) <- c("taxadisplay", "n_6m", "n_now")
+missingCompare <- merge(missingSGCN6msummary, missingSGCNnowsummary, by="TaxaDisplay")
+names(missingCompare) <- c("TaxaDisplay", "n_6m", "n_now")
 missingCompare$difference <- missingCompare$n_6m - missingCompare$n_now
 
 ################################################
 
 
-# creation of summary table
-source(here::here("scripts","00_PathsAndSettings.r"))
-# read in SGCN data
-loadSGCN()
+# begin here
+
 
 # collapse sgcn down to one season
 lu_sgcn <- unique(lu_sgcn[c("ELCODE","SNAME","SCOMNAME","TaxaGroup")])
@@ -290,12 +267,6 @@ for(i in 1:length(taxalist)){
   # require(gridExtra)
   # grid.arrange(h, p, ncol=2)
 }
-
-# get old data
-# get new data
-SGCN_prev <- arc.open(path=here::here("_data/output/","_update2020q3","SGCN.gdb","allSGCNuse"))
-SGCN_prev <- arc.select(SGCN_prev)
-SGCN_prev_sf <- arc.data2sf(SGCN_prev)
 
 # update tracking content
 db <- dbConnect(SQLite(), dbname="E:/COA_Tools/_data/output/COA_QuarterlyTracking.sqlite")
