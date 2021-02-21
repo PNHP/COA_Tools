@@ -100,16 +100,30 @@ for(i in 1:nrow(updatetracker)) {
 \noindent The following sections describe substantive changes in the SGCN geodatabase, the SQLite database for the COA tool, and the Range Map geodatabase. Not all changes and updates have been described here, instead we focused on the most important and relevant changes.
 
 \subsection*{Changes in SGCN Geodatabase}
-\noindent The number of records increased from approximately \Sexpr{comma(nrow(SGCN_prev_sf))} records to \Sexpr{comma(nrow(SGCN_sf))}.  A spreadsheet indicating the number of records available for each SGCN for the June 2020 update can be found at \\
+%S\noindent The number of records increased from approximately \Sexpr{comma(nrow(SGCN_prev_sf))} records to \Sexpr{comma(nrow(SGCN_sf))}.  A spreadsheet indicating the number of records available for each SGCN for the June 2020 update can be found at \\
 \Sexpr{paste("https://wildlifeactionmap.pa.gov/sites/default/files/","SGCNsummary", updateName,".csv", sep="")}.
 
 \subsection*{Data by Taxonomic Groups}
 \noindent The following is an overview of each major taxonomic group of SGCN that presents current SGCN data relative to the 25-year cutoff for most taxonomic groups.  Histograms and maps showing these are presented below. Note that the data presented as of the Quarter 2, 2020 update (i.e. Quarter 1 data is not shown. Due to size and scale limitations of the maps, we recommend that any detailed analysis of the spatial data be undertaken by using the spatial data provided to PFBC and PGC.  When known, we’ve provided additional details, data harvesting, and survey needs to fill in data gaps. Some of this data gathering (e.g., field surveys) are beyond the scope of this project, but could be supported by additional funding (e.g., State Wildlife Grants, Wild Resources Conservation Program, PA Department of Agriculture).\\
 
+<<label=taxamaps, echo=FALSE, results='asis'>>=
+for(i in 1:nrow(specieslooper)) {
+  cat("\\noindent", specieslooper$taxalist[i], "--- ")
+  spp <- paste0("species-", specieslooper$spabbv[i])
+  cat(updatenotes[which(updatenotes$NoteType==spp), "NoteContent"])
+  cat("\\\\")
+  imglastobs <- paste0("LastObs_", specieslooper$taxalist[i],".png")
+  cat("\\begin{center}")
+  cat(paste0("\\includegraphics{figuresReporting/",imglastobs,"} "))   
+  cat("\\end{center}")
+}
+@
+
+
 \subsection*{Changes in SQLite Database}
 
 \subsubsection*{Species Data}
-\noindent In this update, we increased the number of SGCN from \Sexpr{length(unique(substr(sgcnCount6m$ELSeason,1,10)))} (\Sexpr{length(unique(sgcnCount6m$ELSeason))} including seasons) in April 2019 to \Sexpr{length(unique(substr(sgcnCount_new$ELSeason,1,10)))} (\Sexpr{length(unique(sgcnCount_new$ELSeason))} including seasons) in November 2019.  While it appears that \Sexpr{words(length(unique(substr(sgcnCount_new$ELSeason,1,10)))-length(unique(substr(sgcnCount6m$ELSeason,1,10))))} SGCN were added into the COA tool for this update, the actual data are a little more complicated---35 SGCN were added, with 17 SGCN removed from the tool. Fifteen SGCN removed were freshwater snails with last observation dates beyond the 25-year cutoff that thus aged out of inclusion in the COA tool.\\  
+\noindent In this update, we increased the number of SGCN from \Sexpr{length(cnt_SGCN6mNoSeason)} (\Sexpr{length(cnt_SGCN6m)} including seasons) in April 2019 to \Sexpr{length(cnt_SGCNnowNoSeason)} (\Sexpr{length(cnt_SGCNnow)} including seasons) in November 2019.  While it appears that \Sexpr{words(length(cnt_SGCNnowNoSeason)-length(cnt_SGCN6mNoSeason))} SGCN were added into the COA tool for this update, the actual data are a little more complicated---35 SGCN were added, with 17 SGCN removed from the tool. Fifteen SGCN removed were freshwater snails with last observation dates beyond the 25-year cutoff that thus aged out of inclusion in the COA tool.\\  
 
 \noindent Of the \Sexpr{prettyNum(PUcnt_total, big.mark=",", scientific=FALSE)} possible planning units, the number of planning units with at least one SGCN present decreased by \Sexpr{ifelse(PUchng<=10, words(PUchng), prettyNum(PUchng, big.mark=",", scientific=FALSE))} from \Sexpr{prettyNum(nrow(PUcount_6m), big.mark=",", scientific=FALSE)} to \Sexpr{prettyNum(nrow(PUcount_now), big.mark=",", scientific=FALSE)} between the two time periods! For both time periods, more than 99\% of planning units report at least one SGCN (known or likely presence). However, a more careful examination of the data shows changes in richness among individual planning units as the graph below indicates:
 
@@ -130,15 +144,15 @@ labs(title="Change in SGCN Richness of Attributed Planning Units", x ="Differenc
 
 <<changePU, fig.width=7.0, fig.height=6.5, include=FALSE, echo=FALSE>>=
 # find the top/bottom five values for the six month period
-upvalues <- sort(sgcnCount6m$diff)[1:5]
-downvalues <- sort(sgcnCount6m$diff, decreasing = TRUE)[1:5]
+upvalues <- sort(SGCNxPU_Count$diff)[1:5]
+downvalues <- sort(SGCNxPU_Count$diff, decreasing = TRUE)[1:5]
 labvalue <- c(upvalues, downvalues)
-sgcnCount6m$label <- NA
-sgcnCount6m[which(sgcnCount6m$diff %in% labvalue),]$label <- "yes"
-sgcnCount6m$labeltext <- paste(sgcnCount6m$SCOMNAME," (",sgcnCount6m$diff,")", sep="")
+SGCNxPU_Count$label <- NA
+SGCNxPU_Count[which(SGCNxPU_Count$diff %in% labvalue),]$label <- "yes"
+SGCNxPU_Count$labeltext <- paste(SGCNxPU_Count$SCOMNAME," (",SGCNxPU_Count$diff,")", sep="")
 grob1 <- grobTree(textGrob("Increase in Planning Units", x=0.1,  y=0.95, just="left", gp=gpar(col="black", fontsize=16, fontface="italic")))
 grob2 <- grobTree(textGrob("Decrease in Planning Units", x=0.95,  y=0.1, just="right", gp=gpar(col="black", fontsize=16, fontface="italic")))
-ggplot(sgcnCount6m, aes(x=a6mCount, y=NewCount, color=taxadisplay)) + 
+ggplot(SGCNxPU_Count, aes(x=Count_6m, y=Count_Now, color=taxadisplay)) + 
   geom_point() +
   scale_x_continuous(trans='log10', breaks=trans_breaks('log10', function(x) 10^x), labels=trans_format('log10', math_format(10^.x))) +
   scale_y_continuous(trans='log10', breaks=trans_breaks('log10', function(x) 10^x), labels=trans_format('log10', math_format(10^.x))) +
