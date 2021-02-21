@@ -268,6 +268,12 @@ for(i in 1:length(taxalist)){
   # grid.arrange(h, p, ncol=2)
 }
 
+# make a species list looper 
+spabbv <- c("salamanders","frogs","birds","fishs","mammals","turtles","lizards","snakes","beetless","moths","dragonflies","stoneflies","caddisflies","spiders","mussels","caves","bees","butterflies","fsnails","tsnails")
+specieslooper <- data.frame(taxalist,spabbv)
+specieslooper$taxalist <- as.character(specieslooper$taxalist)
+specieslooper$spabbv <- as.character(specieslooper$spabbv)
+
 # update tracking content
 db <- dbConnect(SQLite(), dbname="E:/COA_Tools/_data/output/COA_QuarterlyTracking.sqlite")
 updatetracker_SQLquery <- "SELECT * FROM updateMain"
