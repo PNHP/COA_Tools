@@ -48,15 +48,17 @@ deletepdfjunk <- function(pdf_filename){
 # load the current SGCN list
 loadSGCN()
 
+# assign the database names for the updates
+databasename_now <- here::here("_data","output",updateName,"coa_bridgetest.sqlite") # most recent update
+databasename_6m <- here::here("_data","output",updateName6m,"coa_bridgetest.sqlite") # update from six months ago
+
+
+
 # load in the taxanomic groups
 db <- dbConnect(SQLite(), dbname=databasename_now)
 lu_taxagrp_SQLquery <- "SELECT * FROM lu_taxagrp"
 lu_taxagrp <- dbGetQuery(db, statement=lu_taxagrp_SQLquery)
 dbDisconnect(db) # disconnect the db
-
-# assign the database names for the updates
-databasename_now <- here::here("_data","output",updateName,"coa_bridgetest.sqlite") # most recent update
-databasename_6m <- here::here("_data","output",updateName6m,"coa_bridgetest.sqlite") # update from six months ago
 
 # various variables
 lu_sgcn_SQLquery <- "SELECT ELSeason, ELCODE, SCOMNAME, SNAME, TaxaDisplay, SeasonCode FROM lu_sgcn"
@@ -167,11 +169,11 @@ SGCNxPU_Count$diff <- SGCNxPU_Count$Count_Now - SGCNxPU_Count$Count_6m
 # print out something informative 
 print(paste(nrow(SGCNxPU_Count[which(SGCNxPU_Count$diff==0),]), " SGCN had no change in the number of records in the 6 month comparison.", sep=""))
 # merge in the SGCN and taxagroup information
-SGCNxPU_Count <- merge(SGCNxPU_Count, lu_sgcn, by="ELSeason")
-SGCNxPU_Count <- merge(SGCNxPU_Count, lu_taxagrp, by="ELSeason", by.x="TaxaGroup", by.y="code")
+SGCNxPU_Count <- merge(SGCNxPU_Count, lu_sgcn_now, by="ELSeason")
+#SGCNxPU_Count <- merge(SGCNxPU_Count, lu_taxagrp, by="ELSeason", by.x="TaxaGroup", by.y="code")
 
 # rename the invert
-SGCNxPU_Count[which(substr(SGCNxPU_Count$taxadisplay,1,12)=="Invertebrate"),]$taxadisplay <- "Invertebrate"
+SGCNxPU_Count[which(substr(SGCNxPU_Count$TaxaDisplay,1,12)=="Invertebrate"),]$TaxaDisplay <- "Invertebrate"
 
 SGCNxPU_Total_6m <- sum(SGCNxPU_Count$Count_6m)
 SGCNxPU_Total_now <- sum(SGCNxPU_Count$Count_Now)
@@ -199,10 +201,6 @@ missingCompare$difference <- missingCompare$n_6m - missingCompare$n_now
 
 ################################################
 
-
-# begin here
-
-
 # collapse sgcn down to one season
 lu_sgcn <- unique(lu_sgcn[c("ELCODE","SNAME","SCOMNAME","TaxaGroup")])
 
@@ -210,7 +208,6 @@ lu_sgcn <- unique(lu_sgcn[c("ELCODE","SNAME","SCOMNAME","TaxaGroup")])
 SGCN <- arc.open(path=here::here("_data/output/",updateName,"SGCN.gdb","allSGCNuse"))
 SGCN <- arc.select(SGCN)
 SGCN_sf <- arc.data2sf(SGCN)
-
 # merge
 SGCN_sf <- merge(SGCN_sf, lu_taxagrp, by.x="TaxaGroup", by.y="code")
 SGCN_sf$LastObs <- as.numeric(SGCN_sf$LastObs)
@@ -218,8 +215,25 @@ SGCN_sf <- SGCN_sf[which(SGCN_sf$LastObs>=1980),]
 
 
 
+# get old data
+SGCNold <- arc.open(path=here::here("_data/output/",updateName6m,"SGCN.gdb","allSGCNuse"))
+SGCNold <- arc.select(SGCNold)
+SGCNold_sf <- arc.data2sf(SGCNold)
+# merge
+SGCNold_sf <- merge(SGCNold_sf, lu_taxagrp, by.x="TaxaGroup", by.y="code")
+SGCNold_sf$LastObs <- as.numeric(SGCNold_sf$LastObs)
+SGCNold_sf <- SGCNold_sf[which(SGCNold_sf$LastObs>=1980),]
+
+
+
 # making the taxa maps ############################################################################################################
-save.image(file = "my_work_space.RData")
+#save.image(file = "my_work_space.RData")
+
+# load the county basemap
+county_shp <- arc.open(here::here("_data","output",updateName,"sws.gdb", "_county")) 
+county_shp <- arc.select(county_shp)
+county_sf <- arc.data2sf(county_shp)
+county_sf <- st_transform(county_sf, st_crs(SGCN_sf))
 
 taxalist <- unique(SGCN_sf$taxadisplay)
 
@@ -230,7 +244,7 @@ for(i in 1:length(taxalist)){
   # make the histogram
   h <- ggplot(data=SGCN_sf_sub , aes(LastObs, fill=include)) +
     geom_histogram(binwidth=1) +
-    scale_fill_manual(values=c("blue","red"), drop=FALSE) +
+    scale_fill_manual(values=c("dodgerblue3","red4"), drop=FALSE) +
     scale_x_continuous(breaks=seq(1980, 2020, by=5), labels=waiver(), limits=c(1980, 2020)) +
     xlab("Observation Date") +
     ylab("Number of Records") +
@@ -239,7 +253,8 @@ for(i in 1:length(taxalist)){
     theme(legend.title=element_blank()) +
     theme(legend.text=element_text(size=15)) +
     theme(axis.text=element_text(size=14), axis.title=element_text(size=15)) +
-    theme(axis.text.x=element_text(angle=60, hjust=1))
+    theme(axis.text.x=element_text(angle=60, hjust=1)) + 
+    theme(aspect.ratio=1)
   png(filename = paste(here::here("_data/output",updateName,"figuresReporting"),"/","lastobs_",taxalist[i],".png",sep=""), width=600, height=600, units = "px", )
   print(h)
   dev.off()
@@ -250,26 +265,24 @@ for(i in 1:length(taxalist)){
   #counties <- st_transform(counties, st_crs(SGCN_sf_sub))
   p <- ggplot() +
     geom_sf(data=SGCN_sf_sub, mapping=aes(fill=include), alpha=0.9, color=NA) +
-    scale_fill_manual(values=c("blue","red"), drop=FALSE) +
-    #geom_sf(data=counties, aes(), colour="black", fill=NA)  +
+    scale_fill_manual(values=c("dodgerblue3","red4"), drop=FALSE) +
+    geom_sf(data=county_sf, aes(), colour="black", fill=NA)  +
     scale_x_continuous(limits=c(-215999, 279249)) +
     scale_y_continuous(limits=c(80036, 364574)) +
     theme_void() +
     theme(legend.position="top") +
     theme(legend.title=element_blank()) +
     theme(legend.text=element_text(size=15)) +
-    theme(axis.text=element_blank(), axis.title=element_text(size=15))
-  png(filename = paste(here::here("_data/output",updateName,"figuresReporting"),"/","lastobsmap_",taxalist[i],".png",sep=""), width=600, height=450, units = "px", )
+    theme(axis.text=element_blank(), axis.title=element_text(size=15)) 
+  png(filename = paste(here::here("_data/output",updateName,"figuresReporting"),"/","lastobsmap_",taxalist[i],".png",sep=""), width=800, height=600, units = "px", )
   print(p)
   dev.off()
-  
-  # # combine into two graphs
-  # require(gridExtra)
-  # grid.arrange(h, p, ncol=2)
+
+  #ggsave(file=paste(here::here("_data/output",updateName,"figuresReporting"),"/","sp_",taxalist[i],".png",sep=""), g) #saves 
 }
 
 # make a species list looper 
-spabbv <- c("salamanders","frogs","birds","fishs","mammals","turtles","lizards","snakes","beetless","moths","dragonflies","stoneflies","caddisflies","spiders","mussels","caves","bees","butterflies","fsnails","tsnails")
+spabbv <- c("salamanders","frogs","birds","fish","mammals","turtles","lizards","snakes","beetles","moths","dragonflies","stoneflies","caddisflies","spiders","mussels","caves","bees","butterflies","fsnails","tsnails")
 specieslooper <- data.frame(taxalist,spabbv)
 specieslooper$taxalist <- as.character(specieslooper$taxalist)
 specieslooper$spabbv <- as.character(specieslooper$spabbv)
@@ -284,9 +297,6 @@ db <- dbConnect(SQLite(), dbname="E:/COA_Tools/_data/output/COA_QuarterlyTrackin
 updateNotes_SQLquery <- "SELECT * FROM updateNotes"
 updatenotes <- dbGetQuery(db, statement=updateNotes_SQLquery)
 dbDisconnect(db) 
-
-
-
 
 ##############################################################################################################
 ## Write the output document for the intro ###############
