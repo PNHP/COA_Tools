@@ -1,4 +1,3 @@
-
 # load packages
 if (!requireNamespace("RSQLite", quietly=TRUE)) install.packages("RSQLite")
 require(RSQLite)
@@ -23,8 +22,9 @@ require(dplyr)
 arc.check_product() 
 
 # update name
-updateName <- "_update2020q4"
-updateNameprev <- "_update2020q3"
+updateName <- "_update2021q1"
+updateNameprev <- "_update2020q4"
+updateName6m <- "_update2020q2"
   
 # create a directory for this update unless it already exists
 ifelse(!dir.exists(here::here("_data","output",updateName)), dir.create(here::here("_data","output",updateName)), FALSE)
