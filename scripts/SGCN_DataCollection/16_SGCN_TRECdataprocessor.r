@@ -41,10 +41,17 @@ TREC <- arc.select(TREC)
 TREC <- arc.data2sf(TREC)
 st_crs(TREC) <- 4326
 
+`%!in%` = Negate(`%in%`)
+notTREC <- TREC[which(TREC$SNAME %!in% sgcnlist),]
+unique(notTREC$SNAME)
+
+TREC[which(TREC$SNAME=="Boloria selene myrina"),]$SNAME <- "Boloria selene"
+
 TREC <- TREC[which(TREC$SNAME %in% sgcnlist),]
 
 TREC$LastObs <- year(as.Date(TREC$date))
 TREC$useCOA <- ifelse(TREC$LastObs>=cutoffyear&TREC$date!=" ", "y", "n")
+TREC[which(is.na(TREC$LastObs)),]$useCOA <- "n"
 
 TREC$SeasonCode <- ifelse(TREC$season==" ", "y", substr(TREC$season,1,1))
 
