@@ -61,11 +61,10 @@ dat <- occ_search(
   year='1970,2021'
 )
 
-dat <-  dat[dat!="no data found, try a different search"] # deletes the items from the list where no occurences were found. doesn't work for one species
+dat <-  dat[dat!="no data found, try a different search"] # deletes the items from the list where no occurrences were found. doesn't work for one species
 datdf <- lapply(dat, function(x) x[[3]])# selects the $data from each list element
 
 #make the columns all match across the dataframes
-
 #choose which columns you actually care about and will be keeping (these are ragged tables otherwise)
 fields <- c('species','scientificName','datasetKey','recordedBy','key','decimalLatitude','decimalLongitude','country','basisOfRecord','coordinateUncertaintyInMeters','coordinateAccuracy','year','month','day')
 
@@ -95,9 +94,49 @@ datdff <- lapply(datdf, '[', fields) #subset out just the focal columns
 datdff_df <- dplyr::bind_rows(datdff, .id = "column_label") #turns it into one big dataframe
 
 
-write.csv(datdff_df, file=paste("gbif", format(Sys.time(), "%Y%m%d"), "backup.csv"), sep="")
+write.csv(datdff_df, file=paste("gbif", format(Sys.time(), "%Y%m%d"), "backup.csv"))
 ##datdf <- read.csv("gbif 20191015 backup.csv", stringsAsFactors=FALSE) # to reload a saved search
 
+
+gbifdata <- datdff_df # just changing the name so it backs up
+
+gbifdata$DataSource <- "GBIF"
+
+names(gbifdata)[names(gbifdata)=='species'] <- 'SNAME'
+names(gbifdata)[names(gbifdata)=='key'] <- 'DataID'
+names(gbifdata)[names(gbifdata)=='decimalLongitude'] <- 'Longitude'
+names(gbifdata)[names(gbifdata)=='decimalLatitude'] <- 'Latitude'
+names(gbifdata)[names(gbifdata)=='year'] <- 'LastObs'
+names(gbifdata)[names(gbifdata)=='basisOfRecord'] <- 'Notes'
+
+# pull out records with the least uncertainty
+gbifdata <- gbifdata[which(gbifdata$coordinateUncertaintyInMeters<=200|is.na(gbifdata$coordinateUncertaintyInMeters)),]
+
+#subset to the needed columns
+gbifdata <- gbifdata[c("SNAME","DataID","DataSource","Notes","LastObs","Longitude","Latitude", "coordinateUncertaintyInMeters")]
+
+#remove rows w/ missing data in coordinates
+gbifdata <- gbifdata %>% drop_na(Longitude, Latitude)
+
+# use COA
+gbifdata$useCOA <- ifelse(gbifdata$LastObs>=cutoffyear, "y", "n")
+gbifdata$OccProb <- "k"
+
+
+gbifdata <- merge(gbifdata, lu_sgcn, by=c('SNAME'), all.x=TRUE)
+
+# delete any bird records because there are so many season issues with them
+gbifdata <- gbifdata[which(gbifdata$TaxaGroup!="AB"),]
+
+
+
+# create a spatial layer
+gbif_sf <- st_as_sf(gbifdata, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+gbif_sf <- st_transform(gbif_sf, crs=customalbers) # reproject to the custom albers
+gbif_sf <- gbif_sf[final_fields] # field alignment
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_GBIF"), gbif_sf, overwrite=TRUE) # write a feature class into the geodatabase
+gbif_buffer_sf <- st_buffer(gbif_sf, dist=100) # buffer by 100m
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_GBIF"), gbif_buffer_sf, overwrite=TRUE) # write a feature class into the geodatabase
 
 
 
@@ -159,14 +198,7 @@ gbifdata <- gbifdata[which(gbifdata$coordinateUncertaintyInMeters<=200|is.na(gbi
 #subset to the needed columns
 gbifdata <- gbifdata[c("SNAME","DataID","DataSource","Notes","LastObs","Longitude","Latitude")]
 
-gbifdata <- merge(gbifdata, lu_sgcn, by=c('SNAME'), all.x=TRUE)
 
-# delete any bird records because there are so many season issues with them
-gbifdata <- gbifdata[which(gbifdata$TaxaGroup!="AB"),]
-
-# use COA
-gbifdata$useCOA <- ifelse(gbifdata$LastObs>=cutoffyear, "y", "n")
-gbifdata$OccProb <- "k"
 
 # create a spatial layer
 gbif_sf <- st_as_sf(gbifdata, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
