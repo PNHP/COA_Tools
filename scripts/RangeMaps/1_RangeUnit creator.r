@@ -29,7 +29,7 @@ if (!requireNamespace("reshape2", quietly=TRUE)) install.packages("reshape2")
 # load the arcgis license
 arc.check_product()
 
-# this script requires a geodatabase to be placed in the "" directory called "sws.gdb".  This gdb should two feature classes contained within it ("_huc08" and "_county")
+# this script requires a geodatabase to be placed in the "" directory called "sws.gdb".  This gdb should two feature classes contained within it ("_HUC8" and "_county")
 
 # copy the blankSGCN directory from the base folder to the output directory
 current_folder <- here::here("_data","templates","sws_blank.gdb") 
@@ -64,8 +64,8 @@ data_countyname <- dbGetQuery(db, statement = SQLquery_county )
 data_countyname$FIPS_COUNT <- as.character(data_countyname$FIPS_COUNT)
 data_countyname$FIPS_COUNT <- str_pad(data_countyname$FIPS_COUNT, width=3, pad="0")
 
-# get the HUC08 data
-SQLquery_luNatBound <- paste("SELECT unique_id, HUC08"," FROM lu_NaturalBoundaries ")
+# get the HUC8 data
+SQLquery_luNatBound <- paste("SELECT unique_id, HUC8"," FROM lu_NaturalBoundaries ")
 data_NaturalBoundaries <- dbGetQuery(db, statement = SQLquery_luNatBound )
 
 # get SGCN data
@@ -107,55 +107,55 @@ sws$season <- substrRight(sws$ELSeason, 1)
 sws$ELSeason <- substr(sws$ELSeason,1,10)
 names(sws)[names(sws)=='ELSeason'] <- 'ELCODE'
 
-sws$HUC08 <- as.character(sws$HUC08)
-sws$HUC08 <- str_pad(sws$HUC08, width=8, pad="0")
+sws$HUC8 <- as.character(sws$HUC8)
+sws$HUC8 <- str_pad(sws$HUC8, width=8, pad="0")
 
 # rearrange into a more sensible list
-sws <- sws[c("unique_id","HUC08","COUNTY_NAM","ELCODE","season","OccProb")]
+sws <- sws[c("unique_id","HUC8","COUNTY_NAM","ELCODE","season","OccProb")]
 
-# make a table of the count of PUs by HUC08/county just for informational purposes
-PU_huc08 <- as.data.frame(table(sws$HUC08))
+# make a table of the count of PUs by HUC8/county just for informational purposes
+PU_HUC8 <- as.data.frame(table(sws$HUC8))
 PU_county <- as.data.frame(table(sws$COUNTY_NAM))
 
-#table(sws$ELCODE,sws$OccProb,sws$HUC08)
+#table(sws$ELCODE,sws$OccProb,sws$HUC8)
 
 ####
-# summarize by HUC08
-sws_huc08agg <- aggregate(unique_id ~ ELCODE+OccProb+HUC08+season, sws, function(x) length(x))
+# summarize by HUC8
+sws_HUC8agg <- aggregate(unique_id ~ ELCODE+OccProb+HUC8+season, sws, function(x) length(x))
 
-# generate Huc08 occurrence summary
-a <- aggregate(unique_id ~ ELCODE+OccProb+HUC08, sws, function(x) length(x))
-b <- dcast(a, ELCODE+HUC08~OccProb, sum, value.var="unique_id")
+# generate HUC8 occurrence summary
+a <- aggregate(unique_id ~ ELCODE+OccProb+HUC8, sws, function(x) length(x))
+b <- dcast(a, ELCODE+HUC8~OccProb, sum, value.var="unique_id")
 b$Occurrence <- NA
 b$Occurrence <- ifelse(b$k>0, "Known","Likely")
 
 
-sws_huc08agg_cast <- dcast(sws_huc08agg, ELCODE+HUC08~season, sum, value.var="unique_id")  
-sws_huc08agg_cast <- merge(sws_huc08agg_cast, PU_huc08 , by.x="HUC08", by.y="Var1")
-sws_huc08agg_cast$b <- sws_huc08agg_cast$b / sws_huc08agg_cast$Freq
-sws_huc08agg_cast$m <- sws_huc08agg_cast$m / sws_huc08agg_cast$Freq
-sws_huc08agg_cast$w <- sws_huc08agg_cast$w / sws_huc08agg_cast$Freq
-sws_huc08agg_cast$y <- sws_huc08agg_cast$y / sws_huc08agg_cast$Freq
-sws_huc08agg_cast$Freq <- NULL
-names(sws_huc08agg_cast)[names(sws_huc08agg_cast)=='b'] <- 'b_prop'
-names(sws_huc08agg_cast)[names(sws_huc08agg_cast)=='m'] <- 'm_prop'
-names(sws_huc08agg_cast)[names(sws_huc08agg_cast)=='w'] <- 'w_prop'
-names(sws_huc08agg_cast)[names(sws_huc08agg_cast)=='y'] <- 'y_prop'
-sws_huc08agg_cast$b <- ifelse(sws_huc08agg_cast$b_prop>0, "yes", NA)
-sws_huc08agg_cast$m <- ifelse(sws_huc08agg_cast$m_prop>0, "yes", NA)
-sws_huc08agg_cast$w <- ifelse(sws_huc08agg_cast$w_prop>0, "yes", NA)
-sws_huc08agg_cast$y <- ifelse(sws_huc08agg_cast$y_prop>0, "yes", NA)
+sws_HUC8agg_cast <- dcast(sws_HUC8agg, ELCODE+HUC8~season, sum, value.var="unique_id")  
+sws_HUC8agg_cast <- merge(sws_HUC8agg_cast, PU_HUC8 , by.x="HUC8", by.y="Var1")
+sws_HUC8agg_cast$b <- sws_HUC8agg_cast$b / sws_HUC8agg_cast$Freq
+sws_HUC8agg_cast$m <- sws_HUC8agg_cast$m / sws_HUC8agg_cast$Freq
+sws_HUC8agg_cast$w <- sws_HUC8agg_cast$w / sws_HUC8agg_cast$Freq
+sws_HUC8agg_cast$y <- sws_HUC8agg_cast$y / sws_HUC8agg_cast$Freq
+sws_HUC8agg_cast$Freq <- NULL
+names(sws_HUC8agg_cast)[names(sws_HUC8agg_cast)=='b'] <- 'b_prop'
+names(sws_HUC8agg_cast)[names(sws_HUC8agg_cast)=='m'] <- 'm_prop'
+names(sws_HUC8agg_cast)[names(sws_HUC8agg_cast)=='w'] <- 'w_prop'
+names(sws_HUC8agg_cast)[names(sws_HUC8agg_cast)=='y'] <- 'y_prop'
+sws_HUC8agg_cast$b <- ifelse(sws_HUC8agg_cast$b_prop>0, "yes", NA)
+sws_HUC8agg_cast$m <- ifelse(sws_HUC8agg_cast$m_prop>0, "yes", NA)
+sws_HUC8agg_cast$w <- ifelse(sws_HUC8agg_cast$w_prop>0, "yes", NA)
+sws_HUC8agg_cast$y <- ifelse(sws_HUC8agg_cast$y_prop>0, "yes", NA)
 # remove the proportions since they are not to be displayed anymore
-sws_huc08agg_cast$b_prop <- NULL
-sws_huc08agg_cast$m_prop <- NULL
-sws_huc08agg_cast$w_prop <- NULL
-sws_huc08agg_cast$y_prop <- NULL
+sws_HUC8agg_cast$b_prop <- NULL
+sws_HUC8agg_cast$m_prop <- NULL
+sws_HUC8agg_cast$w_prop <- NULL
+sws_HUC8agg_cast$y_prop <- NULL
 
-# merge the Huc08 occrence summary
-sws_huc08agg_cast <- merge(sws_huc08agg_cast, b[c("ELCODE","HUC08","Occurrence")], by=c("ELCODE","HUC08"), all.x=TRUE)
+# merge the HUC8 occrence summary
+sws_HUC8agg_cast <- merge(sws_HUC8agg_cast, b[c("ELCODE","HUC8","Occurrence")], by=c("ELCODE","HUC8"), all.x=TRUE)
 
 # merge the primary macrogroup info in
-sws_huc08agg_cast <- merge(sws_huc08agg_cast, data_luPriMacrogroup1, by="ELCODE", all.x=TRUE)
+sws_HUC8agg_cast <- merge(sws_HUC8agg_cast, data_luPriMacrogroup1, by="ELCODE", all.x=TRUE)
 
 # TEMP for Testing  #######################
 save.image(file=here::here("_data","output",updateName, "tempSWS.RData"))
@@ -163,25 +163,25 @@ load(here::here("_data","output",updateName, "tempSWS.RData"))
 ###########################################
 
 
-# load the huc08 basemap
-huc08_shp <- arc.open(here::here("_data","output",updateName,"sws.gdb", "_huc08"))
-huc08_shpprj <- huc08_shp
-huc08_shp <- arc.select(huc08_shp)
-huc08_shp <- arc.data2sf(huc08_shp)
-huc08_shp <- huc08_shp[c("OBJECTID","HUC8","NAME")]
+# load the HUC8 basemap
+HUC8_shp <- arc.open(here::here("_data","output",updateName,"sws.gdb", "_huc08"))
+HUC8_shpprj <- HUC8_shp
+HUC8_shp <- arc.select(HUC8_shp)
+HUC8_shp <- arc.data2sf(HUC8_shp)
+HUC8_shp <- HUC8_shp[c("OBJECTID","HUC8","NAME")]
 # map it
-sgcnlist <- unique(sws_huc08agg_cast$ELCODE)
+sgcnlist <- unique(sws_HUC8agg_cast$ELCODE)
 sgcnlist <- gsub("\r\n","",sgcnlist)
 sgcnlist <- sort(sgcnlist)
 
 # make the watershed maps
 for(i in 1:length(sgcnlist)){
-  sws_huc08_1 <- sws_huc08agg_cast[which(sws_huc08agg_cast$ELCODE==sgcnlist[i]),]
+  sws_HUC8_1 <- sws_HUC8agg_cast[which(sws_HUC8agg_cast$ELCODE==sgcnlist[i]),]
   print(paste(sgcnlist[i],", which is species ",i," of ",length(sgcnlist), sep=""))
-  sws_huc08_1a <- merge(huc08_shp,sws_huc08_1,by.x="HUC8",by.y="HUC08")
-  sws_huc08_1a <- merge(sws_huc08_1a,data_sgcn,by="ELCODE", all.x=TRUE)
-  sws_huc08_1a <- sws_huc08_1a[c("HUC8","NAME","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","Occurrence","GRANK","SRANK","USESA","SPROT","PBSSTATUS","ELCODE","PrimMacro","geometry")]
-  arc.write(file.path(here::here("_data","output",updateName,"sws.gdb",paste("huc08",sgcnlist[i],sep="_"))), sws_huc08_1a ,overwrite=TRUE) #, shape_info=arc.shapeinfo(huc08_shpprj)
+  sws_HUC8_1a <- merge(HUC8_shp,sws_HUC8_1,by.x="HUC8",by.y="HUC8")
+  sws_HUC8_1a <- merge(sws_HUC8_1a,data_sgcn,by="ELCODE", all.x=TRUE)
+  sws_HUC8_1a <- sws_HUC8_1a[c("HUC8","NAME","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","Occurrence","GRANK","SRANK","USESA","SPROT","PBSSTATUS","ELCODE","PrimMacro","geometry")]
+  arc.write(file.path(here::here("_data","output",updateName,"sws.gdb",paste("HUC8",sgcnlist[i],sep="_"))), sws_HUC8_1a ,overwrite=TRUE) #, shape_info=arc.shapeinfo(HUC8_shpprj)
 }
 
 ################
@@ -244,11 +244,11 @@ for(i in 1:length(sgcnlist)){
 
 ###################################
 # combined data for COA tool
-huc08agg <- sws_huc08agg_cast
-huc08agg <- merge(huc08agg,data_sgcn,by="ELCODE", all.x=TRUE)
-huc08agg_all <- merge(huc08_shp, huc08agg, by.x="HUC8", by.y="HUC08")
-huc08agg_all <- huc08agg_all[c("ELCODE","HUC8","NAME","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","Occurrence","GRANK","SRANK","USESA","SPROT","PBSSTATUS","PrimMacro")]
-arc.write(here::here("_data","output",updateName,"sws.gdb","_HUC08_SGCN"), huc08agg_all, overwrite=TRUE, validate=TRUE) #, shape_info=arc.shapeinfo(huc08_shpprj)
+HUC8agg <- sws_HUC8agg_cast
+HUC8agg <- merge(HUC8agg,data_sgcn,by="ELCODE", all.x=TRUE)
+HUC8agg_all <- merge(HUC8_shp, HUC8agg, by.x="HUC8", by.y="HUC8")
+HUC8agg_all <- HUC8agg_all[c("ELCODE","HUC8","NAME","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","Occurrence","GRANK","SRANK","USESA","SPROT","PBSSTATUS","PrimMacro")]
+arc.write(here::here("_data","output",updateName,"sws.gdb","_HUC8_SGCN"), HUC8agg_all, overwrite=TRUE, validate=TRUE) #, shape_info=arc.shapeinfo(HUC8_shpprj)
 
 countyagg <- sws_countyagg_cast
 countyagg <- merge(countyagg,data_sgcn,by="ELCODE", all.x=TRUE)

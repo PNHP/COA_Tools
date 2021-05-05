@@ -10,7 +10,7 @@
 
 ##################################### SET PATH TO FOLDER AND FIELD VARIABLES #########################################################################
 #set folder where sws gdb and .mxds are included
-folder =  r'E:\COA_Tools\_data\output\_update2020q4' # r'C:\_Updated_2019_12_19'
+folder =  r'E:\COA_Tools\_data\output\_update2021q1' # r'C:\_Updated_2019_12_19'
 desiredFields = ['COUNTY_NAM','NAME','TaxaDisplay', 'SCOMNAME', 'SNAME', 'y', 'b', 'm', 'w', 'Occurrence', 'GRANK', 'SRANK', 'USESA', 'SPROT', 'PBSSTATUS', 'PrimMacro', 'Shape', 'OBJECTID']
 ######################################################################################################################################################
 #import modules
@@ -209,9 +209,9 @@ df_name_county = "SGCN County Range Maps"
 df_name_huc = "SGCN Watershed Range Maps"
 arcpy.env.workspace = db
 fc_county = sorted(arcpy.ListFeatureClasses("county_*"))
-fc_huc = sorted(arcpy.ListFeatureClasses("huc08_*"))
+fc_huc = sorted(arcpy.ListFeatureClasses("HUC8_*"))
 alltaxa_county = os.path.join(db,"_county_SGCN")
-alltaxa_huc = os.path.join(db,"_HUC08_SGCN")
+alltaxa_huc = os.path.join(db,"_HUC8_SGCN")
 
 print("Checking layers for county .mxd...")
 taxa_layer_check(county_mxd,df_name_county,fc_county)
