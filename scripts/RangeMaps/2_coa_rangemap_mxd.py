@@ -10,11 +10,11 @@
 
 ##################################### SET PATH TO FOLDER AND FIELD VARIABLES #########################################################################
 #set folder where sws gdb and .mxds are included
-folder =  r'E:\COA_Tools\_data\output\_update2021q1' # r'C:\_Updated_2019_12_19'
+folder =  r'H:\_coa\Updated_2019_12_19' # r'C:\_Updated_2019_12_19'
 desiredFields = ['COUNTY_NAM','NAME','TaxaDisplay', 'SCOMNAME', 'SNAME', 'y', 'b', 'm', 'w', 'Occurrence', 'GRANK', 'SRANK', 'USESA', 'SPROT', 'PBSSTATUS', 'PrimMacro', 'Shape', 'OBJECTID']
 ######################################################################################################################################################
 #import modules
-import arcpy, os, datetime
+import arcpy, os, datetime, sys
 ##################################### PATHS/VARIABLES THAT SHOULD STAY CONSTANT ######################################################################
 gdb_name = "sws.gdb"
 county_mxd_template = "SGCNCountyRangeMaps.mxd"
@@ -25,6 +25,7 @@ county_mxd = os.path.join(folder,county_mxd_template)
 huc_mxd = os.path.join(folder,watershed_mxd_template)
 ######################################################################################################################################################
 def taxa_assign(path):
+    print(path)
     with arcpy.da.SearchCursor(path,["SCOMNAME","TaxaDisplay"]) as cursor:
         for row in cursor:
             scomname = row[0]
@@ -170,7 +171,7 @@ def format_mxd(mxd,df_name,fc,alltaxa):
         else:
             targetGroupLayer = arcpy.mapping.ListLayers(mxd,taxa,df)[0]
             addLayer = arcpy.mapping.Layer(path)
-            addLayer.name = scomname
+##            addLayer.name = scomname
             addLayer.visible = False
             arcpy.mapping.AddLayerToGroup(df, targetGroupLayer, addLayer, "AUTO_ARRANGE")
             n+=1
@@ -202,6 +203,13 @@ def format_mxd(mxd,df_name,fc,alltaxa):
                 del LayerNeedsFieldsTurnedOff,refLyr
         else:
             pass
+
+    for lyr in arcpy.mapping.ListLayers(mxd):
+        if not lyr.isGroupLayer:
+            with arcpy.da.SearchCursor(lyr,'SCOMNAME') as cursor:
+                for row in cursor:
+                    scomname = row[0]
+            lyr.name = scomname
 
     mxd.save()
 
