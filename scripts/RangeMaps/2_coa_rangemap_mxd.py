@@ -148,13 +148,6 @@ def format_mxd(mxd,df_name,fc,alltaxa):
     df = arcpy.mapping.ListDataFrames(mxd)[0]
     df.name = df_name
 
-    edit_attributes(alltaxa)
-    targetGroupLayer = arcpy.mapping.ListLayers(mxd,"All Taxa Groups",df)[0]
-    addLayer = arcpy.mapping.Layer(alltaxa)
-    addLayer.name = "All Taxa"
-    addLayer.visible = False
-    arcpy.mapping.AddLayerToGroup(df, targetGroupLayer, addLayer, "AUTO_ARRANGE")
-
     total = len(fc)
     n = 1
     for f in fc:
@@ -210,6 +203,13 @@ def format_mxd(mxd,df_name,fc,alltaxa):
                 for row in cursor:
                     scomname = row[0]
             lyr.name = scomname
+    
+    edit_attributes(alltaxa)
+    targetGroupLayer = arcpy.mapping.ListLayers(mxd,"All Taxa Groups",df)[0]
+    addLayer = arcpy.mapping.Layer(alltaxa)
+    addLayer.name = "All Taxa"
+    addLayer.visible = False
+    arcpy.mapping.AddLayerToGroup(df, targetGroupLayer, addLayer, "AUTO_ARRANGE")
 
     mxd.save()
 
