@@ -112,8 +112,13 @@ rm(COA_references)
 ## research needs
 SGCNresearch <- read.csv(here::here("_data","input","lu_SGCNresearch.csv"), stringsAsFactors=FALSE)
 
+sgcn_researchnorecord <- setdiff(SGCNresearch$ELSeason, lu_sgcn$ELSeason)
+print("The following ELSeason records are found in the SGCNresearch table, but do not have matching records in the lu_sgcn table: ")
+print(sgcn_researchnorecord)
+
+
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
-  dbWriteTable(db, "lu_SGCNresearch", SGCNresearch, overwrite=TRUE) # write the table to the sqlite
+dbWriteTable(db, "lu_SGCNresearch", SGCNresearch, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
 
 # write to file tracker
@@ -123,16 +128,13 @@ trackfiles("Research Needs", here::here("_data","input","lu_SGCNresearch.csv"))
 ## survey needs
 SGCNsurvey <- read.csv(here::here("_data","input","lu_SGCNsurvey.csv"), stringsAsFactors=FALSE)
 
+sgcn_surveynorecord <- setdiff(SGCNresearch$ELSeason, lu_sgcn$ELSeason)
+print("The following ELSeason records are found in the SGCNsurvey table, but do not have matching records in the lu_sgcn table: ")
+print(sgcn_surveynorecord)
+
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
   dbWriteTable(db, "lu_SGCNsurvey", SGCNsurvey, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
 
 # write to file tracker
-filetracker <- data.frame(NameUpdate=sub('.', '', updateName), item="Survey Needs", filename=(here::here("_data","input","lu_SGCNsurvey.csv")), lastmoddate=file.info(here::here("_data","input","lu_SGCNsurvey.csv"))$mtime)
-dbTracking <- dbConnect(SQLite(), dbname=trackingdatabasename) # connect to the database
-dbExecute(dbTracking, paste("DELETE FROM filetracker WHERE (NameUpdate='",sub('.', '', updateName),"' AND item='Survey Needs')", sep="")) # 
-dbWriteTable(dbTracking, "filetracker", filetracker, append=TRUE, overwrite=FALSE) # write the table to the sqlite
-dbDisconnect(dbTracking) # disconnect the db
-rm(filetracker)
-
 trackfiles("Survey Needs", here::here("_data","input","lu_SGCNsurvey.csv"))
