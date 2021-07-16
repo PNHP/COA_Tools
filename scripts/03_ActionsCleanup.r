@@ -31,7 +31,7 @@ COA_actions_file <- list.files(path=here::here("_data/input"), pattern=".xlsx$")
 COA_actions_file
 #look at the output and choose which shapefile you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 5
+n <- 6
 COA_actions_file <- here::here("_data/input",COA_actions_file[n])
 
 # write to file tracker
@@ -91,15 +91,16 @@ names(COA_references)[names(COA_references) == 'REFERENCE.NAME'] <- 'REF_NAME'
 COA_references$ActionCategory1 <- NULL
 COA_references$ActionCategory2 <- NULL
 
-# # check if url exist
-# library(RCurl)
-# for(l in 1:nrow(COA_references)){
-#   if(isTRUE(url.exists(COA_references$LINK[l], .header=FALSE))){
-#     print(paste("url for -",COA_references$REF_NAME[l],"- is valid"), sep=" ")
-#   }  else if(isFALSE(url.exists(COA_references$LINK[l]))){
-#     print(paste("url for -",COA_references$REF_NAME[l],"- is not valid"), sep=" ")
-#   }
-# }
+# check if url exist
+library(httr)
+
+for(l in 1:nrow(COA_references)){
+   if(isFALSE(http_error(COA_references$LINK[l]))){
+     print(paste("url for -",COA_references$REF_NAME[l],"- is valid"), sep=" ")
+   } else if(isTRUE(http_error(COA_references$LINK[l]))){
+     print(paste("url for -",COA_references$REF_NAME[l],"- is NOT VALID"), sep=" ")
+   }
+  }
 
 # 
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
