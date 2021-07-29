@@ -282,7 +282,7 @@ for(i in 1:length(taxalist)){
 }
 
 # make a species list looper 
-spabbv <- c("salamanders","frogs","birds","fish","mammals","turtles","lizards","snakes","beetles","moths","dragonflies","stoneflies","caddisflies","spiders","mussels","caves","bees","butterflies","fsnails","tsnails")
+spabbv <- c("salamanders","frogs","birds","fish","mammals","turtles","lizards","snakes","crayfishes","caves","beetles","mayflies","bees","moths","dragonflies","stoneflies","caddisflies","spiders","mussels","butterflies","craneflies","sawflies","fsnails","tsnails")
 specieslooper <- data.frame(taxalist,spabbv)
 specieslooper$taxalist <- as.character(specieslooper$taxalist)
 specieslooper$spabbv <- as.character(specieslooper$spabbv)
