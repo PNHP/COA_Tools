@@ -22,9 +22,9 @@ require(dplyr)
 arc.check_product() 
 
 # update name
-updateName <- "_update2021q1"
-updateNameprev <- "_update2020q4"
-updateName6m <- "_update2020q3"
+updateName <- "_update2021q2"
+updateNameprev <- "_update2021q1"
+updateName6m <- "_update2020q4"
   
 # create a directory for this update unless it already exists
 ifelse(!dir.exists(here::here("_data","output",updateName)), dir.create(here::here("_data","output",updateName)), FALSE)
@@ -78,7 +78,7 @@ loadSGCN <- function(taxagroup) {
 trackfiles <- function(trackitem, fname) {
   filetracker <- data.frame(NameUpdate=sub('.', '', updateName), item=trackitem, filename=(fname), lastmoddate=file.info(fname)$mtime)
   dbTracking <- dbConnect(SQLite(), dbname=trackingdatabasename) # connect to the database
-  dbExecute(dbTracking, paste("DELETE FROM filetracker WHERE (NameUpdate='",sub('.', '', updateName),"' AND item='SGCN BAMONA')", sep="")) # 
+  dbExecute(dbTracking, paste("DELETE FROM filetracker WHERE (NameUpdate='",sub('.', '', updateName),"' AND item='",trackitem,"')", sep="")) # 
   dbWriteTable(dbTracking, "filetracker", filetracker, append=TRUE, overwrite=FALSE) # write the table to the sqlite
   dbDisconnect(dbTracking) # disconnect the db
   rm(filetracker)

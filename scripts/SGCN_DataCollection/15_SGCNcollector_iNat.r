@@ -63,7 +63,7 @@ for(x in 1:length(SGCNinat)){
 inatrecs <- ldply(a)
 
 # make a backup
-write.csv(inatrecs, "inatrecsNov2020.csv", row.names = FALSE)
+write.csv(inatrecs, "inatrecsq2_2021.csv", row.names = FALSE)
 inatrecs <- read.csv("inatrecsNov2020.csv", stringsAsFactors = FALSE)
 
 # how many species did we get records for?
@@ -84,6 +84,7 @@ speciesmatch$SNAME <- as.character(speciesmatch$SNAME)
 print("The following species do not match the original SGNC list:")
 speciesmatch[which(is.na(speciesmatch$match)),]$SNAME
 
+# REALLY NEED TO MAKE THIS AN "IF" CHECK!
 inatrecs[which(inatrecs$scientific_name=="Bonasa umbellus umbellus"),]$scientific_name <- "Bonasa umbellus"
 inatrecs[which(inatrecs$scientific_name=="Buteo platypterus platypterus"),]$scientific_name <- "Buteo platypterus"
 inatrecs[which(inatrecs$scientific_name=="Callophrys gryneus gryneus"),]$scientific_name <- "Callophrys gryneus"

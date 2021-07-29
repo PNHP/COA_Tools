@@ -24,7 +24,6 @@ source(here::here("scripts", "00_PathsAndSettings.r"))
 # load lu_sgcn for latter integrity checks
 loadSGCN()
 
-
 ##############################################################################################################
 #get the threats template
 COA_actions_file <- list.files(path=here::here("_data/input"), pattern=".xlsx$")  # --- make sure your excel file is not open.
@@ -138,3 +137,4 @@ dbDisconnect(db) # disconnect the db
 
 # write to file tracker
 trackfiles("Survey Needs", here::here("_data","input","lu_SGCNsurvey.csv"))
+
