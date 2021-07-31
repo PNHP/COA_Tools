@@ -45,7 +45,7 @@
 % %add footers
  \lfoot{
   \small   %small font. The double slashes is newline in fancyhdr
-  \textcolor{gray}{\leftmark \\ Conservation Opportunity Area Tool Six Month Report \\ Progress Report 3 - December 31, 2020} }
+  \textcolor{gray}{\leftmark \\ Conservation Opportunity Area Tool Six Month Report \\ \Sexpr{ReportName}} }
  \rfoot{
   \small  
   \textcolor{gray}{page \thepage }
@@ -59,7 +59,7 @@
 
 \begin{center}
   \Large \textbf{State Wildlife Action Plan Implementation: Conservation Action Mapping} \\
-  \large Progress Report 3 - December 31, 2020 \\
+  \large \Sexpr{ReportName} \\
   \large Western Pennsylvania Conservancy \\
 \end{center}
 
