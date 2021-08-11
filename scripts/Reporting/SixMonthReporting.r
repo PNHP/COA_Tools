@@ -19,6 +19,10 @@ require(english)
 
 source(here::here("scripts","00_PathsAndSettings.r"))
 
+
+# progress report name
+ReportName <- "Progress Report 4 - June 30, 2020"
+
 # function to generate the pdf
 #knit2pdf(here::here("scripts","template_Formatted_NHA_PDF.rnw"), output=paste(pdf_filename, ".tex", sep=""))
 makePDF <- function(rnw_template, pdf_filename) {
@@ -228,6 +232,10 @@ SGCNold_sf <- SGCNold_sf[which(SGCNold_sf$LastObs>=1980),]
 
 # making the taxa maps ############################################################################################################
 #save.image(file = "my_work_space.RData")
+
+
+# create a directory for this update unless it already exists
+ifelse(!dir.exists(here::here("_data","output",updateName,"figuresReporting")), dir.create(here::here("_data","output",updateName,"figuresReporting")), FALSE)
 
 # load the county basemap
 county_shp <- arc.open(here::here("_data","output",updateName,"sws.gdb", "_county")) 

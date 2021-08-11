@@ -140,22 +140,21 @@ for(i in 1:nrow(specieslooper)) {
 <<label=SpeciesDataCompare, echo=FALSE, results='asis'>>=
 if(length(cnt_SGCN6mNoSeason)==length(cnt_SGCNnowNoSeason)){
   cat(paste0("There was no change (",length(cnt_SGCN6mNoSeason)," unique SGCN and ",length(cnt_SGCN6m) ," including seasons) in the number of SGCN included in the COA Tool between ",updatetracker[which(updatetracker$updateName==updateName6m),'UpdateNameDisplay']," and ",updatetracker[which(updatetracker$updateName==updateName),'UpdateNameDisplay'],"."))
-} else if(length(cnt_SGCN6mNoSeason)>length(cnt_SGCNnowNoSeason)){
+} else if(length(cnt_SGCN6mNoSeason)<length(cnt_SGCNnowNoSeason)){
   cat(paste0(
     "In this update, we increased the number of SGCN from ",length(cnt_SGCN6mNoSeason)," (",length(cnt_SGCN6m)," including seasons) in ",updatetracker[which(updatetracker$updateName==updateName6m),'UpdateNameDisplay']," to ",length(cnt_SGCNnowNoSeason)," (",length(cnt_SGCNnow)," including seasons) in ",updatetracker[which(updatetracker$updateName==updateName),'UpdateNameDisplay'],"."
       ))
 } else {
    cat(paste0(
-    "In this update, we decreased the number of SGCN from ",length(cnt_SGCN6mNoSeason)," (",length(cnt_SGCN6m)," including seasons) in ",updatetracker[which(updatetracker$updateName==updateName6m),'UpdateNameDisplay']," to ",length(cnt_SGCNnowNoSeason)," (",length(cnt_SGCNnow)," including seasons) in ",updatetracker[which(updatetracker$updateName==updateName),'UpdateNameDisplay'],". "
+    "In this update, we decreased the number of SGCN from ",length(cnt_SGCN6mNoSeason)," (",length(cnt_SGCN6m)," including seasons) in ",updatetracker[which(updatetracker$updateName==updateName6m),'UpdateNameDisplay']," to ",length(cnt_SGCNnowNoSeason)," (",length(cnt_SGCNnow)," including seasons) in ",updatetracker[which(updatetracker$updateName==updateName),'UpdateNameDisplay'],". \\n"
       )) 
 }
 
-if(nrow(SGCNlost6m)==0){
-  cat("Therefore, there were no changes to SGCN included in the COA Tool between the two updates.\\")
-} else {
-   #While it appears that \Sexpr{words(length(cnt_SGCNnowNoSeason)-length(cnt_SGCN6mNoSeason))} SGCN were added into the COA tool for this update, the actual data are a little more complicated---35 SGCN were added, with 17 SGCN removed from the tool. Fifteen SGCN removed were freshwater snails with last observation dates beyond the 25-year cutoff that thus aged out of inclusion in the COA tool.\\  
-}
-
+# if(nrow(SGCNlost6m)==0){
+#   cat("Therefore, there were no changes to SGCN included in the COA Tool between the two updates.\\")
+# } else {
+#    #While it appears that \Sexpr{words(length(cnt_SGCNnowNoSeason)-length(cnt_SGCN6mNoSeason))} SGCN were added into the COA tool for this update, the actual data are a little more complicated---35 SGCN were added, with 17 SGCN removed from the tool. Fifteen SGCN removed were freshwater snails with last observation dates beyond the 25-year cutoff that thus aged out of inclusion in the COA tool.\\  
+# }
 @
 
 \noindent Of the \Sexpr{prettyNum(PUcnt_total, big.mark=",", scientific=FALSE)} possible planning units, the number of planning units with at least one SGCN present \Sexpr{ifelse(PUchng>0, "decreased","increased")} by \Sexpr{ifelse(abs(PUchng)<=10, words(PUchng), prettyNum(PUchng, big.mark=",", scientific=FALSE))} from \Sexpr{prettyNum(nrow(PUcount_6m), big.mark=",", scientific=FALSE)} to \Sexpr{prettyNum(nrow(PUcount_now), big.mark=",", scientific=FALSE)} between the two time periods! More than \Sexpr{round(100*(nrow(PUcount_now)/PUcnt_total),2)}\% of planning units report at least one SGCN (known or likely presence). However, a more careful examination of the data shows changes in richness among individual planning units as the graph below indicates:
