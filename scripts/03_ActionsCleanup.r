@@ -24,14 +24,13 @@ source(here::here("scripts", "00_PathsAndSettings.r"))
 # load lu_sgcn for latter integrity checks
 loadSGCN()
 
-
 ##############################################################################################################
 #get the threats template
 COA_actions_file <- list.files(path=here::here("_data/input"), pattern=".xlsx$")  # --- make sure your excel file is not open.
 COA_actions_file
 #look at the output and choose which shapefile you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 5
+n <- 6
 COA_actions_file <- here::here("_data/input",COA_actions_file[n])
 
 # write to file tracker
@@ -91,15 +90,16 @@ names(COA_references)[names(COA_references) == 'REFERENCE.NAME'] <- 'REF_NAME'
 COA_references$ActionCategory1 <- NULL
 COA_references$ActionCategory2 <- NULL
 
-# # check if url exist
-# library(RCurl)
-# for(l in 1:nrow(COA_references)){
-#   if(isTRUE(url.exists(COA_references$LINK[l], .header=FALSE))){
-#     print(paste("url for -",COA_references$REF_NAME[l],"- is valid"), sep=" ")
-#   }  else if(isFALSE(url.exists(COA_references$LINK[l]))){
-#     print(paste("url for -",COA_references$REF_NAME[l],"- is not valid"), sep=" ")
-#   }
-# }
+# check if url exist
+library(httr)
+
+for(l in 1:nrow(COA_references)){
+   if(isFALSE(http_error(COA_references$LINK[l]))){
+     print(paste("url for -",COA_references$REF_NAME[l],"- is valid"), sep=" ")
+   } else if(isTRUE(http_error(COA_references$LINK[l]))){
+     print(paste("url for -",COA_references$REF_NAME[l],"- is NOT VALID"), sep=" ")
+   }
+  }
 
 # 
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
@@ -111,8 +111,13 @@ rm(COA_references)
 ## research needs
 SGCNresearch <- read.csv(here::here("_data","input","lu_SGCNresearch.csv"), stringsAsFactors=FALSE)
 
+sgcn_researchnorecord <- setdiff(SGCNresearch$ELSeason, lu_sgcn$ELSeason)
+print("The following ELSeason records are found in the SGCNresearch table, but do not have matching records in the lu_sgcn table: ")
+print(sgcn_researchnorecord)
+
+
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
-  dbWriteTable(db, "lu_SGCNresearch", SGCNresearch, overwrite=TRUE) # write the table to the sqlite
+dbWriteTable(db, "lu_SGCNresearch", SGCNresearch, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
 
 # write to file tracker
@@ -122,16 +127,14 @@ trackfiles("Research Needs", here::here("_data","input","lu_SGCNresearch.csv"))
 ## survey needs
 SGCNsurvey <- read.csv(here::here("_data","input","lu_SGCNsurvey.csv"), stringsAsFactors=FALSE)
 
+sgcn_surveynorecord <- setdiff(SGCNresearch$ELSeason, lu_sgcn$ELSeason)
+print("The following ELSeason records are found in the SGCNsurvey table, but do not have matching records in the lu_sgcn table: ")
+print(sgcn_surveynorecord)
+
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
   dbWriteTable(db, "lu_SGCNsurvey", SGCNsurvey, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
 
 # write to file tracker
-filetracker <- data.frame(NameUpdate=sub('.', '', updateName), item="Survey Needs", filename=(here::here("_data","input","lu_SGCNsurvey.csv")), lastmoddate=file.info(here::here("_data","input","lu_SGCNsurvey.csv"))$mtime)
-dbTracking <- dbConnect(SQLite(), dbname=trackingdatabasename) # connect to the database
-dbExecute(dbTracking, paste("DELETE FROM filetracker WHERE (NameUpdate='",sub('.', '', updateName),"' AND item='Survey Needs')", sep="")) # 
-dbWriteTable(dbTracking, "filetracker", filetracker, append=TRUE, overwrite=FALSE) # write the table to the sqlite
-dbDisconnect(dbTracking) # disconnect the db
-rm(filetracker)
-
 trackfiles("Survey Needs", here::here("_data","input","lu_SGCNsurvey.csv"))
+

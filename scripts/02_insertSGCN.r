@@ -18,12 +18,11 @@ require(here)
 source(here::here("scripts", "00_PathsAndSettings.r"))
 
 ## Read SGCN list in
-
 SGCNlist_file <- list.files(path=here::here("_data","input"), pattern="^lu_SGCN")  # --- make sure your excel file is not open.
 SGCNlist_file
 #look at the output and choose which file you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 1 # this should  the "lu_SGCN.csv" from the previous quarter!!!!!!!!!!!!!!!!!!!!
+n <- 2# this should  the "lu_SGCN.csv" from the previous quarter!!!!!!!!!!!!!!!!!!!!
 SGCNlist_file <- here::here("_data","input",SGCNlist_file[n])
 SGCN <- read.csv(SGCNlist_file, stringsAsFactors=FALSE)
 
@@ -51,19 +50,30 @@ SGCN$GRANK <- gsub("[\r\n]", "", SGCN$GRANK)
 #get the most recent ET
 arc.check_portal()  # may need to update bridge to most recent version if it crashes: https://github.com/R-ArcGIS/r-bridge/issues/46
 ET <- arc.open(paste0(bioticsFeatServ_path,"/5"))  # 5 is the number of the ET
-ET <- arc.select(ET, c("ELSUBID","ELCODE","SNAME","SCOMNAME","GRANK","SRANK","SRANK_CHGDT","SRANK_RVWDT","EO_TRACK","SGCN","SENSITV_SP"), where_clause="SGCN='Y'")
+ET <- arc.select(ET, c("ELSUBID","ELCODE","SNAME","SCOMNAME","GRANK","SRANK","SRANK_CHGDT","SRANK_RVWDT","EO_TRACK","SGCN","SENSITV_SP")) # , where_clause="SGCN='Y'"
 # write to file tracker  REMOVED for now
-
 
 SGCNtest <- merge(SGCN[c("ELCODE","SNAME","SCOMNAME","GRANK","SRANK")], ET, by.x="ELCODE", by.y="ELCODE", all.x = TRUE)
 
+# compare elcodes
+if(length(SGCNtest[which(is.na(SGCNtest$SNAME.y)),])>0){
+  print("The following species in the lu_SGCN table did not find a matching ELCODE in Biotics and needs to be fixed.")
+  print(SGCNtest[which(is.na(SGCNtest$SNAME.y)),"SNAME.x"])
+  print(paste("A file named badELCODEs_",updateName,".csv has been saved in the output directory", sep=""))
+  write.csv(SGCNtest[which(is.na(SGCNtest$SNAME.y)),], here::here("_data","output",updateName,paste("badELCODEs_",updateName,".csv")), row.names=FALSE)
+} else {
+  print("No mismatched ELCODES---you are good to go and hopefully there will be less trauma during this update...")
+}
+
+
+#compare g-ranks
 SGCNtest$matchGRANK <- ifelse(SGCNtest$GRANK.x==SGCNtest$GRANK.y,"yes","no")
 if(all(SGCNtest$matchGRANK=="yes")){
   print("GRANK strings match. You're good to go!")
 } else {
   print(paste("GRANKS for ", SGCNtest[which(SGCNtest$matchGRANK=="no"),"SNAME.x"] , " do not match;", sep=""))
 }
-
+# compare s-ranks
 SGCNtest$matchSRANK <- ifelse(SGCNtest$SRANK.x==SGCNtest$SRANK.y,"yes","no")
 if(all(SGCNtest$matchSRANK=="yes")){
   print("GRANK strings match. You're good to go!")

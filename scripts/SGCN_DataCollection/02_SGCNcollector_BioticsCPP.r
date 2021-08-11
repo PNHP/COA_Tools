@@ -28,9 +28,9 @@ source(here::here("scripts","00_PathsAndSettings.r"))
 loadSGCN()
 
 # load the Biotics Crosswalk
-biotics_crosswalk <- read.csv(biotics_crosswalk, stringsAsFactors=FALSE)
-lu_sgcnBiotics <- biotics_crosswalk$SNAME
-lu_sgcnBioticsELCODE <- biotics_crosswalk$ELCODE
+ biotics_crosswalk <- read.csv(biotics_crosswalk, stringsAsFactors=FALSE)
+ lu_sgcnBiotics <- biotics_crosswalk$SNAME
+# lu_sgcnBioticsELCODE <- biotics_crosswalk$ELCODE
 
 ########################################################################################
 # load in Conservation Planning Polygons
@@ -45,7 +45,7 @@ cppCore <- arc.open(paste(serverPath,"PNHP.DBO.CPP_Core", sep=""))
 cppCore <- arc.select(cppCore, c("SNAME","EO_ID","Status"), where_clause="Status ='c' OR Status ='r'") 
 cppCore_sf <- arc.data2sf(cppCore)
 #### cppCore_sf <- cppCore_sf[which(cppCore_sf$SNAME %in% unique(lu_sgcn$SNAME)),] # bad SGCN names
-cppCore_sf <- cppCore_sf[which(cppCore_sf$SNAME %in% unique(lu_sgcnBiotics)),]
+cppCore_sf <- cppCore_sf[which(cppCore_sf$SNAME %in% unique(lu_sgcn$SNAME)),]
 
 # clean up
 rm(cppCore)
@@ -55,38 +55,42 @@ rm(cppCore)
 
 # create a vector of field names for the arc.select statement below
 lu_srcfeature_names <- c("SF_ID","EO_ID","ELCODE","SNAME","SCOMNAME","ELSUBID","LU_TYPE","LU_DIST","LU_UNIT","USE_CLASS","EST_RA")
-arc.check_portal()  # may need to update bridge to most recent version if it crashes: https://github.com/R-ArcGIS/r-bridge/issues/46
+## arc.check_portal()  # may need to update bridge to most recent version if it crashes: https://github.com/R-ArcGIS/r-bridge/issues/46
 # read in source points 
-srcfeat_points <- arc.open(paste0(bioticsFeatServ_path,"/2"))  # 2 is the number of the EO points 
+##srcfeat_points <- arc.open(paste0(bioticsFeatServ_path,"/2"))  # 2 is the number of the EO points 
+srcfeat_points <- arc.open(paste(biotics_path,"eo_sourcept",sep="/")) 
 srcfeat_points <- arc.select(srcfeat_points, lu_srcfeature_names)
 srcfeat_points <- arc.data2sf(srcfeat_points)
-srcfeat_points_SGCN <- srcfeat_points[which(srcfeat_points$ELCODE %in% lu_sgcnBioticsELCODE),] # subset to SGCN
+srcfeat_points_SGCN <- srcfeat_points[which(srcfeat_points$ELCODE %in% lu_sgcn$ELCODE),] # subset to SGCN
 srcfeat_points_SGCN <- srcfeat_points_SGCN[which(!is.na(srcfeat_points_SGCN$EO_ID)),] # drop independent source features
 # read in source lines 
-srcfeat_lines <- arc.open(paste0(bioticsFeatServ_path,"/3")) # 3 is the number of the EO lines 
+## srcfeat_lines <- arc.open(paste0(bioticsFeatServ_path,"/3")) # 3 is the number of the EO lines 
+srcfeat_lines <- arc.open(paste(biotics_path,"eo_sourceln",sep="/")) 
 srcfeat_lines <- arc.select(srcfeat_lines, lu_srcfeature_names)
 srcfeat_lines <- arc.data2sf(srcfeat_lines)
-srcfeat_lines_SGCN <- srcfeat_lines[which(srcfeat_lines$ELCODE %in% lu_sgcnBioticsELCODE),] # subset to SGCN
+srcfeat_lines_SGCN <- srcfeat_lines[which(srcfeat_lines$ELCODE %in% lu_sgcn$ELCODE),] # subset to SGCN
 srcfeat_lines_SGCN <- srcfeat_lines_SGCN[which(!is.na(srcfeat_lines_SGCN$EO_ID)),] # drop independent source features
 # read in source polygons 
-srcfeat_polygons <- arc.open(paste0(bioticsFeatServ_path,"/4"))  # 4 is the number of the EO polys 
+##srcfeat_polygons <- arc.open(paste0(bioticsFeatServ_path,"/4"))  # 4 is the number of the EO polys 
+srcfeat_polygons <- arc.open(paste(biotics_path,"eo_sourcepy",sep="/")) 
 options(useFancyQuotes = FALSE)
-ex <- paste("ELCODE IN (", paste(sQuote(lu_sgcnBioticsELCODE), sep=" ", collapse=", "),")", sep="")
+ex <- paste("ELCODE IN (", paste(sQuote(lu_sgcn$ELCODE), sep=" ", collapse=", "),")", sep="")
 srcfeat_polygons <- arc.select(srcfeat_polygons, lu_srcfeature_names, where_clause=ex )
 srcfeat_polygons <- arc.data2sf(srcfeat_polygons)
-srcfeat_polygons_SGCN <- srcfeat_polygons[which(srcfeat_polygons$ELCODE %in% lu_sgcnBioticsELCODE),] # subset to SGCN
+srcfeat_polygons_SGCN <- srcfeat_polygons[which(srcfeat_polygons$ELCODE %in% lu_sgcn$ELCODE),] # subset to SGCN
 srcfeat_polygons_SGCN <- srcfeat_polygons_SGCN[which(!is.na(srcfeat_polygons_SGCN$EO_ID)),] # drop independent source features
 
 
 
 # clean up
-rm(srcfeat_points,srcfeat_lines,srcfeat_polygons,lu_srcfeature_names)
+rm(srcfeat_points, srcfeat_lines, srcfeat_polygons, lu_srcfeature_names)
 
 # get a combined list of EO_IDs from the three source feature layers above
 lu_EOID <- unique(c(srcfeat_points_SGCN$EO_ID, srcfeat_lines_SGCN$EO_ID, srcfeat_polygons_SGCN$EO_ID))
 
 # read in the point reps layer to get last obs dates and such
-ptreps <- arc.open(paste0(bioticsFeatServ_path,"/0"))  # 0 is the pt reps
+## ptreps <- arc.open(paste0(bioticsFeatServ_path,"/0"))  # 0 is the pt reps
+ptreps <- arc.open(paste(biotics_path,"eo_ptreps",sep="/"))  
 ptreps <- arc.select(ptreps, c("EO_ID","EST_RA","PREC_BCD","LASTOBS_YR")) # , lu_srcfeature_names
 ptreps_SGCN <- ptreps[which(ptreps$EO_ID %in% lu_EOID),]
 ptreps_SGCN <- as.data.frame(ptreps_SGCN) # drop the spatial part
@@ -286,6 +290,7 @@ b <- table(final_srcf_combined$SNAME, final_srcf_combined$SeasonCode)
 sgcn_noDataFromBiotics <- setdiff(lu_sgcn$ELSeason, BioticsCPP_ELSeason)
 print("The following ELSeason records are found in the lu_sgcn table, but are not spatially represented in the  Biotics/CPP data: ")
 print(lu_sgcn[lu_sgcn$ELSeason %in% sgcn_noDataFromBiotics ,])
+a <- lu_sgcn[lu_sgcn$ELSeason %in% sgcn_noDataFromBiotics ,]
 
 # get ELSeason values that are in lu_sgcnXpu table, but do not have a matching ELSeason record in lu_sgcn
 sgcn_InBioticsButNotInLuSGCN <- setdiff(BioticsCPP_ELSeason, lu_sgcn$ELSeason)

@@ -30,7 +30,7 @@ loadSGCN()
 #paths to POND feature service layers
 pond_pts <- "https://maps.waterlandlife.org/arcgis/rest/services/PNHP/POND/FeatureServer/0"
 pond_species <- "https://maps.waterlandlife.org/arcgis/rest/services/PNHP/POND/FeatureServer/3"
-pond_surveys <- "https://maps.waterlandlife.org/arcgis/rest/services/PNHP/POND/FeatureServer/2"
+pond_surveys <- "https://maps.waterlandlife.org/arcgis/rest/services/PNHP/POND/FeatureServer/4"
 
 #import all species records from POND
 species_fields <- c('refcode','species_type','sname','species_found')
@@ -80,3 +80,4 @@ sgcn_pond <- st_transform(sgcn_pond, crs=customalbers) # reproject to custom alb
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_POND"), sgcn_pond, overwrite=TRUE)
 sgcn_pond_buff <- st_buffer(sgcn_pond, dist=100) # buffer by 100m
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_POND"), sgcn_pond_buff, overwrite=TRUE)
+
