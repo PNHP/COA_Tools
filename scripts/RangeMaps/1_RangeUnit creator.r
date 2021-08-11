@@ -158,8 +158,8 @@ sws_HUC8agg_cast <- merge(sws_HUC8agg_cast, b[c("ELCODE","HUC8","Occurrence")], 
 sws_HUC8agg_cast <- merge(sws_HUC8agg_cast, data_luPriMacrogroup1, by="ELCODE", all.x=TRUE)
 
 # TEMP for Testing  #######################
-save.image(file=here::here("_data","output",updateName, "tempSWS.RData"))
-load(here::here("_data","output",updateName, "tempSWS.RData"))
+#save.image(file=here::here("_data","output",updateName, "tempSWS.RData"))
+#load(here::here("_data","output",updateName, "tempSWS.RData"))
 ###########################################
 
 
@@ -180,7 +180,7 @@ for(i in 1:length(sgcnlist)){
   print(paste(sgcnlist[i],", which is species ",i," of ",length(sgcnlist), sep=""))
   sws_HUC8_1a <- merge(HUC8_shp,sws_HUC8_1,by.x="HUC8",by.y="HUC8")
   sws_HUC8_1a <- merge(sws_HUC8_1a,data_sgcn,by="ELCODE", all.x=TRUE)
-  sws_HUC8_1a <- sws_HUC8_1a[c("HUC8","NAME","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","Occurrence","GRANK","SRANK","USESA","SPROT","PBSSTATUS","ELCODE","PrimMacro","geometry")]
+  sws_HUC8_1a <- sws_HUC8_1a[c("ELCODE","HUC8","NAME","TaxaDisplay","SCOMNAME","SNAME","PrimMacro","b","m","w","y","Occurrence","GRANK","SRANK","USESA","SPROT","PBSSTATUS","geometry")]
   arc.write(file.path(here::here("_data","output",updateName,"sws.gdb",paste("HUC8",sgcnlist[i],sep="_"))), sws_HUC8_1a ,overwrite=TRUE) #, shape_info=arc.shapeinfo(HUC8_shpprj)
 }
 
@@ -238,7 +238,7 @@ for(i in 1:length(sgcnlist)){
   print(paste(sgcnlist[i],", which is species ",i," of ",length(sgcnlist), sep=""))
   sws_county_1a <- merge(county_shp,sws_county_1,by="COUNTY_NAM")
   sws_county_1a <- merge(sws_county_1a,data_sgcn,by="ELCODE", all.x=TRUE)
-  sws_county_1a <- sws_county_1a[c("COUNTY_NAM","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","Occurrence","GRANK","SRANK","USESA","SPROT","PBSSTATUS","PrimMacro","geometry")] # "ELCODE",
+  sws_county_1a <- sws_county_1a[c("ELCODE","COUNTY_NAM","TaxaDisplay","SCOMNAME","SNAME","PrimMacro","b","m","w","y","Occurrence","GRANK","SRANK","USESA","SPROT","PBSSTATUS","geometry")] # 
   arc.write(file.path(here::here("_data","output",updateName,"sws.gdb",paste("county",sgcnlist[i],sep="_"))),sws_county_1a ,overwrite=TRUE) # , shape_info=arc.shapeinfo(county_shpprj)
 }
 
@@ -247,12 +247,12 @@ for(i in 1:length(sgcnlist)){
 HUC8agg <- sws_HUC8agg_cast
 HUC8agg <- merge(HUC8agg,data_sgcn,by="ELCODE", all.x=TRUE)
 HUC8agg_all <- merge(HUC8_shp, HUC8agg, by.x="HUC8", by.y="HUC8")
-HUC8agg_all <- HUC8agg_all[c("ELCODE","HUC8","NAME","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","Occurrence","GRANK","SRANK","USESA","SPROT","PBSSTATUS","PrimMacro")]
+HUC8agg_all <- HUC8agg_all[c("ELCODE","HUC8","NAME","TaxaDisplay","SCOMNAME","SNAME","PrimMacro","b","m","w","y","Occurrence","GRANK","SRANK","USESA","SPROT","PBSSTATUS")]
 arc.write(here::here("_data","output",updateName,"sws.gdb","_HUC8_SGCN"), HUC8agg_all, overwrite=TRUE, validate=TRUE) #, shape_info=arc.shapeinfo(HUC8_shpprj)
 
 countyagg <- sws_countyagg_cast
 countyagg <- merge(countyagg,data_sgcn,by="ELCODE", all.x=TRUE)
-countyagg <- countyagg[c("ELCODE","COUNTY_NAM","TaxaDisplay","SCOMNAME","SNAME","b","m","w","y","Occurrence","GRANK","SRANK","USESA","SPROT","PBSSTATUS","PrimMacro")]
+countyagg <- countyagg[c("ELCODE","COUNTY_NAM","TaxaDisplay","SCOMNAME","SNAME","PrimMacro","b","m","w","y","Occurrence","GRANK","SRANK","USESA","SPROT","PBSSTATUS")]
 countyagg_all <- merge(county_shp, countyagg, by="COUNTY_NAM")
 arc.write(here::here("_data","output",updateName,"sws.gdb","_county_SGCN"), countyagg_all, overwrite=TRUE, validate=TRUE) # , shape_info=arc.shapeinfo(county_shpprj)
 
