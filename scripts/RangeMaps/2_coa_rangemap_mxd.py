@@ -131,9 +131,9 @@ def edit_attributes(path):
     arcpy.AlterField_management(path,"TaxaDisplay",new_field_alias="Taxanomic Group")
     arcpy.AlterField_management(path,"SCOMNAME",new_field_alias="Common Name")
     arcpy.AlterField_management(path,"SNAME",new_field_alias="Scientific Name")
-    arcpy.AlterField_management(path,"b",new_field_alias="Breeding Species of Greatest Conservation Need")
-    arcpy.AlterField_management(path,"m",new_field_alias="Migratory Species of Greatest Conservation Need")
-    arcpy.AlterField_management(path,"w",new_field_alias="Wintering Species of Greatest Conservation Need")
+    arcpy.AlterField_management(path,"b",new_field_alias="Breeding (B) Species of Greatest Conservation Need")
+    arcpy.AlterField_management(path,"m",new_field_alias="Migratory (M) Species of Greatest Conservation Need")
+    arcpy.AlterField_management(path,"w",new_field_alias="Wintering (W) Species of Greatest Conservation Need")
     arcpy.AlterField_management(path,"y",new_field_alias="Year-round Species of Greatest Conservation Need")
     arcpy.AlterField_management(path,"Occurrence",new_field_alias="Occurrence")
     arcpy.AlterField_management(path,"GRANK",new_field_alias="Global Rank")
@@ -141,7 +141,7 @@ def edit_attributes(path):
     arcpy.AlterField_management(path,"USESA",new_field_alias="Federal Status")
     arcpy.AlterField_management(path,"SPROT",new_field_alias="State Status")
     arcpy.AlterField_management(path,"PBSSTATUS",new_field_alias="Pennsylvania Biological Survey Status")
-    arcpy.AlterField_management(path,"PrimMacro",new_field_alias="Primary Macrogroup")
+    arcpy.AlterField_management(path,"PrimMacro",new_field_alias="Primary Habitat")
 
 def format_mxd(mxd,df_name,fc,alltaxa):
     mxd = arcpy.mapping.MapDocument(mxd)
