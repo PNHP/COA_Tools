@@ -35,3 +35,6 @@ CREATE INDEX natbound ON lu_NaturalBoundaries (unique_id);
 CREATE INDEX proland ON lu_ProtectedLands_25 (unique_id);
 CREATE INDEX threats ON lu_threats (unique_id);
 
+
+
+
