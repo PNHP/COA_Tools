@@ -163,6 +163,9 @@ PUcnt_minus1 <- nrow(PUcount_compare6m[which(PUcount_compare6m$diff==-1),]) # nu
 
 # !!! The above is used to plot the PU_Richness fig in the .rnw !!! #
 
+pu_loss <- sum(abs(PUcount_compare6m$diff < 0), na.rm=TRUE)
+
+
 #######################
 # number of occupied planning units
 sgcnCount_6m <- aggregate(unique_id~ELSeason, data=lu_sgcnXpu_6m, FUN=length)
