@@ -21,7 +21,9 @@ source(here::here("scripts","00_PathsAndSettings.r"))
 
 
 # progress report name
-ReportName <- "Progress Report 4 - June 30, 2020"
+ReportName <- "Progress Report 4 - June 30, 2021"
+
+replaceGraphs <- "no"
 
 # function to generate the pdf
 #knit2pdf(here::here("scripts","template_Formatted_NHA_PDF.rnw"), output=paste(pdf_filename, ".tex", sep=""))
@@ -179,11 +181,9 @@ SGCNxPU_Count <- merge(SGCNxPU_Count, lu_sgcn_now, by="ELSeason")
 # rename the invert
 SGCNxPU_Count[which(substr(SGCNxPU_Count$TaxaDisplay,1,12)=="Invertebrate"),]$TaxaDisplay <- "Invertebrate"
 
-SGCNxPU_Total_6m <- sum(SGCNxPU_Count$Count_6m)
+SGCNxPU_Total_6m <- sum(SGCNxPU_Count$Count_6m, na.rm=TRUE)
 SGCNxPU_Total_now <- sum(SGCNxPU_Count$Count_Now)
 SGCNxPU_Total_diff <- SGCNxPU_Total_6m - SGCNxPU_Total_now
-
-
 
 #####
 # get the species that are missing from the PU data
@@ -233,61 +233,69 @@ SGCNold_sf <- SGCNold_sf[which(SGCNold_sf$LastObs>=1980),]
 # making the taxa maps ############################################################################################################
 #save.image(file = "my_work_space.RData")
 
-
-# create a directory for this update unless it already exists
-ifelse(!dir.exists(here::here("_data","output",updateName,"figuresReporting")), dir.create(here::here("_data","output",updateName,"figuresReporting")), FALSE)
-
-# load the county basemap
-county_shp <- arc.open(here::here("_data","output",updateName,"sws.gdb", "_county")) 
-county_shp <- arc.select(county_shp)
-county_sf <- arc.data2sf(county_shp)
-county_sf <- st_transform(county_sf, st_crs(SGCN_sf))
-
 taxalist <- unique(SGCN_sf$taxadisplay)
 
-for(i in 1:length(taxalist)){
-  SGCN_sf_sub <- SGCN_sf[which(SGCN_sf$taxadisplay==taxalist[i]),]
-  SGCN_sf_sub$include <- factor(ifelse(SGCN_sf_sub$LastObs>=1994,"less than 25 years","older than 25 years"))
-  levels(SGCN_sf_sub$include) <- c("less than 25 years","older than 25 years")
-  # make the histogram
-  h <- ggplot(data=SGCN_sf_sub , aes(LastObs, fill=include)) +
-    geom_histogram(binwidth=1) +
-    scale_fill_manual(values=c("dodgerblue3","red4"), drop=FALSE) +
-    scale_x_continuous(breaks=seq(1980, 2020, by=5), labels=waiver(), limits=c(1980, 2020)) +
-    xlab("Observation Date") +
-    ylab("Number of Records") +
-    theme_minimal() +
-    theme(legend.position="top") +
-    theme(legend.title=element_blank()) +
-    theme(legend.text=element_text(size=15)) +
-    theme(axis.text=element_text(size=14), axis.title=element_text(size=15)) +
-    theme(axis.text.x=element_text(angle=60, hjust=1)) + 
-    theme(aspect.ratio=1)
-  png(filename = paste(here::here("_data/output",updateName,"figuresReporting"),"/","lastobs_",taxalist[i],".png",sep=""), width=600, height=600, units = "px", )
-  print(h)
-  dev.off()
+if(replaceGraphs=="yes"){
   
-  # make the map
-  SGCN_sf_sub <- st_buffer(SGCN_sf_sub, 1000)
-  #counties <- us_counties(map_date = NULL, resolution = c("high"), states="PA")
-  #counties <- st_transform(counties, st_crs(SGCN_sf_sub))
-  p <- ggplot() +
-    geom_sf(data=SGCN_sf_sub, mapping=aes(fill=include), alpha=0.9, color=NA) +
-    scale_fill_manual(values=c("dodgerblue3","red4"), drop=FALSE) +
-    geom_sf(data=county_sf, aes(), colour="black", fill=NA)  +
-    scale_x_continuous(limits=c(-215999, 279249)) +
-    scale_y_continuous(limits=c(80036, 364574)) +
-    theme_void() +
-    theme(legend.position="top") +
-    theme(legend.title=element_blank()) +
-    theme(legend.text=element_text(size=15)) +
-    theme(axis.text=element_blank(), axis.title=element_text(size=15)) 
-  png(filename = paste(here::here("_data/output",updateName,"figuresReporting"),"/","lastobsmap_",taxalist[i],".png",sep=""), width=800, height=600, units = "px", )
-  print(p)
-  dev.off()
+  # create a directory for this update unless it already exists
+  ifelse(!dir.exists(here::here("_data","output",updateName,"figuresReporting")), dir.create(here::here("_data","output",updateName,"figuresReporting")), FALSE)
+  
+  # load the county basemap
+  county_shp <- arc.open(here::here("_data","output",updateName,"sws.gdb", "_county")) 
+  county_shp <- arc.select(county_shp)
+  county_sf <- arc.data2sf(county_shp)
+  county_sf <- st_transform(county_sf, st_crs(SGCN_sf))
+  
 
-  #ggsave(file=paste(here::here("_data/output",updateName,"figuresReporting"),"/","sp_",taxalist[i],".png",sep=""), g) #saves 
-}
+  
+  for(i in 1:length(taxalist)){
+    SGCN_sf_sub <- SGCN_sf[which(SGCN_sf$taxadisplay==taxalist[i]),]
+    SGCN_sf_sub$include <- factor(ifelse(SGCN_sf_sub$LastObs>=1994,"less than 25 years","older than 25 years"))
+    levels(SGCN_sf_sub$include) <- c("less than 25 years","older than 25 years")
+    # make the histogram
+    h <- ggplot(data=SGCN_sf_sub , aes(LastObs, fill=include)) +
+      geom_histogram(binwidth=1) +
+      scale_fill_manual(values=c("dodgerblue3","red4"), drop=FALSE) +
+      scale_x_continuous(breaks=seq(1980, 2020, by=5), labels=waiver(), limits=c(1980, 2020)) +
+      xlab("Observation Date") +
+      ylab("Number of Records") +
+      theme_minimal() +
+      theme(legend.position="top") +
+      theme(legend.title=element_blank()) +
+      theme(legend.text=element_text(size=15)) +
+      theme(axis.text=element_text(size=14), axis.title=element_text(size=15)) +
+      theme(axis.text.x=element_text(angle=60, hjust=1)) + 
+      theme(aspect.ratio=1)
+    png(filename = paste(here::here("_data/output",updateName,"figuresReporting"),"/","lastobs_",taxalist[i],".png",sep=""), width=600, height=600, units = "px", )
+    print(h)
+    dev.off()
+    
+    # make the map
+    SGCN_sf_sub <- st_buffer(SGCN_sf_sub, 1000)
+    #counties <- us_counties(map_date = NULL, resolution = c("high"), states="PA")
+    #counties <- st_transform(counties, st_crs(SGCN_sf_sub))
+    p <- ggplot() +
+      geom_sf(data=SGCN_sf_sub, mapping=aes(fill=include), alpha=0.9, color=NA) +
+      scale_fill_manual(values=c("dodgerblue3","red4"), drop=FALSE) +
+      geom_sf(data=county_sf, aes(), colour="black", fill=NA)  +
+      scale_x_continuous(limits=c(-215999, 279249)) +
+      scale_y_continuous(limits=c(80036, 364574)) +
+      theme_void() +
+      theme(legend.position="top") +
+      theme(legend.title=element_blank()) +
+      theme(legend.text=element_text(size=15)) +
+      theme(axis.text=element_blank(), axis.title=element_text(size=15)) 
+    png(filename = paste(here::here("_data/output",updateName,"figuresReporting"),"/","lastobsmap_",taxalist[i],".png",sep=""), width=800, height=600, units = "px", )
+    print(p)
+    dev.off()
+    
+    #ggsave(file=paste(here::here("_data/output",updateName,"figuresReporting"),"/","sp_",taxalist[i],".png",sep=""), g) #saves 
+  }
+  
+} else if(replaceGraphs=="no"){
+  cat("not replacing the species graphs")
+} else {}  
+
 
 # make a species list looper 
 spabbv <- c("salamanders","frogs","birds","fish","mammals","turtles","lizards","snakes","crayfishes","caves","beetles","mayflies","bees","moths","dragonflies","stoneflies","caddisflies","spiders","mussels","butterflies","craneflies","sawflies","fsnails","tsnails")
