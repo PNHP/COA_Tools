@@ -56,7 +56,7 @@ trackfiles("SGCN ebird", here::here("_data","input","SGCN_data","eBird",fileList
 f_in <- here::here("_data","input","SGCN_data","eBird",fileList[[n]]) #"C:/Users/dyeany/Documents/R/eBird/ebd.txt"
 f_out <- "ebd_filtered_SGCN.txt"
 ebd <- auk_ebd(f_in)
-ebd_filters <- auk_species(ebd, species=sgcnlistcrosswalk, taxonomy_version=2019)
+ebd_filters <- auk_species(ebd, species=sgcnlistcrosswalk, taxonomy_version=2021)
 ebd_filtered <- auk_filter(ebd_filters, file=f_out, overwrite=TRUE)
 ebd_df <- read_ebd(ebd_filtered)
 
@@ -107,7 +107,7 @@ for(i in 1:nrow(birdseason)){
   ebd_df$season[ebd_df$common_name==comname & ebd_df$dayofyear>startdate & ebd_df$dayofyear<enddate] <- as.character(season)
 }
 
-# drops any species that has an NA due to be outsite the season dates
+# drops any species that has an NA due to be outside the season dates
 ebd_df <- ebd_df[!is.na(ebd_df$season),]
 
 # add additonal fields 
@@ -141,7 +141,7 @@ ebd_df$ELSeason <- paste(ebd_df$ELCODE, ebd_df$season, sep="_")
 # create a list of ebird SGCN elseason codes
 sgcnfinal <- lu_sgcn$ELSeason
 
-# drop species that we don't want to use Ebird data for as
+# drop species that we don't want to use eBird data for as
 drop_from_eBird <- c("ABNKC10010_b", "ABNNM10020_b", "ABNGA11010_b", "ABNNM08070_b", "ABNGA04040_b", "ABNKC12060_b", "ABNKC01010_b", "ABNKD06070_b", "ABNNB03070_b", "ABNSB13040_b", "ABNGA13010_b")
 sgcnfinal <- sgcnfinal[which(!sgcnfinal %in% drop_from_eBird) ] 
 
