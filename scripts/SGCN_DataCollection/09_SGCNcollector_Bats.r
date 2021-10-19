@@ -23,13 +23,20 @@ source(here::here("scripts","00_PathsAndSettings.r"))
 # read in SGCN data
 loadSGCN()
 
-# read in the bat data 
+# function to convert excel to date
+dateswap <- function(fld){
+  
+}
+openxlsx::convertToDate(42705)
 
+
+
+# read in the bat data 
 bat_file <- list.files(path=here::here("_data/input/SGCN_data/PGC_bats"), pattern=".xlsx$")  # --- make sure your excel file is not open.
 bat_file
 #look at the output and choose which shapefile you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 1
+n <- 2
 bat_file <- here::here("_data/input/SGCN_data/PGC_bats",bat_file[n])
 
 # write to file tracker
@@ -43,7 +50,7 @@ bat_sheets # list the sheets
 
 #EPFUABC
 n <- 1 # enter its location in the list (first = 1, second = 2, etc)
-bat_EPFUabc <- read.xlsx(xlsxFile=bat_file, sheet=bat_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE)
+bat_EPFUabc <- read.xlsx(xlsxFile=bat_file, sheet=bat_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE, detectDates=TRUE)
 
 #EPFU Hiber
 n <- 2 # enter its location in the list (first = 1, second = 2, etc)
@@ -70,7 +77,7 @@ bat_LANOcontrap <- read.xlsx(xlsxFile=bat_file, sheet=bat_sheets[n], skipEmptyRo
 
 names(bat_EPFUabc)
 bat_EPFUabc$SNAME <- "Eptesicus fuscus"
-bat_EPFUabc$year <- year(mdy(bat_EPFUabc$DATE))
+bat_EPFUabc$year <- year(ymd(openxlsx::convertToDate(bat_EPFUabc$DATE)))
 bat_EPFUabc$DataSource <- "bat_EPFUabc"
 bat_EPFUabc$SeasonCode <- "b"
 bat_EPFUabc <- bat_EPFUabc[c("SNAME","LAT","LON","year","DataSource","SeasonCode")]
@@ -133,6 +140,15 @@ bats$OccProb <- "k"
 names(bats)[names(bats) == "LON"] <- "Longitude"
 names(bats)[names(bats) == "LAT"] <- "Latitude"
 
+library(measurements)
+x = '40-15-49'
+stringr::str_detect(bats$Latitude, "([0-9]{2})[-]([0-9]{2})[-]([0-9]{2})")
+x = gsub('-', ' ', x)
+x = measurements::conv_unit(gsub('-', ' ', x), from='deg_min_sec', to='dec_deg')
+
+bats[which(stringr::str_detect(bats$Latitude, "([0-9]{2})[-]([0-9]{2})[-]([0-9]{2})")),"Latitude"] <- measurements::conv_unit(gsub('-', ' ', bats[which(stringr::str_detect(bats$Latitude, "([0-9]{2})[-]([0-9]{2})[-]([0-9]{2})")),"Latitude"]), from='deg_min_sec', to='dec_deg')
+bats[which(stringr::str_detect(bats$Longitude, "([0-9]{2})[-]([0-9]{2})[-]([0-9]{2})")),"Longitude"] <- measurements::conv_unit(gsub('-', ' ', bats[which(stringr::str_detect(bats$Longitude, "([0-9]{2})[-]([0-9]{2})[-]([0-9]{2})")),"Longitude"]), from='deg_min_sec', to='dec_deg')
+
 bats$Latitude <- as.numeric(bats$Latitude)
 bats$Longitude <- as.numeric(bats$Longitude)
 
@@ -140,9 +156,9 @@ plot(bats$Longitude, bats$Latitude)
 summary(bats$Latitude)
 summary(bats$Longitude)
 
-bats <- bats[which(!is.na(bats$Latitude)|!is.na(bats$Longitude)),]
+bats[which(bats$Longitude>0),"Longitude"] <- abs(bats[which(bats$Longitude>0),"Longitude"]) * -1
 
-bats[which(bats$Longitude>0),"Longitude"] <- bats[which(bats$Longitude>0),"Longitude"] * -1
+bats <- bats[which(!is.na(bats$Latitude)|!is.na(bats$Longitude)),]
 
 # create a spatial layer
 bats_sf <- st_as_sf(bats, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
