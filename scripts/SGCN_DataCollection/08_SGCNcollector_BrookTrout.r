@@ -25,7 +25,7 @@ loadSGCN("AF")
 
 
 
-# read in BAMONA data
+# read in Brook trout data
 trout_file <- list.files(path=here::here("_data","input","SGCN_data","PFBC_BrookTrout"), pattern=".shp$")  # --- make sure your excel file is not open.
 trout_file
 #look at the output and choose which shapefile you want to run
