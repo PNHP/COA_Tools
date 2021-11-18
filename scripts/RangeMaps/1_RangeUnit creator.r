@@ -28,7 +28,7 @@ if (!requireNamespace("reshape2", quietly=TRUE)) install.packages("reshape2")
 
 # load the arcgis license
 arc.check_product()
-
+ 
 # this script requires a geodatabase to be placed in the "" directory called "sws.gdb".  This gdb should two feature classes contained within it ("_HUC8" and "_county")
 
 # copy the blankSGCN directory from the base folder to the output directory

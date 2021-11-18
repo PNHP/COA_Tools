@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------------
+?#-------------------------------------------------------------------------------
 # Name:        COA_species_populator
 # Purpose:     Populates planning units with occurrence probability for SGCNs.
 #              Current version populates planning unit with occurrence
@@ -16,6 +16,10 @@
 #   - currently runs well with county-wide SDM derived occurrence dataset
 #-------------------------------------------------------------------------------
 
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# NOTE: Before running this step, please dissolve the SGCN all use layer in ArcGIS
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 # import system modules
 import arcpy, os, datetime
 from arcpy import env
@@ -26,12 +30,12 @@ from operator import itemgetter
 # Set tools to overwrite existing outputs
 arcpy.env.overwriteOutput = True
 
-target_features = r'E:\\COA_Tools\\_data\\output\\_update2021q2\\SGCN.gdb\\PlanningUnit_Hex10acre' # planning polygon unit
+target_features = r'E:\\COA_Tools\\_data\\output\\_update2021q3\\SGCN.gdb\\PlanningUnit_Hex10acre' # planning polygon unit
 #join_features = r'Database Connections\COA.Working.pgh-gis0.sde\COA.DBO.COA_SGCN\COA.DBO.SGCN_OccFinal' # SGCN occurrence probability layer - should be polygon layer
-join_features = r'E:\\COA_Tools\\_data\\output\\_update2021q2\\SGCN.gdb\\allSGCNuse_Dissolve'
-outGDB = r'E:\\COA_Tools\\_data\\output\\_update2021q2\\SGCN.gdb' # the output path and name of SGCN table
-scratch = r'E:\\COA_Tools\\_data\\output\\_update2021q2\\COAscratch.gdb'
-counties = r'E:\\COA_Tools\\_data\\output\\_update2021q2\\SGCN.gdb\\CountyBuffer'
+join_features = r'E:\\COA_Tools\\_data\\output\\_update2021q3\\SGCN.gdb\\allSGCNuse_PairwiseDissolve_'
+outGDB = r'E:\\COA_Tools\\_data\\output\\_update2021q3\\SGCN.gdb' # the output path and name of SGCN table
+scratch = r'E:\\COA_Tools\\_data\\output\\_update2021q3\\COAscratch.gdb'
+counties = r'E:\\COA_Tools\\_data\\output\\_update2021q3\\SGCN.gdb\\CountyBuffer'
 
 #target_features = arcpy.GetParameterAsText(0) # planning polygon unit
 #join_features = arcpy.GetParameterAsText(1) # SGCN occurrence probability layer - should be polygon layer
