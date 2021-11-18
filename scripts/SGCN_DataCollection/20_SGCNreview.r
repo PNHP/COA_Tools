@@ -151,9 +151,9 @@ SGCN[SGCN=="bat_EPFUhiber"] <- "PGC"
 SGCN[SGCN=="bat_EPFUPGCtrap"] <- "PGC"
 SGCN[SGCN=="bat_LANOcontrap"] <- "PGC"
 SGCN[SGCN=="bat_LANOPGCtrap"] <- "PGC"
-SGCN[SGCN=="PNHP CPP"] <- "PGC"
+SGCN[SGCN=="PNHP CPP"] <- "PNHP Biotics"
            
-
+unique(SGCN$DataSource)
 
 
 # aggregate data by min/max year
