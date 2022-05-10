@@ -10,7 +10,11 @@
 
 ##################################### SET PATH TO FOLDER AND FIELD VARIABLES #########################################################################
 #set folder where sws gdb and .mxds are included
+<<<<<<< Updated upstream
 folder =  r'E:\COA_Tools\_data\output\_update2021q3' # r'C:\_Updated_2019_12_19'
+=======
+folder =  r'E:\_coa\_update2021q2' # r'C:\_Updated_2019_12_19'
+>>>>>>> Stashed changes
 desiredFields = ['COUNTY_NAM','NAME','TaxaDisplay', 'SCOMNAME', 'SNAME', 'y', 'b', 'm', 'w', 'Occurrence', 'GRANK', 'SRANK', 'USESA', 'SPROT', 'PBSSTATUS', 'PrimMacro', 'Shape', 'OBJECTID']
 ######################################################################################################################################################
 #import modules
