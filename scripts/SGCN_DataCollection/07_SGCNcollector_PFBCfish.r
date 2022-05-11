@@ -30,7 +30,7 @@ source(here::here("scripts","00_PathsAndSettings.r"))
 # read in SGCN data
 loadSGCN("AF")
 
-# laod and assemble the fish data from the indivdual excel files
+# load and assemble the fish data from the indivdual excel files
 setwd(here::here("_data/input/SGCN_data/PFBC_FishDPF")) #E:\COA_Tools\_data\input\SGCN_data\PFBC_FishDPF
 
 # load the csv to dataframes  #### I don't think this is needed anymore....
@@ -100,8 +100,6 @@ fishdata$useCOA <- with(fishdata, ifelse(fishdata$year>=cutoffyearL, "y", "n"))
 #add the occurence probability
 fishdata$OccProb = with(fishdata, ifelse(year>=cutoffyearK , "k", ifelse(year<cutoffyearK & year>=cutoffyearL, "l", "u")))
 
-
-
 # drops the unneeded columns. please modify the list.
 fishdata <- fishdata[c("SNAME","SCOMNAME","TaxaGroup","ELCODE","DataSource","DataID","LastObs","lat","lon","OccProb","useCOA")]
 
@@ -110,7 +108,6 @@ fishdata$ELSeason <- paste(fishdata$ELCODE,"_y",sep="")
 fishdata$lat <- as.numeric(as.character(fishdata$lat))
 
 fishdata <- fishdata[complete.cases(fishdata), ]
-
 
 setwd(here::here())
 

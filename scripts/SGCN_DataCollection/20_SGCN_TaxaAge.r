@@ -195,7 +195,7 @@ SGCNsummary[SGCNsummary=="PFBC_DPF"] <- "PFBC"
 names(SGCNsummary) <- c("Taxonomic Group","Common Name","Scientific Name","Data Source","Record Count","MinYear","MaxYear")
 
 
-write.csv(SGCNsummary, "SGCNsummary_20191029.csv", row.names=FALSE)
+write.csv(SGCNsummary, "SGCNsummary_20201231.csv", row.names=FALSE)
 
                       
 

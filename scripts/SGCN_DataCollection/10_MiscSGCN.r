@@ -25,6 +25,7 @@ source(here::here("scripts","00_PathsAndSettings.r"))
 loadSGCN()
 
 # Bombus Data #################################################################################
+trackfiles("SGCN Bombus", here::here("_data","input","SGCN_data","PA_Bombus","PA_Bombus.shp")) # write to file tracker
 bombus <- arc.open(here::here("_data","input","SGCN_data","PA_Bombus","PA_Bombus.shp")) 
 bombus <- arc.select(bombus) 
 
@@ -53,32 +54,32 @@ arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_Bombus")
 
 #############################################################################################################################
 # One Time Data from PSU, DougGross, and ANF #################################################################################
+trackfiles("SGCN MiscBirdData", here::here("_data","input","SGCN_data","birdsplus","birdsplus.shp")) # write to file tracker
 birdsplus <- arc.open(here::here("_data","input","SGCN_data","birdsplus","birdsplus.shp")) 
 birdsplus <- arc.select(birdsplus) 
 birdsplus <- arc.data2sf(birdsplus)
-st_crs(birdsplus) <- 4269
+#st_crs(birdsplus) <- 4269
 
 birdsplus <- birdsplus[which(birdsplus$SNAME %in% sgcnlist),]
 birdsplus[which(birdsplus$SNAME=="Gallinula galeata"),]$ELCODE <- "ABNME13030"
 birdsplus[which(birdsplus$SNAME=="Gallinula galeata"),]$ELSeason <- "ABNME13030_b"
 
-
-#birdsplus <- birdsplus[c("TaxaGroup","ELCODE","SNAME","SCOMNAME","DataSource","DataID","SeasonCode","OccProb","LastObs","ELSeason","useCOA")]
-
 birdsplus$LastObs <- year(as.Date(birdsplus$LastObs))
 birdsplus$useCOA <- ifelse(birdsplus$LastObs>=cutoffyear, "y", "n")
 
-
 birdsplus_sf <- birdsplus
+
+library(lwgeom)
+birdsplus_sf <- st_make_valid(birdsplus_sf)
 
 # create a spatial layer
 birdsplus_sf <- st_transform(birdsplus_sf, crs=customalbers) # reproject to custom albers
 names(birdsplus_sf)[names(birdsplus_sf) == 'geom'] <- 'geometry'
 st_geometry(birdsplus_sf) <- "geometry"
 birdsplus_sf <- birdsplus_sf[final_fields]# field alignment
-arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_BirdsPlus"), birdsplus_sf, overwrite=TRUE) # write a feature class into the geodatabase
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_BirdsPlus"), birdsplus_sf, overwrite=TRUE, validate=TRUE) # write a feature class into the geodatabase
 birdsplus_buffer_sf <- st_buffer(birdsplus_sf, 100) # buffer the points by 100m
-arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_BirdsPlus"), birdsplus_buffer_sf, overwrite=TRUE) # write a feature class to the gdb
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_BirdsPlus"), birdsplus_buffer_sf, overwrite=TRUE, validate=TRUE) # write a feature class to the gdb
 
 
 

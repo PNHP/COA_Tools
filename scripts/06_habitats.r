@@ -6,7 +6,7 @@
 # Updated:     2019-02-20
 #
 # Updates:
-# * added priamry macrogroups
+# * added primary macrogroups
 #
 # To Do List/Future ideas:
 #
@@ -14,7 +14,6 @@
 
 # clear the environments
 rm(list=ls())
-
 
 if (!requireNamespace("here", quietly=TRUE)) install.packages("here")
   require(here)
@@ -27,8 +26,10 @@ SpecificHab_file <- list.files(path=here::here("_data/input"), pattern=".xlsx$")
 SpecificHab_file
 #look at the output and choose which shapefile you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 2
+n <- 8
 SpecificHab_file <- here::here("_data/input", SpecificHab_file[n])
+
+trackfiles("Specific Habitats", SpecificHab_file) # write to file tracker
 
 #get a list of the sheets in the file
 SpecificHab_sheets <- getSheetNames(SpecificHab_file)
@@ -38,6 +39,12 @@ SpecificHab_sheets # list the sheets
 n <- 2 # enter its location in the list (first = 1, second = 2, etc)
 SpecificHabitatReq <- read.xlsx(xlsxFile=SpecificHab_file, sheet=SpecificHab_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE)
 SpecificHabitatReq <- SpecificHabitatReq[c("ELSEASON","SNAME","SCOMNAME","Group","SpecificHabitatRequirements" )]
+
+# check to make sure all the ELCODEs are correct
+loadSGCN()
+
+a <- SpecificHabitatReq[!SpecificHabitatReq$ELSEASON %in% unique(lu_sgcn$ELSeason),]
+b <- SpecificHabitatReq[!SpecificHabitatReq$SNAME %in% unique(lu_sgcn$SNAME),]
 
 # write to the database
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
@@ -54,10 +61,12 @@ rm(SpecificHabitatReq, SpecificHabitatReq_NeedInfo)
 
 
 ## Primary Macrogroups
-
 loadSGCN()
 
 PrimaryMacrogroup <- read.csv(here::here("_data","input","lu_PrimaryMacrogroup.csv"), stringsAsFactors=FALSE)
+
+trackfiles("Primary Macrogroups", here::here("_data","input","lu_PrimaryMacrogroup.csv")) # write to file tracker
+
 
 nomatch <- setdiff(lu_sgcn$ELSeason, PrimaryMacrogroup$ELSeason)
 nomatch1 <- setdiff(PrimaryMacrogroup$ELSeason, lu_sgcn$ELSeason)
@@ -71,12 +80,14 @@ dbDisconnect(db) # disconnect the db
 
 ## Habitat Names
 HabitatName <- read.csv(here::here("_data","input","lu_HabitatName.csv"), stringsAsFactors=FALSE)
+trackfiles("Habitat Names Lookup", here::here("_data","input","lu_HabitatName.csv")) # write to file tracker
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
   dbWriteTable(db, "lu_HabitatName", HabitatName, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
 
 ## Terrestrial Habitat Layer
 HabTerr <- read.csv(here::here("_data","input","lu_HabTerr.csv"), stringsAsFactors=FALSE)
+trackfiles("Terrestrial Habitats", here::here("_data","input","lu_HabTerr.csv")) # write to file tracker
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
   dbWriteTable(db, "lu_HabTerr", HabTerr, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
@@ -84,12 +95,14 @@ dbDisconnect(db) # disconnect the db
 ## Lotic Habitat Layer
 HabLotic <- read.csv(here::here("_data","input","lu_LoticData.csv"), stringsAsFactors=FALSE)
 HabLotic <- HabLotic[c("unique_id","COMID","GNIS_NAME","SUM_23","DESC_23","MACRO_GR","Shape_Length")]
+trackfiles("Lotic Habitats", here::here("_data","input","lu_LoticData.csv")) # write to file tracker
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
 dbWriteTable(db, "lu_LoticData", HabLotic, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
 
 ## Special Habitats - caves and seasonal pools
 HabSpecial <- read.csv(here::here("_data","input","lu_SpecialHabitats.csv"), stringsAsFactors=FALSE)
+trackfiles("Special Habitats", here::here("_data","input","lu_SpecialHabitats.csv")) # write to file tracker
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
 dbWriteTable(db, "lu_SpecialHabitats", HabSpecial, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
