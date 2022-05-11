@@ -23,71 +23,152 @@ source(here::here("scripts","00_PathsAndSettings.r"))
 # read in SGCN data
 loadSGCN()
 
+# function to convert excel to date
+dateswap <- function(fld){
+  
+}
+openxlsx::convertToDate(42705)
+
+
+
 # read in the bat data 
-# note that this is partially processed bat data, and not raw bat data from PGC
-eptefusc <- read.csv(here::here("_data","input","SGCN_data","PGC_bats","EptesicusFuscus","BigBrownBat.csv"), stringsAsFactors=FALSE)
-tricollb <- read.csv(here::here("_data","input","SGCN_data","PGC_bats","TriColoredLittleBrownBats","TriColored_LittleBrownBats.csv"), stringsAsFactors=FALSE)
+bat_file <- list.files(path=here::here("_data/input/SGCN_data/PGC_bats"), pattern=".xlsx$")  # --- make sure your excel file is not open.
+bat_file
+#look at the output and choose which shapefile you want to run
+#enter its location in the list (first = 1, second = 2, etc)
+n <- 2
+bat_file <- here::here("_data/input/SGCN_data/PGC_bats",bat_file[n])
 
-names(eptefusc)
-names(tricollb)
+# write to file tracker
+trackfiles("Bat Data", bat_file)
 
-names(eptefusc)[names(eptefusc)=='sname'] <- 'SNAME'
-names(eptefusc)[names(eptefusc)=='scomname'] <- 'SCOMNAME'
-names(eptefusc)[names(eptefusc)=='SOURCE'] <- 'DataSource'
-names(tricollb)[names(tricollb)=='sname'] <- 'SNAME'
-names(tricollb)[names(tricollb)=='scomname'] <- 'SCOMNAME'
-tricollb$DataSource  <- "PGC"
+#get a list of the sheets in the file
+bat_sheets <- getSheetNames(bat_file)
+#look at the output and choose which excel sheet you want to load
+# Enter the actions sheet (eg. "lu_actionsLevel2") 
+bat_sheets # list the sheets
 
-# dates
-eptefusc$LastObs <- year(ymd(eptefusc$Date))
-tricollb$LastObs <- year(mdy(tricollb$SURVEYDATE))
+#EPFUABC
+n <- 1 # enter its location in the list (first = 1, second = 2, etc)
+bat_EPFUabc <- read.xlsx(xlsxFile=bat_file, sheet=bat_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE, detectDates=TRUE)
 
-# data ID
-eptefusc$DataID <- rownames(eptefusc)
-tricollb$DataID <- rownames(tricollb) 
+#EPFU Hiber
+n <- 2 # enter its location in the list (first = 1, second = 2, etc)
+bat_EPFUhiber <- read.xlsx(xlsxFile=bat_file, sheet=bat_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE)
 
-# seasons
-names(eptefusc)[names(eptefusc)=='season'] <- 'SeasonCode'
-names(tricollb)[names(tricollb)=='season'] <- 'SeasonCode'
-eptefusc$SeasonCode <- substr(eptefusc$SeasonCode,1,1)
+#EPFU PGCtrap
+n <- 3 # enter its location in the list (first = 1, second = 2, etc)
+bat_EPFUPGCtrap <- read.xlsx(xlsxFile=bat_file, sheet=bat_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE)
 
-#taxa groups
-eptefusc$TaxaGroup <- "AM"
-tricollb$TaxaGroup <- "AM"
+#EPFU PGCtrap
+n <- 4 # enter its location in the list (first = 1, second = 2, etc)
+bat_LANOPGCtrap <- read.xlsx(xlsxFile=bat_file, sheet=bat_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE)
+
+#EPFU PGCtrap
+n <- 5 # enter its location in the list (first = 1, second = 2, etc)
+bat_EPFUcontrap <- read.xlsx(xlsxFile=bat_file, sheet=bat_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE)
+
+#EPFU PGCtrap
+n <- 6 # enter its location in the list (first = 1, second = 2, etc)
+bat_LANOcontrap <- read.xlsx(xlsxFile=bat_file, sheet=bat_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE)
+
+
+
+
+names(bat_EPFUabc)
+bat_EPFUabc$SNAME <- "Eptesicus fuscus"
+bat_EPFUabc$year <- year(ymd(openxlsx::convertToDate(bat_EPFUabc$DATE)))
+bat_EPFUabc$DataSource <- "bat_EPFUabc"
+bat_EPFUabc$SeasonCode <- "b"
+bat_EPFUabc <- bat_EPFUabc[c("SNAME","LAT","LON","year","DataSource","SeasonCode")]
+
+names(bat_EPFUhiber)
+bat_EPFUhiber$SNAME <- "Eptesicus fuscus"
+bat_EPFUhiber$year <- year(ymd(openxlsx::convertToDate(bat_EPFUhiber$SURVEYDATE)))
+bat_EPFUhiber$DataSource <- "bat_EPFUhiber"
+bat_EPFUhiber$SeasonCode <- "w"
+bat_EPFUhiber <- bat_EPFUhiber[c("SNAME","LAT","LON","year","DataSource","SeasonCode")]
+
+names(bat_EPFUPGCtrap)
+bat_EPFUPGCtrap$SNAME <- "Eptesicus fuscus"
+bat_EPFUPGCtrap$year <- year(ymd(openxlsx::convertToDate(bat_EPFUPGCtrap$DATE)))
+bat_EPFUPGCtrap$DataSource <- "bat_EPFUPGCtrap"
+bat_EPFUPGCtrap$SeasonCode <- "b"
+bat_EPFUPGCtrap <- bat_EPFUPGCtrap[c("SNAME","LAT","LON","year","DataSource","SeasonCode")]
+
+names(bat_LANOPGCtrap)
+bat_LANOPGCtrap$SNAME <- "Lasionycteris noctivagans"
+bat_LANOPGCtrap$year <- year(ymd(openxlsx::convertToDate(bat_LANOPGCtrap$DATE)))
+bat_LANOPGCtrap$DataSource <- "bat_LANOPGCtrap"
+bat_LANOPGCtrap$SeasonCode <- "b"
+bat_LANOPGCtrap <- bat_LANOPGCtrap[c("SNAME","LAT","LON","year","DataSource","SeasonCode")]
+  
+names(bat_EPFUcontrap)
+bat_EPFUcontrap$SNAME <- "Eptesicus fuscus"
+bat_EPFUcontrap$year <- year(ymd(openxlsx::convertToDate(bat_EPFUcontrap$DATE)))
+bat_EPFUcontrap$DataSource <- "bat_EPFUcontrap"
+bat_EPFUcontrap$SeasonCode <- "b"
+bat_EPFUcontrap <- bat_EPFUcontrap[c("SNAME","LAT","LON","year","DataSource","SeasonCode")]
+
+names(bat_LANOcontrap)
+bat_LANOcontrap$SNAME <- "Lasionycteris noctivagans"
+bat_LANOcontrap$year <- year(ymd(openxlsx::convertToDate(bat_LANOcontrap$DATE)))
+bat_LANOcontrap$DataSource <- "bat_LANOcontrap"
+bat_LANOcontrap$SeasonCode <- "b"
+bat_LANOcontrap <- bat_LANOcontrap[c("SNAME","LAT","LON","year","DataSource","SeasonCode")]
+
+# join up everything
+bat_alldata <- rbind(bat_EPFUabc, bat_EPFUhiber, bat_EPFUPGCtrap, bat_LANOPGCtrap, bat_EPFUcontrap, bat_LANOcontrap)
+
+# rename 'year' field
+names(bat_alldata)[names(bat_alldata) == "year"] <- "LastObs"
+
+# delete the data we don't need anymore
+remove(bat_EPFUabc, bat_EPFUhiber, bat_EPFUPGCtrap, bat_LANOPGCtrap, bat_EPFUcontrap, bat_LANOcontrap)
+
+# merge in the SGCN data
+bats <- merge(bat_alldata, lu_sgcn, by=c("SNAME", "SeasonCode"), all.x=TRUE)
 
 # Data Source
-eptefusc$useCOA <- with(eptefusc, ifelse(eptefusc$LastObs >= cutoffyear, "y", "n"))
-tricollb$useCOA <- with(tricollb, ifelse(tricollb$LastObs >= cutoffyear, "y", "n"))
+bats$useCOA <- with(bats, ifelse(bats$LastObs >= cutoffyear, "y", "n"))
+bats$DataID <- NA
 
 # occprob
-eptefusc$OccProb <- "k"
-tricollb$OccProb <- "k"
+bats$OccProb <- "k"
 
-# ELCODE
-eptefusc <- merge(eptefusc, unique(lu_sgcn[c("SNAME", "ELCODE")]), by="SNAME", all.x=TRUE)
-tricollb <- merge(tricollb, unique(lu_sgcn[c("SNAME", "ELCODE")]), by="SNAME", all.x=TRUE)
-eptefusc$ELSeason <- paste(eptefusc$ELCODE, eptefusc$SeasonCode, sep="_")
-tricollb$ELSeason <- paste(tricollb$ELCODE, tricollb$SeasonCode, sep="_")
+# check for coordinate errors
+names(bats)[names(bats) == "LON"] <- "Longitude"
+names(bats)[names(bats) == "LAT"] <- "Latitude"
 
-# field alignment
-eptefusc <- eptefusc[c("ELCODE","ELSeason","SNAME","SCOMNAME","SeasonCode","DataSource","DataID","OccProb","LastObs","useCOA","TaxaGroup","Longitude","Latitude")]
-tricollb <- tricollb[c("ELCODE","ELSeason","SNAME","SCOMNAME","SeasonCode","DataSource","DataID","OccProb","LastObs","useCOA","TaxaGroup","Longitude","Latitude")]
+library(measurements)
+x = '40-15-49'
+stringr::str_detect(bats$Latitude, "([0-9]{2})[-]([0-9]{2})[-]([0-9]{2})")
+x = gsub('-', ' ', x)
+x = measurements::conv_unit(gsub('-', ' ', x), from='deg_min_sec', to='dec_deg')
 
-# join the two species together
-bats <- rbind(eptefusc, tricollb)
+bats[which(stringr::str_detect(bats$Latitude, "([0-9]{2})[-]([0-9]{2})[-]([0-9]{2})")),"Latitude"] <- measurements::conv_unit(gsub('-', ' ', bats[which(stringr::str_detect(bats$Latitude, "([0-9]{2})[-]([0-9]{2})[-]([0-9]{2})")),"Latitude"]), from='deg_min_sec', to='dec_deg')
+bats[which(stringr::str_detect(bats$Longitude, "([0-9]{2})[-]([0-9]{2})[-]([0-9]{2})")),"Longitude"] <- measurements::conv_unit(gsub('-', ' ', bats[which(stringr::str_detect(bats$Longitude, "([0-9]{2})[-]([0-9]{2})[-]([0-9]{2})")),"Longitude"]), from='deg_min_sec', to='dec_deg')
+
+bats$Latitude <- as.numeric(bats$Latitude)
+bats$Longitude <- as.numeric(bats$Longitude)
+
+plot(bats$Longitude, bats$Latitude)
+summary(bats$Latitude)
+summary(bats$Longitude)
+
+bats[which(bats$Longitude>0),"Longitude"] <- abs(bats[which(bats$Longitude>0),"Longitude"]) * -1
+
+bats <- bats[which(!is.na(bats$Latitude)|!is.na(bats$Longitude)),]
 
 # create a spatial layer
 bats_sf <- st_as_sf(bats, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
 library(lwgeom)
 bats_sf <- st_make_valid(bats_sf)
 
-
 # st_dimension
-
 bats_sf <- st_transform(bats_sf, crs=customalbers) # reproject to custom albers
 bats_sf <- bats_sf[final_fields]
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_bats"), bats_sf, overwrite=TRUE, validate=TRUE) # write a feature class to the gdb
 bats_buffer_sf <- st_buffer(bats_sf, 100) # buffer the points by 100m
+bats_buffer_sf <- st_make_valid(bats_buffer_sf)
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_bats"), bats_buffer_sf, overwrite=TRUE, validate=TRUE) # write a feature class to the gdb
-
-

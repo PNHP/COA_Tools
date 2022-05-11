@@ -23,7 +23,21 @@ source(here::here("scripts","00_PathsAndSettings.r"))
 # read in SGCN data
 loadSGCN("AF")
 
-brooktrout <- arc.open(here::here("_data","input","SGCN_data","PFBC_BrookTrout","PA_WildTrout_BrookTroutOnly_NR_Mar2016Export.shp")) 
+
+
+# read in Brook trout data
+trout_file <- list.files(path=here::here("_data","input","SGCN_data","PFBC_BrookTrout"), pattern=".shp$")  # --- make sure your excel file is not open.
+trout_file
+#look at the output and choose which shapefile you want to run
+#enter its location in the list (first = 1, second = 2, etc)
+n <- 2
+trout_file <- here::here("_data","input","SGCN_data","PFBC_BrookTrout", trout_file[n])
+
+# write to file tracker
+trackfiles("SGCN Brook Trout", trout_file)
+
+# open file and do stuff
+brooktrout <- arc.open(trout_file) 
 brooktrout <- arc.select(brooktrout, c("SSB"))
 brooktrout <- arc.data2sf(brooktrout)
 st_crs(brooktrout) <- 4269 #set coordinate system to NAD83 which matches input.
@@ -36,7 +50,7 @@ brooktrout <- merge(brooktrout, lu_sgcn[c("ELCODE","ELSeason","SNAME","SCOMNAME"
 brooktrout$DataSource <- "PFBC"
 brooktrout$DataID <- rownames(brooktrout)
 brooktrout$OccProb <- "k"
-brooktrout$LastObs <- 2017
+brooktrout$LastObs <- 2020
 brooktrout$useCOA <- "y"
 
 brooktrout <- brooktrout[final_fields]

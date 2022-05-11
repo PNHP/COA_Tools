@@ -29,8 +29,10 @@ grouse_file <- list.files(path=here::here("_data/input/SGCN_data/PGC_Grouse"), p
 grouse_file
 #look at the output and choose which shapefile you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 1
+n <- 3
 grouse_file <- here::here("_data/input/SGCN_data/PGC_Grouse", grouse_file[n])
+
+trackfiles("SGCN grouse", here::here("_data/input/SGCN_data/PGC_Grouse", grouse_file[n])) # write to file tracker
 
 grouse_file <- arc.open(grouse_file)
 grouse_file <- arc.select(grouse_file)
@@ -93,6 +95,8 @@ woodcock_file
 n <- 1
 woodcock_file <- here::here("_data/input/SGCN_data/PGC_Woodcock", woodcock_file[n])
 
+trackfiles("SGCN woodcock", woodcock_file) # write to file tracker
+
 #read in woodcock csv
 woodcock <- read.csv(woodcock_file, stringsAsFactors = FALSE, na.strings = c("", "NA"))
 #keep only positive records that have lat/long values
@@ -126,11 +130,135 @@ woodcock_sf <- st_as_sf(woodcock, coords=c("Longitude","Latitude"), crs="+proj=l
 library(lwgeom)
 woodcock_sf <- st_make_valid(woodcock_sf)
 
+
 #project sf object to custom albers CRS
 woodcock_sf <- st_transform(woodcock_sf, crs=customalbers) # reproject to custom albers
 #keep only final fields and write source point and final feature classes to SGCN GDB
 woodcock_sf <- woodcock_sf[final_fields]
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_PGCwoodcock"), woodcock_sf, overwrite=TRUE) # write a feature class to the gdb
 woodcock_buffer_sf <- st_buffer(woodcock_sf, 100) # buffer the points by 100m
-arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_PGCwoodcock"), woodcock_buffer_sf, overwrite=TRUE) # write a feature class to the gdb
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_PGCwoodcock"), woodcock_buffer_sf, overwrite=TRUE) 
+
+#################################
+#### New Woodcock data
+
+library(readxl)    
+read_excel_allsheets <- function(filename, tibble = FALSE) {
+  # I prefer straight data.frames
+  # but if you like tidyverse tibbles (the default with read_excel)
+  # then just pass tibble = TRUE
+  sheets <- readxl::excel_sheets(filename)
+  x <- lapply(sheets, function(X) readxl::read_excel(filename, sheet = X, col_types="text"))
+  if(!tibble) x <- lapply(x, as.data.frame)
+  names(x) <- sheets
+  x
+}
+
+
+WoodcockResearch_file <- list.files(path=here::here("_data/input/SGCN_data/PGC_Woodcock"), pattern=".xlsx$")  # --- make sure your excel file is not open.
+WoodcockResearch_file
+#look at the output and choose which shapefile you want to run
+#enter its location in the list (first = 1, second = 2, etc)
+n <- 1
+WoodcockResearch_file <- here::here("_data/input/SGCN_data/PGC_Woodcock", WoodcockResearch_file[n])
+
+# write to file tracker
+trackfiles("Woodcock Research Data", WoodcockResearch_file)
+
+
+mysheets <- read_excel_allsheets(WoodcockResearch_file)
+
+names(mysheets)
+lapply(mysheets, colnames)
+colnames(mysheets[["SCR"]])
+
+changedRoute <- mysheets[["SCR"]][c("...9","...10","...11","...12","...13","2018","2019","2020","2021")] # "REGION","SGL","...3","STOP","LAT","LONG","2016","2017","2018","2019","2020","2021"
+changedRoute <- changedRoute[which(complete.cases(changedRoute)),]
+changedRoute <- cbind(c("SW"),changedRoute)
+names(changedRoute)
+names(changedRoute) <- c("REGION","SGL","...3","STOP","LAT","LONG","2018","2019","2020","2021")
+
+
+mysheets[["SCR"]] <- mysheets[["SCR"]][c("REGION","SGL","...3","STOP","LAT","LONG","2016","2017","2018","2019","2020","2021" )]
+
+
+a <- dplyr::bind_rows(mysheets)
+
+a1 <- dplyr::bind_rows(a, changedRoute)
+
+a2 <- a1 %>%
+  tidyr::pivot_longer(
+    cols = starts_with("20"),
+    names_to = "year",
+    #names_prefix = "20",
+    values_to = "countyear",
+    values_drop_na = TRUE
+  )
+
+a2 <- a2[which(!is.na(a2$LAT)&!is.na(a2$LONG)),]
+a3 <- a2[which(stringr::str_detect(a2$LAT, " ", negate=FALSE)),]  #grepl("^\\s*$", )
+a2 <- a2[which(stringr::str_detect(a2$LAT, " ", negate=TRUE)),] 
+
+a3col <- names(a3)
+
+a3$latD <- as.numeric(stringr::word(a3$LAT, 1))
+a3$latM <- as.numeric(stringr::word(a3$LAT, 2))
+a3$LAT <- a3$latD + a3$latM/60
+a3$lonD <- as.numeric(stringr::word(a3$LONG, 1))
+a3$lonM <- as.numeric(stringr::word(a3$LONG, 2))
+a3$LONG <- (a3$lonD + a3$lonM/60) * -1
+
+a3 <- a3[a3col]
+rm(a3col)
+
+a2 <- rbind(a2, a3)
+rm(a3)
+
+a2 <- a2[which(a2$countyear!="NA" & a2$countyear>0),]
+a2$countyear <- as.numeric(a2$countyear)
+
+woodcockResearch <- a2 %>% 
+  group_by(REGION, SGL, ...3, STOP, LAT, LONG) %>% 
+  summarise_if(is.numeric, sum)
+
+woodcockResearch$DataID <- paste(woodcockResearch$REGION,"-",woodcockResearch$SGL,woodcockResearch$...3,"-Stop: ",woodcockResearch$STOP," | Count=",woodcockResearch$countyear, sep="")
+
+#create fields and populate with SGCN data
+woodcockResearch$SNAME <- "Scolopax minor"
+woodcockResearch$SCOMNAME <- "American Woodcock"
+woodcockResearch$ELCODE <- "ABNNF19020"
+woodcockResearch$SeasonCode <- "b"
+woodcockResearch$ELSeason <- paste(woodcockResearch$ELCODE, woodcockResearch$SeasonCode, sep = "_")
+woodcockResearch$DataSource <- "PGC Woodcock Data"
+woodcockResearch$LastObs <- "2021"
+#names(woodcockResearch)[names(woodcockResearch)=='Year'] <- 'LastObs'
+woodcockResearch$TaxaGroup <- "AB"
+woodcockResearch$useCOA <- "y"
+woodcockResearch$OccProb <- "k"
+
+colnames(woodcockResearch)[colnames(woodcockResearch)=="LAT"] <- "Latitude"
+colnames(woodcockResearch)[colnames(woodcockResearch)=="LONG"] <- "Longitude"
+
+#keep SGCN fields, exclude all others
+woodcockResearch <- woodcockResearch[c("ELCODE","ELSeason","SNAME","SCOMNAME","SeasonCode","DataSource","DataID","OccProb","LastObs","useCOA","TaxaGroup","Longitude","Latitude")]
+
+woodcockResearch <- woodcockResearch[which(woodcockResearch$Latitude!="missing"),]
+
+woodcockResearch$Longitude <- abs(as.numeric(woodcockResearch$Longitude)) * -1
+
+# create a spatial layer
+woodcockResearch_sf <- st_as_sf(woodcockResearch, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+library(lwgeom)
+woodcockResearch_sf <- st_make_valid(woodcockResearch_sf)
+
+
+
+
+#project sf object to custom albers CRS
+woodcockResearch_sf <- st_transform(woodcockResearch_sf, crs=customalbers) # reproject to custom albers
+#keep only final fields and write source point and final feature classes to SGCN GDB
+woodcockResearch_sf <- woodcockResearch_sf[final_fields]
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_PGCwoodcockRes"), woodcockResearch_sf, overwrite=TRUE) # write a feature class to the gdb
+woodcockResearch_buffer_sf <- st_buffer(woodcock_sf, 100) # buffer the points by 100m
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_PGCwoodcockRes"), woodcockResearch_buffer_sf, overwrite=TRUE) # write a feature class to the gdb
 

@@ -10,11 +10,15 @@
 
 ##################################### SET PATH TO FOLDER AND FIELD VARIABLES #########################################################################
 #set folder where sws gdb and .mxds are included
-folder =  r'E:\COA_Tools\_data\output\_update2020q1' # r'C:\_Updated_2019_12_19'
+<<<<<<< Updated upstream
+folder =  r'E:\COA_Tools\_data\output\_update2021q3' # r'C:\_Updated_2019_12_19'
+=======
+folder =  r'E:\_coa\_update2021q2' # r'C:\_Updated_2019_12_19'
+>>>>>>> Stashed changes
 desiredFields = ['COUNTY_NAM','NAME','TaxaDisplay', 'SCOMNAME', 'SNAME', 'y', 'b', 'm', 'w', 'Occurrence', 'GRANK', 'SRANK', 'USESA', 'SPROT', 'PBSSTATUS', 'PrimMacro', 'Shape', 'OBJECTID']
 ######################################################################################################################################################
 #import modules
-import arcpy, os, datetime
+import arcpy, os, datetime, sys
 ##################################### PATHS/VARIABLES THAT SHOULD STAY CONSTANT ######################################################################
 gdb_name = "sws.gdb"
 county_mxd_template = "SGCNCountyRangeMaps.mxd"
@@ -25,6 +29,7 @@ county_mxd = os.path.join(folder,county_mxd_template)
 huc_mxd = os.path.join(folder,watershed_mxd_template)
 ######################################################################################################################################################
 def taxa_assign(path):
+    print(path)
     with arcpy.da.SearchCursor(path,["SCOMNAME","TaxaDisplay"]) as cursor:
         for row in cursor:
             scomname = row[0]
@@ -130,9 +135,9 @@ def edit_attributes(path):
     arcpy.AlterField_management(path,"TaxaDisplay",new_field_alias="Taxanomic Group")
     arcpy.AlterField_management(path,"SCOMNAME",new_field_alias="Common Name")
     arcpy.AlterField_management(path,"SNAME",new_field_alias="Scientific Name")
-    arcpy.AlterField_management(path,"b",new_field_alias="Breeding Species of Greatest Conservation Need")
-    arcpy.AlterField_management(path,"m",new_field_alias="Migratory Species of Greatest Conservation Need")
-    arcpy.AlterField_management(path,"w",new_field_alias="Wintering Species of Greatest Conservation Need")
+    arcpy.AlterField_management(path,"b",new_field_alias="Breeding (B) Species of Greatest Conservation Need")
+    arcpy.AlterField_management(path,"m",new_field_alias="Migratory (M) Species of Greatest Conservation Need")
+    arcpy.AlterField_management(path,"w",new_field_alias="Wintering (W) Species of Greatest Conservation Need")
     arcpy.AlterField_management(path,"y",new_field_alias="Year-round Species of Greatest Conservation Need")
     arcpy.AlterField_management(path,"Occurrence",new_field_alias="Occurrence")
     arcpy.AlterField_management(path,"GRANK",new_field_alias="Global Rank")
@@ -140,19 +145,12 @@ def edit_attributes(path):
     arcpy.AlterField_management(path,"USESA",new_field_alias="Federal Status")
     arcpy.AlterField_management(path,"SPROT",new_field_alias="State Status")
     arcpy.AlterField_management(path,"PBSSTATUS",new_field_alias="Pennsylvania Biological Survey Status")
-    arcpy.AlterField_management(path,"PrimMacro",new_field_alias="Primary Macrogroup")
+    arcpy.AlterField_management(path,"PrimMacro",new_field_alias="Primary Habitat")
 
 def format_mxd(mxd,df_name,fc,alltaxa):
     mxd = arcpy.mapping.MapDocument(mxd)
     df = arcpy.mapping.ListDataFrames(mxd)[0]
     df.name = df_name
-
-    edit_attributes(alltaxa)
-    targetGroupLayer = arcpy.mapping.ListLayers(mxd,"All Taxa Groups",df)[0]
-    addLayer = arcpy.mapping.Layer(alltaxa)
-    addLayer.name = "All Taxa"
-    addLayer.visible = False
-    arcpy.mapping.AddLayerToGroup(df, targetGroupLayer, addLayer, "AUTO_ARRANGE")
 
     total = len(fc)
     n = 1
@@ -170,7 +168,7 @@ def format_mxd(mxd,df_name,fc,alltaxa):
         else:
             targetGroupLayer = arcpy.mapping.ListLayers(mxd,taxa,df)[0]
             addLayer = arcpy.mapping.Layer(path)
-            addLayer.name = scomname
+##            addLayer.name = scomname
             addLayer.visible = False
             arcpy.mapping.AddLayerToGroup(df, targetGroupLayer, addLayer, "AUTO_ARRANGE")
             n+=1
@@ -203,15 +201,29 @@ def format_mxd(mxd,df_name,fc,alltaxa):
         else:
             pass
 
+    for lyr in arcpy.mapping.ListLayers(mxd):
+        if not lyr.isGroupLayer:
+            with arcpy.da.SearchCursor(lyr,'SCOMNAME') as cursor:
+                for row in cursor:
+                    scomname = row[0]
+            lyr.name = scomname
+    
+    edit_attributes(alltaxa)
+    targetGroupLayer = arcpy.mapping.ListLayers(mxd,"All Taxa Groups",df)[0]
+    addLayer = arcpy.mapping.Layer(alltaxa)
+    addLayer.name = "All Taxa"
+    addLayer.visible = False
+    arcpy.mapping.AddLayerToGroup(df, targetGroupLayer, addLayer, "AUTO_ARRANGE")
+
     mxd.save()
 
 df_name_county = "SGCN County Range Maps"
 df_name_huc = "SGCN Watershed Range Maps"
 arcpy.env.workspace = db
 fc_county = sorted(arcpy.ListFeatureClasses("county_*"))
-fc_huc = sorted(arcpy.ListFeatureClasses("huc08_*"))
+fc_huc = sorted(arcpy.ListFeatureClasses("HUC8_*"))
 alltaxa_county = os.path.join(db,"_county_SGCN")
-alltaxa_huc = os.path.join(db,"_HUC08_SGCN")
+alltaxa_huc = os.path.join(db,"_HUC8_SGCN")
 
 print("Checking layers for county .mxd...")
 taxa_layer_check(county_mxd,df_name_county,fc_county)
