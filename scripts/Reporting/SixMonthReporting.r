@@ -19,15 +19,14 @@ require(english)
 
 source(here::here("scripts","00_PathsAndSettings.r"))
 
-
-
 # progress report name
-ReportName <- "Progress Report 4 - June 30, 2021"
+ReportName <- "Progress Report 6 - June 30, 2022"
 
-replaceGraphs <- "no"
+
+replaceGraphs <- "yes"
 
 # function to generate the pdf
-#knit2pdf(here::here("scripts","template_Formatted_NHA_PDF.rnw"), output=paste(pdf_filename, ".tex", sep=""))
+#knit2pdf(here::here("scripts","Reporting","SixMonthReporting.rnw"), output=paste(pdf_filename, ".tex", sep=""))
 makePDF <- function(rnw_template, pdf_filename) {
   knit(here::here("scripts","Reporting", rnw_template), output=paste(pdf_filename, ".tex",sep=""))
   call <- paste0("xelatex -interaction=nonstopmode ", pdf_filename , ".tex")
@@ -58,8 +57,6 @@ loadSGCN()
 # assign the database names for the updates
 databasename_now <- here::here("_data","output",updateName,"coa_bridgetest.sqlite") # most recent update
 databasename_6m <- here::here("_data","output",updateName6m,"coa_bridgetest.sqlite") # update from six months ago
-
-
 
 # load in the taxanomic groups
 db <- dbConnect(SQLite(), dbname=databasename_now)
@@ -214,8 +211,8 @@ lu_sgcn <- unique(lu_sgcn[c("ELCODE","SNAME","SCOMNAME","TaxaGroup")])
 
 # get new data
 SGCN <- arc.open(path=here::here("_data/output/",updateName,"SGCN.gdb","allSGCNuse"))
-SGCN <- arc.select(SGCN)
-SGCN_sf <- arc.data2sf(SGCN)
+SGCN_sf <- arc.select(SGCN)
+SGCN_sf <- arc.data2sf(SGCN_sf)
 # merge
 SGCN_sf <- merge(SGCN_sf, lu_taxagrp, by.x="TaxaGroup", by.y="code")
 SGCN_sf$LastObs <- as.numeric(SGCN_sf$LastObs)
@@ -225,8 +222,8 @@ SGCN_sf <- SGCN_sf[which(SGCN_sf$LastObs>=1980),]
 
 # get old data
 SGCNold <- arc.open(path=here::here("_data/output/",updateName6m,"SGCN.gdb","allSGCNuse"))
-SGCNold <- arc.select(SGCNold)
-SGCNold_sf <- arc.data2sf(SGCNold)
+SGCNold_sf <- arc.select(SGCNold)
+SGCNold_sf <- arc.data2sf(SGCNold_sf)
 # merge
 SGCNold_sf <- merge(SGCNold_sf, lu_taxagrp, by.x="TaxaGroup", by.y="code")
 SGCNold_sf$LastObs <- as.numeric(SGCNold_sf$LastObs)
@@ -254,13 +251,13 @@ if(replaceGraphs=="yes"){
   
   for(i in 1:length(taxalist)){
     SGCN_sf_sub <- SGCN_sf[which(SGCN_sf$taxadisplay==taxalist[i]),]
-    SGCN_sf_sub$include <- factor(ifelse(SGCN_sf_sub$LastObs>=1994,"less than 25 years","older than 25 years"))
+    SGCN_sf_sub$include <- factor(ifelse(SGCN_sf_sub$LastObs>=1997,"less than 25 years","older than 25 years"))
     levels(SGCN_sf_sub$include) <- c("less than 25 years","older than 25 years")
     # make the histogram
     h <- ggplot(data=SGCN_sf_sub , aes(LastObs, fill=include)) +
       geom_histogram(binwidth=1) +
       scale_fill_manual(values=c("dodgerblue3","red4"), drop=FALSE) +
-      scale_x_continuous(breaks=seq(1980, 2020, by=5), labels=waiver(), limits=c(1980, 2020)) +
+      scale_x_continuous(breaks=seq(1980, 2025, by=5), labels=waiver(), limits=c(1980, 2025)) +
       xlab("Observation Date") +
       ylab("Number of Records") +
       theme_minimal() +
@@ -308,12 +305,12 @@ specieslooper$taxalist <- as.character(specieslooper$taxalist)
 specieslooper$spabbv <- as.character(specieslooper$spabbv)
 
 # update tracking content
-db <- dbConnect(SQLite(), dbname="E:/COA_Tools/_data/output/COA_QuarterlyTracking.sqlite")
+db <- dbConnect(SQLite(), dbname="H:/Scripts/COA_Tools/_data/output/COA_QuarterlyTracking.sqlite")
 updatetracker_SQLquery <- "SELECT * FROM updateMain"
 updatetracker <- dbGetQuery(db, statement=updatetracker_SQLquery)
 dbDisconnect(db) 
 
-db <- dbConnect(SQLite(), dbname="E:/COA_Tools/_data/output/COA_QuarterlyTracking.sqlite")
+db <- dbConnect(SQLite(), dbname="H:/Scripts/COA_Tools/_data/output/COA_QuarterlyTracking.sqlite")
 updateNotes_SQLquery <- "SELECT * FROM updateNotes"
 updatenotes <- dbGetQuery(db, statement=updateNotes_SQLquery)
 dbDisconnect(db) 
@@ -325,5 +322,5 @@ pdf_filename <- paste(updateName,"_SixMonthReport",sep="") # ,gsub("[^0-9]", "",
 makePDF("SixMonthReporting.rnw", pdf_filename) # user created function
 deletepdfjunk(pdf_filename) # user created function # delete .txt, .log etc if pdf is created successfully.
 setwd(here::here()) # return to the main wd
-beepr::beep(sound=10, expr=NULL)
+beepr::beep(sound=2, expr=NULL)
 

@@ -94,7 +94,7 @@ datdff <- lapply(datdf, '[', fields) #subset out just the focal columns
 datdff_df <- dplyr::bind_rows(datdff, .id = "column_label") #turns it into one big dataframe
 
 
-write.csv(datdff_df, file=paste("gbif", format(Sys.time(), "%Y%m%d"), "backup.csv"))
+write.csv(datdff_df, file=paste("gbif_",format(Sys.time(),"_%Y%m%d"), "backup.csv"))
 ##datdf <- read.csv("gbif 20191015 backup.csv", stringsAsFactors=FALSE) # to reload a saved search
 
 

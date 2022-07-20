@@ -174,7 +174,7 @@ sgcnlist <- unique(sws_HUC8agg_cast$ELCODE)
 sgcnlist <- gsub("\r\n","",sgcnlist)
 sgcnlist <- sort(sgcnlist)
 
-# make the watershed maps
+# make the watershed feature classes
 for(i in 1:length(sgcnlist)){
   sws_HUC8_1 <- sws_HUC8agg_cast[which(sws_HUC8agg_cast$ELCODE==sgcnlist[i]),]
   print(paste(sgcnlist[i],", which is species ",i," of ",length(sgcnlist), sep=""))
@@ -232,7 +232,7 @@ sgcnlist <- unique(sws_countyagg_cast$ELCODE)
 sgcnlist <- gsub("\r\n","",sgcnlist)
 sgcnlist <- sort(sgcnlist)
 
-# make the county maps
+# make the county feature classes
 for(i in 1:length(sgcnlist)){
   sws_county_1 <- sws_countyagg_cast[which(sws_countyagg_cast$ELCODE==sgcnlist[i]),]
   print(paste(sgcnlist[i],", which is species ",i," of ",length(sgcnlist), sep=""))

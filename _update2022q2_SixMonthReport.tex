@@ -1,0 +1,232 @@
+%This knitr document is called by the knit2pdf ....
+\documentclass{article}\usepackage[]{graphicx}\usepackage[table]{xcolor}
+% maxwidth is the original width if it is less than linewidth
+% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+\let\hlipl\hlkwb
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+\usepackage[utf8]{inputenc} %\UseRawInputEncoding
+\usepackage{fontspec}
+\setmainfont{Gill Sans MT}
+\pdfmapfile{=pdftex35.map} %I think this fixes some MikTex font reading issues
+\usepackage[margin=10pt,font=small]{caption}
+%\usepackage{afterpage}
+\usepackage{geometry}
+\usepackage{longtable,booktabs,threeparttablex, array}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\usepackage{xcolor}
+%\usepackage[table]{xcolor}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{url}
+\urlstyle{same}
+\usepackage{needspace}
+%\usepackage{siunitx}
+\usepackage{graphicx}
+\graphicspath{ {../../templates/images_reporting/}{figuresReporting} }
+\usepackage[style=authoryear,hyperref=false]{biblatex}
+\addbibresource{../../citations/PNHP_refs.bib}
+% \usepackage{cite}
+\usepackage{enumitem}
+\setlist{nolistsep}
+\usepackage{fancyhdr} %for headers,footers
+% \usepackage{float}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,      
+    urlcolor=blue,
+}
+\usepackage{lastpage}
+
+
+\geometry{letterpaper, top=0.45in, bottom=0.75in, left=0.75in, right=0.75in}
+\pagestyle{fancy} \fancyhf{} \renewcommand\headrulewidth{0pt} %strip default header/footer stuff
+
+\setlength\intextsep{0pt}
+
+% %add footers
+ \lfoot{
+  \small   %small font. The double slashes is newline in fancyhdr
+  \textcolor{gray}{\leftmark \\ Conservation Opportunity Area Tool Six Month Report \\ Progress Report 2022 Q2 - June 30, 2022} }
+ \rfoot{
+  \small  
+  \textcolor{gray}{page \thepage }
+ }
+
+%\pagenumbering{roman} % Start roman numbering
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\begin{document}
+%\RaggedRight
+\catcode`\_=11
+
+\begin{center}
+  \Large \textbf{State Wildlife Action Plan Implementation: Conservation Action Mapping} \\
+  \large Progress Report 2022 Q2 - June 30, 2022 \\
+  \large Western Pennsylvania Conservancy \\
+\end{center}
+
+\section*{Overview}
+\noindent Three main databases are maintained under this project:
+\begin{enumerate}
+ \item{Species of Greatest Conservation Need (SGCN) Geodatabase – A geodatabase of SGCN location information compiled from various sources (e.g., PNHP Biotics, eBird and other community science databases, PGC/PFBC databases). A subset of these records are used to create the modeled SGCN distribution data in the Conservation Opportunity Area (COA) tool.}
+ \item{SQLite Database – This database is delivered to NatureServe and drives the COA tool. This database contains tabular information about species distribution linked to planning units as well as other data about actions, threats, land ownership, etc.}
+ \item{Range Map Geodatabase – This data base is derived from the SQLite Database and consists of county and HUC8 range maps for all mapped SGCN. This database is delivered to NatureServe and drives the SGCN range map portion of the COA tool. Additionally, two .mxd files with the map symbology, one each for county and Hydrologic Unit Code (HUC) 8 boundaries, are delivered to NatureServe for inclusion into the COA tool.\\}
+\end{enumerate}
+
+\noindent A diagram of the workflow and relationships between these three databases are presented below:
+
+  \begin{center}
+    \includegraphics[width=0.85\textwidth]{SGCN_diagram.png}
+  \end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{General Updates and Comments}
+\noindent Two updates to the COA databases were provided during this reporting period:
+\begin{center}
+\begin{tabular}{cccc} 
+ \hline
+ Update	& Time period	& Delivered to PGC-PFBC	& Delivered to NatureServe \\
+ \hline 
+2022 Quarter 1 & NA & NA & NA \\
+ \hline
+\end{tabular}
+\end{center}
+
+\noindent Agency copies of the geodatabases were limited to their jurisdictional species plus terrestrial invertebrates. \\\\
+\noindent  
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section*{Description of Updates in COA tool database content}
+\noindent The following sections describe substantive changes in the SGCN geodatabase, the SQLite database for the COA tool, and the Range Map geodatabase. Not all changes and updates have been described here, instead we focused on the most important and relevant changes.
+
+\subsection*{Changes in SGCN Geodatabase}
+\noindent The number of SGCN records increased from approximately 565,000 records to 493,519. A spreadsheet indicating the number of records available for each SGCN for the  update can be found at \\
+https://wildlifeactionmap.pa.gov/sites/default/files/SGCNsummary_update2022q2.csv.
+
+\subsection*{Data by Taxonomic Groups}
+\noindent The following is an overview of each major taxonomic group of SGCN that presents current SGCN data relative to the 25-year cutoff for most taxonomic groups---data beyond this 25-year window is not included in the tool (exception for fish, which go back to 1980).  Histograms and maps showing these are presented below. Note that the data presented as of the  update (i.e. previous data is not shown. %Due to size and scale limitations of the maps, we recommend that any detailed analysis of the spatial data be undertaken by using the spatial data provided to PFBC and PGC.  When known, we’ve provided additional details, data harvesting, and survey needs to fill in data gaps. Some of this data gathering (e.g., field surveys) are beyond the scope of this project, but could be supported by additional funding (e.g., State Wildlife Grants, Wild Resources Conservation Program, PA Department of Agriculture).\\
+\medskip
+
+\Needspace{20\baselineskip}\noindent \textbf{Salamander} --- \\\begin{figure}[H]\\\begin{minipage}{0.43\textwidth}\\\centering\includegraphics[width=0.95\textwidth]{figuresReporting/lastobs_Salamander.png}\\ \end{minipage} \hfill \begin{minipage}{0.57\textwidth}\\\includegraphics[width=0.95\textwidth]{figuresReporting/lastobsmap_Salamander.png}\\\end{minipage}\\\end{figure}\\\Needspace{20\baselineskip}\noindent \textbf{Frog} --- \\\begin{figure}[H]\\\begin{minipage}{0.43\textwidth}\\\centering\includegraphics[width=0.95\textwidth]{figuresReporting/lastobs_Frog.png}\\ \end{minipage} \hfill \begin{minipage}{0.57\textwidth}\\\includegraphics[width=0.95\textwidth]{figuresReporting/lastobsmap_Frog.png}\\\end{minipage}\\\end{figure}\\\Needspace{20\baselineskip}\noindent \textbf{Bird} --- \\\begin{figure}[H]\\\begin{minipage}{0.43\textwidth}\\\centering\includegraphics[width=0.95\textwidth]{figuresReporting/lastobs_Bird.png}\\ \end{minipage} \hfill \begin{minipage}{0.57\textwidth}\\\includegraphics[width=0.95\textwidth]{figuresReporting/lastobsmap_Bird.png}\\\end{minipage}\\\end{figure}\\\Needspace{20\baselineskip}\noindent \textbf{Fish} --- \\\begin{figure}[H]\\\begin{minipage}{0.43\textwidth}\\\centering\includegraphics[width=0.95\textwidth]{figuresReporting/lastobs_Fish.png}\\ \end{minipage} \hfill \begin{minipage}{0.57\textwidth}\\\includegraphics[width=0.95\textwidth]{figuresReporting/lastobsmap_Fish.png}\\\end{minipage}\\\end{figure}\\\Needspace{20\baselineskip}\noindent \textbf{Mammal} --- \\\begin{figure}[H]\\\begin{minipage}{0.43\textwidth}\\\centering\includegraphics[width=0.95\textwidth]{figuresReporting/lastobs_Mammal.png}\\ \end{minipage} \hfill \begin{minipage}{0.57\textwidth}\\\includegraphics[width=0.95\textwidth]{figuresReporting/lastobsmap_Mammal.png}\\\end{minipage}\\\end{figure}\\\Needspace{20\baselineskip}\noindent \textbf{Turtle} --- \\\begin{figure}[H]\\\begin{minipage}{0.43\textwidth}\\\centering\includegraphics[width=0.95\textwidth]{figuresReporting/lastobs_Turtle.png}\\ \end{minipage} \hfill \begin{minipage}{0.57\textwidth}\\\includegraphics[width=0.95\textwidth]{figuresReporting/lastobsmap_Turtle.png}\\\end{minipage}\\\end{figure}\\\Needspace{20\baselineskip}\noindent \textbf{Lizard} --- \\\begin{figure}[H]\\\begin{minipage}{0.43\textwidth}\\\centering\includegraphics[width=0.95\textwidth]{figuresReporting/lastobs_Lizard.png}\\ \end{minipage} \hfill \begin{minipage}{0.57\textwidth}\\\includegraphics[width=0.95\textwidth]{figuresReporting/lastobsmap_Lizard.png}\\\end{minipage}\\\end{figure}\\\Needspace{20\baselineskip}\noindent \textbf{Snake} --- \\\begin{figure}[H]\\\begin{minipage}{0.43\textwidth}\\\centering\includegraphics[width=0.95\textwidth]{figuresReporting/lastobs_Snake.png}\\ \end{minipage} \hfill \begin{minipage}{0.57\textwidth}\\\includegraphics[width=0.95\textwidth]{figuresReporting/lastobsmap_Snake.png}\\\end{minipage}\\\end{figure}\\\Needspace{20\baselineskip}\noindent \textbf{Invertebrate - Crayfishes} --- \\\begin{figure}[H]\\\begin{minipage}{0.43\textwidth}\\\centering\includegraphics[width=0.95\textwidth]{figuresReporting/lastobs_Invertebrate - Crayfishes.png}\\ \end{minipage} \hfill \begin{minipage}{0.57\textwidth}\\\includegraphics[width=0.95\textwidth]{figuresReporting/lastobsmap_Invertebrate - Crayfishes.png}\\\end{minipage}\\\end{figure}\\\Needspace{20\baselineskip}\noindent \textbf{Invertebrate - Cave Invertebrates} --- \\\begin{figure}[H]\\\begin{minipage}{0.43\textwidth}\\\centering\includegraphics[width=0.95\textwidth]{figuresReporting/lastobs_Invertebrate - Cave Invertebrates.png}\\ \end{minipage} \hfill \begin{minipage}{0.57\textwidth}\\\includegraphics[width=0.95\textwidth]{figuresReporting/lastobsmap_Invertebrate - Cave Invertebrates.png}\\\end{minipage}\\\end{figure}\\\Needspace{20\baselineskip}\noindent \textbf{Invertebrate - Beetles} --- \\\begin{figure}[H]\\\begin{minipage}{0.43\textwidth}\\\centering\includegraphics[width=0.95\textwidth]{figuresReporting/lastobs_Invertebrate - Beetles.png}\\ \end{minipage} \hfill \begin{minipage}{0.57\textwidth}\\\includegraphics[width=0.95\textwidth]{figuresReporting/lastobsmap_Invertebrate - Beetles.png}\\\end{minipage}\\\end{figure}\\\Needspace{20\baselineskip}\noindent \textbf{Invertebrate - Mayflies} --- \\\begin{figure}[H]\\\begin{minipage}{0.43\textwidth}\\\centering\includegraphics[width=0.95\textwidth]{figuresReporting/lastobs_Invertebrate - Mayflies.png}\\ \end{minipage} \hfill \begin{minipage}{0.57\textwidth}\\\includegraphics[width=0.95\textwidth]{figuresReporting/lastobsmap_Invertebrate - Mayflies.png}\\\end{minipage}\\\end{figure}\\\Needspace{20\baselineskip}\noindent \textbf{Invertebrate - Bees} --- \\\begin{figure}[H]\\\begin{minipage}{0.43\textwidth}\\\centering\includegraphics[width=0.95\textwidth]{figuresReporting/lastobs_Invertebrate - Bees.png}\\ \end{minipage} \hfill \begin{minipage}{0.57\textwidth}\\\includegraphics[width=0.95\textwidth]{figuresReporting/lastobsmap_Invertebrate - Bees.png}\\\end{minipage}\\\end{figure}\\\Needspace{20\baselineskip}\noindent \textbf{Invertebrate - Moths} --- \\\begin{figure}[H]\\\begin{minipage}{0.43\textwidth}\\\centering\includegraphics[width=0.95\textwidth]{figuresReporting/lastobs_Invertebrate - Moths.png}\\ \end{minipage} \hfill \begin{minipage}{0.57\textwidth}\\\includegraphics[width=0.95\textwidth]{figuresReporting/lastobsmap_Invertebrate - Moths.png}\\\end{minipage}\\\end{figure}\\\Needspace{20\baselineskip}\noindent \textbf{Invertebrate - Dragonflies and Damselflies} --- \\\begin{figure}[H]\\\begin{minipage}{0.43\textwidth}\\\centering\includegraphics[width=0.95\textwidth]{figuresReporting/lastobs_Invertebrate - Dragonflies and Damselflies.png}\\ \end{minipage} \hfill \begin{minipage}{0.57\textwidth}\\\includegraphics[width=0.95\textwidth]{figuresReporting/lastobsmap_Invertebrate - Dragonflies and Damselflies.png}\\\end{minipage}\\\end{figure}\\\Needspace{20\baselineskip}\noindent \textbf{Invertebrate - Stoneflies} --- \\\begin{figure}[H]\\\begin{minipage}{0.43\textwidth}\\\centering\includegraphics[width=0.95\textwidth]{figuresReporting/lastobs_Invertebrate - Stoneflies.png}\\ \end{minipage} \hfill \begin{minipage}{0.57\textwidth}\\\includegraphics[width=0.95\textwidth]{figuresReporting/lastobsmap_Invertebrate - Stoneflies.png}\\\end{minipage}\\\end{figure}\\\Needspace{20\baselineskip}\noindent \textbf{Invertebrate - Caddisflies} --- \\\begin{figure}[H]\\\begin{minipage}{0.43\textwidth}\\\centering\includegraphics[width=0.95\textwidth]{figuresReporting/lastobs_Invertebrate - Caddisflies.png}\\ \end{minipage} \hfill \begin{minipage}{0.57\textwidth}\\\includegraphics[width=0.95\textwidth]{figuresReporting/lastobsmap_Invertebrate - Caddisflies.png}\\\end{minipage}\\\end{figure}\\\Needspace{20\baselineskip}\noindent \textbf{Invertebrate - Spiders} --- \\\begin{figure}[H]\\\begin{minipage}{0.43\textwidth}\\\centering\includegraphics[width=0.95\textwidth]{figuresReporting/lastobs_Invertebrate - Spiders.png}\\ \end{minipage} \hfill \begin{minipage}{0.57\textwidth}\\\includegraphics[width=0.95\textwidth]{figuresReporting/lastobsmap_Invertebrate - Spiders.png}\\\end{minipage}\\\end{figure}\\\Needspace{20\baselineskip}\noindent \textbf{Invertebrate - Freshwater Mussels} --- \\\begin{figure}[H]\\\begin{minipage}{0.43\textwidth}\\\centering\includegraphics[width=0.95\textwidth]{figuresReporting/lastobs_Invertebrate - Freshwater Mussels.png}\\ \end{minipage} \hfill \begin{minipage}{0.57\textwidth}\\\includegraphics[width=0.95\textwidth]{figuresReporting/lastobsmap_Invertebrate - Freshwater Mussels.png}\\\end{minipage}\\\end{figure}\\\Needspace{20\baselineskip}\noindent \textbf{Invertebrate - Butterflies and Skippers} --- \\\begin{figure}[H]\\\begin{minipage}{0.43\textwidth}\\\centering\includegraphics[width=0.95\textwidth]{figuresReporting/lastobs_Invertebrate - Butterflies and Skippers.png}\\ \end{minipage} \hfill \begin{minipage}{0.57\textwidth}\\\includegraphics[width=0.95\textwidth]{figuresReporting/lastobsmap_Invertebrate - Butterflies and Skippers.png}\\\end{minipage}\\\end{figure}\\\Needspace{20\baselineskip}\noindent \textbf{Invertebrate - Craneflies} --- \\\begin{figure}[H]\\\begin{minipage}{0.43\textwidth}\\\centering\includegraphics[width=0.95\textwidth]{figuresReporting/lastobs_Invertebrate - Craneflies.png}\\ \end{minipage} \hfill \begin{minipage}{0.57\textwidth}\\\includegraphics[width=0.95\textwidth]{figuresReporting/lastobsmap_Invertebrate - Craneflies.png}\\\end{minipage}\\\end{figure}\\\Needspace{20\baselineskip}\noindent \textbf{Invertebrate - Sawflies} --- \\\begin{figure}[H]\\\begin{minipage}{0.43\textwidth}\\\centering\includegraphics[width=0.95\textwidth]{figuresReporting/lastobs_Invertebrate - Sawflies.png}\\ \end{minipage} \hfill \begin{minipage}{0.57\textwidth}\\\includegraphics[width=0.95\textwidth]{figuresReporting/lastobsmap_Invertebrate - Sawflies.png}\\\end{minipage}\\\end{figure}\\\Needspace{20\baselineskip}\noindent \textbf{Invertebrate - Freshwater Snails} --- \\\begin{figure}[H]\\\begin{minipage}{0.43\textwidth}\\\centering\includegraphics[width=0.95\textwidth]{figuresReporting/lastobs_Invertebrate - Freshwater Snails.png}\\ \end{minipage} \hfill \begin{minipage}{0.57\textwidth}\\\includegraphics[width=0.95\textwidth]{figuresReporting/lastobsmap_Invertebrate - Freshwater Snails.png}\\\end{minipage}\\\end{figure}\\\Needspace{20\baselineskip}\noindent \textbf{Invertebrate - Terrestrial Snails} --- \\\begin{figure}[H]\\\begin{minipage}{0.43\textwidth}\\\centering\includegraphics[width=0.95\textwidth]{figuresReporting/lastobs_Invertebrate - Terrestrial Snails.png}\\ \end{minipage} \hfill \begin{minipage}{0.57\textwidth}\\\includegraphics[width=0.95\textwidth]{figuresReporting/lastobsmap_Invertebrate - Terrestrial Snails.png}\\\end{minipage}\\\end{figure}\\
+
+\subsection*{Changes in SQLite Database}
+
+\subsubsection*{Species Data}
+\noindent 
+In this update, we increased the number of SGCN from 535 (555 including seasons) in 2021 Quarter 4 to 539 (559 including seasons) in . 
+
+Of the 2,908,000 possible planning units, the number of planning units with at least one SGCN present increased by zero from 2,907,697 to 2,907,697 between the two time periods. More than 99.99\% of planning units report at least one SGCN (known or likely presence). However, a more careful examination of the data shows changes in richness among individual planning units as the graph below indicates:
+
+
+\begin{center}
+\includegraphics{figure/PU_Richness-1.pdf}    %place it
+\end{center}
+
+\noindent Between the two time periods only 2,380,610 (82\%) planning units had no-change (difference of zero). Additions of planning units containing at least one SGCN range from 1 (76,856 PUs) to 37 (10 PUs), with a total of 477,225 PUs added. A total of 49,862 species x planning unit intersections were removed from the planning units between the two updates, ranging from -1 (40,437 PUs) to -22 (2 PUs) per planning unit.  Overall, there is a net gain in records between the two data updates.  \\
+
+\noindent The number of planning unit by SGCN intersections decreased  by 925,765 from 44,246,352 to 45,172,117 records between 2021 Quarter 4 to . Across SGCN, this ranged from a loss of 9,671 records (Brook Trout) to a gain of 681,556 records (Copperhead). Between the two time periods, 208 SGCN had no change in the number of records. These data are outlined in the scatterplot presented below. Points that occur above the dashed 1:1 line indicated species that gained additional planning units between the 2021 Quarter 4 and the  updates. Increases in planning units typically are due to the incorporation of new records for a particular taxon but can also results from changes in mapping of existing records (e.g. CPP revision). Species that fall below the line show a decrease in planning units between the two time periods. Reasons for declines typically are due to particular occurrences falling outside the 25-year moving window for inclusion as a ‘known’ occurrence in the COA tool but may also result from revising the mapping of existing records.\\
+
+
+\begin{center}
+\includegraphics{figure/changePU-1.pdf}    %place it
+\end{center}
+
+\noindent The following table presents a summary of the missing data as occurring in the SGCN x Planning Unit dataset--—representing the SGCN that appear in the COA tool (i.e. extant records).\\
+
+\begin{longtable}{p{2.5in}C{1in}C{1in}C{1in}}
+%\caption{\textit{.}}
+\label{tab:missingSGCN}\\
+\hline
+\textbf{Taxnomic Group} & \textbf{2021 Quarter 4} & \textbf{} & \textbf{Difference} \\
+\midrule
+\endhead
+Bird & 1 & 1 & 0 \\Fish & 4 & 4 & 0 \\Invertebrate - Beetles & 5 & 5 & 0 \\Invertebrate - Butterflies & 5 & 4 & 1 \\Invertebrate - Caddisflies & 5 & 5 & 0 \\Invertebrate - Cave Invertebrates & 1 & 1 & 0 \\Invertebrate - Craneflies & 2 & 2 & 0 \\Invertebrate - Dragonflies and Damselflies & 12 & 12 & 0 \\Invertebrate - Freshwater Snails & 14 & 13 & 1 \\Invertebrate - Grasshoppers & 1 & 1 & 0 \\Invertebrate - Mayflies & 13 & 12 & 1 \\Invertebrate - Moths & 26 & 25 & 1 \\Invertebrate - Mussels & 12 & 12 & 0 \\Invertebrate - Spiders & 9 & 8 & 1 \\Invertebrate - Sponges & 1 & 1 & 0 \\Invertebrate - Stoneflies & 12 & 12 & 0 \\Invertebrate - Terrestrial Snails & 3 & 3 & 0 \\Invertebrate - True bugs & 1 & 1 & 0 \\Mammal & 3 & 3 & 0 \\Snake & 1 & 1 & 0 \\
+\hline
+\end{longtable}
+
+\noindent 
+Compared to the previous six months, there are five more SGCN in this data update as the result of these species being added to the various databases queried by this tool.
+\subsubsection*{Habitat Suitability Models}
+\noindent Habitat Suitability Models (i.e., Species Distribution Models) have been incorporated for 36 birds and 12 invertebrates (complete list available at https://wildlifeactionmap.pa.gov/data-information). These models originate from the 2nd Pennsylvania Breeding Bird Atlas, with additional models for wetland butterflies provided by an RCN-grant funded project in the mid-Atlantic region. Recently, we have produced or have access to additional models for mussels (SWG-funded projects) and many other taxonomic groups (NatureServe Map of Biodiversity Importance). We plan to evaluate the applicability of these models for the COA tool and include in a subsequent update. As part of this analysis we also plan to evaluate the probability thresholds used in models currently in the tool, as there is some evidence that these may be overpredicting habitat. 
+
+\subsubsection*{Tabular SQLite Data}
+\noindent  
+
+\subsection*{Changes in Range Maps}
+\noindent  
+
+\subsection*{Tool Error Checking}
+\noindent  
+
+\section*{Other Tool Changes}
+\noindent 
+
+\section*{Future Work}
+The following work is planned for future updates as data availability and capacity allow:
+\begin{itemize}
+ 
+\end{itemize} 
+
+\section*{Reporting for the COA Tool}
+
+The following are statistics for the Data Info page: 
+\begin{itemize}
+ \item{Includes spatial data for 539 of 664 SGCN;}
+ \item{New records updated as of ;}
+ \item{Added 1,667 new records for 103 Species of Greatest Conservation Need;}
+ \item{Updated 71,924 existing records for 98 Species of Greatest Conservation Need.}
+\end{itemize}
+
+\afterpage{\clearpage}
+
+\end{document}
