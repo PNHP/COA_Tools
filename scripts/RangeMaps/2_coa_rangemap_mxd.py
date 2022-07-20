@@ -8,13 +8,8 @@
 # Created:     15/11/2018
 #-------------------------------------------------------------------------------
 
-##################################### SET PATH TO FOLDER AND FIELD VARIABLES #########################################################################
-#set folder where sws gdb and .mxds are included
-<<<<<<< Updated upstream
-folder =  r'E:\COA_Tools\_data\output\_update2021q3' # r'C:\_Updated_2019_12_19'
-=======
-folder =  r'E:\_coa\_update2021q2' # r'C:\_Updated_2019_12_19'
->>>>>>> Stashed changes
+# set folder where sws gdb and .mxds are included
+folder = r'H:\Scripts\COA_Tools\_data\output\_update2022q2'
 desiredFields = ['COUNTY_NAM','NAME','TaxaDisplay', 'SCOMNAME', 'SNAME', 'y', 'b', 'm', 'w', 'Occurrence', 'GRANK', 'SRANK', 'USESA', 'SPROT', 'PBSSTATUS', 'PrimMacro', 'Shape', 'OBJECTID']
 ######################################################################################################################################################
 #import modules
@@ -225,10 +220,10 @@ fc_huc = sorted(arcpy.ListFeatureClasses("HUC8_*"))
 alltaxa_county = os.path.join(db,"_county_SGCN")
 alltaxa_huc = os.path.join(db,"_HUC8_SGCN")
 
-print("Checking layers for county .mxd...")
-taxa_layer_check(county_mxd,df_name_county,fc_county)
-print("Checking layers for huc .mxd...")
-taxa_layer_check(huc_mxd,df_name_huc,fc_huc)
+#print("Checking layers for county .mxd...")
+#taxa_layer_check(county_mxd,df_name_county,fc_county)
+#print("Checking layers for huc .mxd...")
+#taxa_layer_check(huc_mxd,df_name_huc,fc_huc)
 
 format_mxd(county_mxd,df_name_county,fc_county,alltaxa_county)
 format_mxd(huc_mxd,df_name_huc,fc_huc,alltaxa_huc)

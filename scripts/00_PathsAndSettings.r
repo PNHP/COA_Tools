@@ -22,9 +22,9 @@ require(dplyr)
 arc.check_product() 
 
 # update name
-updateName <- "_update2021q3"
-updateNameprev <- "_update2021q2"
-updateName6m <- "_update2021q1"
+updateName <- "_update2022q2"
+updateNameprev <- "_update2022q1"
+updateName6m <- "_update2021q4"
   
 # create a directory for this update unless it already exists
 ifelse(!dir.exists(here::here("_data","output",updateName)), dir.create(here::here("_data","output",updateName)), FALSE)
@@ -44,7 +44,7 @@ bioticsFeatServ_path <- "https://maps.waterlandlife.org/arcgis/rest/services/PNH
 biotics_crosswalk <- here::here("_data","input","crosswalk_BioticsSWAP.csv") # note that nine species are not in Biotics at all
 
 # paths to to server path to access cpp shapefiles, we connect to the cpp file in '02_SGCNcollector_BioticsCPP.r'
-serverPath <- paste("C:/Users/",Sys.getenv("USERNAME"),"/AppData/Roaming/ESRI/ArcGISPro/Favorites/PNHP.PGH-gis0.sde/",sep="")
+serverPath <- paste("C:/Users/",Sys.getenv("USERNAME"),"/AppData/Roaming/ESRI/ArcGISPro/Favorites/PNHP_Working_PGH-gis0.sde/",sep="")
 
 # cutoff year for records
 cutoffyear <- as.integer(substr(updateName, 8, 11)) - 25  # keep data that's only within 25 years
@@ -83,3 +83,4 @@ trackfiles <- function(trackitem, fname) {
   dbDisconnect(dbTracking) # disconnect the db
   rm(filetracker)
 }
+

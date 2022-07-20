@@ -63,8 +63,9 @@ for(x in 1:length(SGCNinat)){
 inatrecs <- ldply(a)
 
 # make a backup
-write.csv(inatrecs, "inatrecsq2_2021.csv", row.names = FALSE)
-inatrecs <- read.csv("inatrecsNov2020.csv", stringsAsFactors = FALSE)
+write.csv(inatrecs, here::here("_data","input","SGCN_data","iNat",paste0("inatrecs_",format(Sys.Date(),"%Y%m%d"),".csv")), row.names = FALSE)
+##### ONLY USE if you need to read in backup data
+#inatrecs <- read.csv(here::here("_data","input","SGCN_data","iNat",paste0("inatrecsq2_2022.csv")), stringsAsFactors = FALSE)
 
 # how many species did we get records for?
 unique(inatrecs$scientific_name)
@@ -204,3 +205,4 @@ arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_inat"), 
 
 unique(inatrecs3$SNAME)
 table(inatrecs3$SNAME,inatrecs3$TaxaGroup)
+

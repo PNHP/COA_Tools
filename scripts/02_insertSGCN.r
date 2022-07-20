@@ -22,7 +22,7 @@ SGCNlist_file <- list.files(path=here::here("_data","input"), pattern="^lu_SGCN"
 SGCNlist_file
 #look at the output and choose which file you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 7# this should  the "lu_SGCN.csv" from the previous quarter!!!!!!!!!!!!!!!!!!!!
+n <- 10 # this should  the "lu_SGCN.csv" from the previous quarter!!!!!!!!!!!!!!!!!!!!
 SGCNlist_file <- here::here("_data","input",SGCNlist_file[n])
 SGCN <- read.csv(SGCNlist_file, stringsAsFactors=FALSE)
 
@@ -49,8 +49,8 @@ SGCN$GRANK <- gsub("[\r\n]", "", SGCN$GRANK)
 # compare to the ET
 #get the most recent ET
 arc.check_portal()  # may need to update bridge to most recent version if it crashes: https://github.com/R-ArcGIS/r-bridge/issues/46
-ET <- arc.open(paste0(bioticsFeatServ_path,"/5"))  # 5 is the number of the ET
-ET <- arc.select(ET, c("ELSUBID","ELCODE","SNAME","SCOMNAME","GRANK","SRANK","SRANK_CHGDT","SRANK_RVWDT","EO_TRACK","SGCN","SENSITV_SP")) # , where_clause="SGCN='Y'"
+ET <- arc.open(paste(biotics_path,"ET",sep="/"))  # 5 is the number of the ET
+ET <- arc.select(ET, c("ELSUBID","ELCODE","SNAME","SCOMNAME","GRANK","SRANK","SRANK_CHGD","SRANK_RVWD","EO_TRACK","SGCN","SENSITV_SP")) # , where_clause="SGCN='Y'"
 # write to file tracker  REMOVED for now
 
 SGCNtest <- merge(SGCN[c("ELCODE","SNAME","SCOMNAME","GRANK","SRANK")], ET, by.x="ELCODE", by.y="ELCODE", all.x = TRUE)

@@ -28,9 +28,9 @@ loadSGCN()
 #get the threats template
 COA_actions_file <- list.files(path=here::here("_data/input"), pattern=".xlsx$")  # --- make sure your excel file is not open.
 COA_actions_file
-#look at the output and choose which shapefile you want to run
+#look at the output and choose which excel file you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 7
+n <- 10
 COA_actions_file <- here::here("_data/input",COA_actions_file[n])
 
 # write to file tracker
@@ -73,7 +73,7 @@ print(sgcn_actionnorecord)
 #############################################################################################################
 # write to the database
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
-  dbWriteTable(db, "lu_actionsLevel2", COA_actions, overwrite=TRUE) # write the output to the sqlite db
+dbWriteTable(db, "lu_actionsLevel2", COA_actions, overwrite=TRUE) # write the output to the sqlite db
 dbDisconnect(db) # disconnect the db
 rm(COA_actions)
 
@@ -132,7 +132,7 @@ print("The following ELSeason records are found in the SGCNsurvey table, but do 
 print(sgcn_surveynorecord)
 
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
-  dbWriteTable(db, "lu_SGCNsurvey", SGCNsurvey, overwrite=TRUE) # write the table to the sqlite
+dbWriteTable(db, "lu_SGCNsurvey", SGCNsurvey, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
 
 # write to file tracker

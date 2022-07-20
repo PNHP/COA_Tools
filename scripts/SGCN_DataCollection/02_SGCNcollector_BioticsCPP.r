@@ -28,8 +28,8 @@ source(here::here("scripts","00_PathsAndSettings.r"))
 loadSGCN()
 
 # load the Biotics Crosswalk
- biotics_crosswalk <- read.csv(biotics_crosswalk, stringsAsFactors=FALSE)
- lu_sgcnBiotics <- biotics_crosswalk$SNAME
+biotics_crosswalk <- read.csv(biotics_crosswalk, stringsAsFactors=FALSE)
+lu_sgcnBiotics <- biotics_crosswalk$SNAME
 # lu_sgcnBioticsELCODE <- biotics_crosswalk$ELCODE
 
 ########################################################################################

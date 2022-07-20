@@ -140,7 +140,7 @@ sgcn <- arc.select(data,columns)
 sgcn_sf <- arc.data2sf(sgcn)
 sgcn_sf <- sgcn_sf[0,]
 
-# before doing this step, you should check to make sure there is no empty geometry in the bat data, unless that was fixed and then please delete this comment.
+# there used to be an issue with empty geometry in bat data, this seems to have been solved... proceed with caution
 for(name in final_list){
   print(name)
   data <- arc.open(path=here::here("_data","output",updateName,"SGCN.gdb",name))
@@ -151,3 +151,4 @@ for(name in final_list){
 
 sgcn_final <- sgcn_sf[which(sgcn_sf$useCOA=='y'),]
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","allSGCNuse"), sgcn_final, overwrite=TRUE, validate=TRUE)
+

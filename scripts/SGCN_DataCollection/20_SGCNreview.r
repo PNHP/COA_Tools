@@ -37,11 +37,16 @@ dbDisconnect(db) # disconnect the db
 ## minor fixes
 lu_sgcnXpu[lu_sgcnXpu=="AAAAE01040_y"] <- "AAAAE01042_y" # mudpuppy
 lu_sgcnXpu[lu_sgcnXpu=="AMAFB09020_y"] <- "AMAFB09030_y" # northern flying squirrel
-lu_sgcnXpu[lu_sgcnXpu=="AMAFB09020_y"] <- "IILEP42010_y" # arctic skipper
 lu_sgcnXpu[lu_sgcnXpu=="ABPBX03240_y"] <- "ABPBX03240_b" # cerulean warbler
+lu_sgcnXpu[lu_sgcnXpu=="IILEP42011_y"] <- "IILEP42010_y" # arctic skipper
+lu_sgcnXpu[lu_sgcnXpu=="AAAAD01010_y"] <- "AAAAD01090_y" # green salamander
+lu_sgcnXpu[lu_sgcnXpu=="AAABC05010_y"] <- "AAABC05200_y" # mountain chorus frog
+lu_sgcnXpu[lu_sgcnXpu=="ARADE01010_y"] <- "ARADE01040_y" # copperhead
+lu_sgcnXpu[lu_sgcnXpu=="IMBIV21160_y"] <- "IMBIV21360_y" # eastern lampmussel
+lu_sgcnXpu[lu_sgcnXpu=="IIODO61070_y"] <- "IIODO61020_y" # Cherry-faced Meadowhawk
 
 # i think this gets rid of some bad records, mayb strays from the biotics import
-lu_sgcnXpu <- lu_sgcnXpu[which(lu_sgcnXpu$ELSeason!="ABNKD06020_y"&lu_sgcnXpu$ELSeason!="ABPBX03120_y"&lu_sgcnXpu$ELSeason!="ABPBX16010_y"&lu_sgcnXpu$ELSeason!="ABNTA07070_y"&lu_sgcnXpu$ELSeason!="ABPBK01010_y"&lu_sgcnXpu$ELSeason!="ABPBX01060_y"&lu_sgcnXpu$ELSeason!="ABPBXA4020_y"&lu_sgcnXpu$ELSeason!="ABNSB13040_y"&lu_sgcnXpu$ELSeason!="ABNNF19020_y"&lu_sgcnXpu$ELSeason!="ABPBA01010_y"&lu_sgcnXpu$ELSeason!="ABPBJ18100_y"&lu_sgcnXpu$ELSeason!="ABPBX05010_y"&lu_sgcnXpu$ELSeason!="ABPAU01010_y"&lu_sgcnXpu$ELSeason!="ABNNM08070_y"&lu_sgcnXpu$ELSeason!="ABPBY06030_y"&lu_sgcnXpu$ELSeason!="ABPBG10020_y"&lu_sgcnXpu$ELSeason!="ABPBX03050_y"&lu_sgcnXpu$ELSeason!="ABPBX03230_y"&lu_sgcnXpu$ELSeason!="ABNME05030_y"&lu_sgcnXpu$ELSeason!="ABNCA03010_y"&lu_sgcnXpu$ELSeason!="AMACC04010_y"&lu_sgcnXpu$ELSeason!="ABNME08020_y"&lu_sgcnXpu$ELSeason!="ABNKC12020_y"&lu_sgcnXpu$ELSeason!="ABNME13030"),]
+lu_sgcnXpu <- lu_sgcnXpu[which(lu_sgcnXpu$ELSeason!="IMBIV39112_y"&lu_sgcnXpu$ELSeason!="ABNKD06020_y"&lu_sgcnXpu$ELSeason!="ABPBX03120_y"&lu_sgcnXpu$ELSeason!="ABPBX16010_y"&lu_sgcnXpu$ELSeason!="ABNTA07070_y"&lu_sgcnXpu$ELSeason!="ABPBK01010_y"&lu_sgcnXpu$ELSeason!="ABPBX01060_y"&lu_sgcnXpu$ELSeason!="ABPBXA4020_y"&lu_sgcnXpu$ELSeason!="ABNSB13040_y"&lu_sgcnXpu$ELSeason!="ABNNF19020_y"&lu_sgcnXpu$ELSeason!="ABPBA01010_y"&lu_sgcnXpu$ELSeason!="ABPBJ18100_y"&lu_sgcnXpu$ELSeason!="ABPBX05010_y"&lu_sgcnXpu$ELSeason!="ABPAU01010_y"&lu_sgcnXpu$ELSeason!="ABNNM08070_y"&lu_sgcnXpu$ELSeason!="ABPBY06030_y"&lu_sgcnXpu$ELSeason!="ABPBG10020_y"&lu_sgcnXpu$ELSeason!="ABPBX03050_y"&lu_sgcnXpu$ELSeason!="ABPBX03230_y"&lu_sgcnXpu$ELSeason!="ABNME05030_y"&lu_sgcnXpu$ELSeason!="ABNCA03010_y"&lu_sgcnXpu$ELSeason!="AMACC04010_y"&lu_sgcnXpu$ELSeason!="ABNME08020_y"&lu_sgcnXpu$ELSeason!="ABNKC12020_y"&lu_sgcnXpu$ELSeason!="ABNME13030"),]
 
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
 dbWriteTable(db, "lu_sgcnXpu_all", lu_sgcnXpu, overwrite=TRUE) # write the table to the sqlite
