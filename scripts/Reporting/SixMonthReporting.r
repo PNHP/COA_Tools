@@ -16,6 +16,8 @@ if (!requireNamespace("tinytex", quietly = TRUE)) install.packages("tinytex")
 require(tinytex)
 if (!requireNamespace("english", quietly = TRUE)) install.packages("english")
 require(english)
+if (!requireNamespace("beepr", quietly = TRUE)) install.packages("beepr")
+require(beepr)
 
 source(here::here("scripts","00_PathsAndSettings.r"))
 
@@ -23,7 +25,7 @@ source(here::here("scripts","00_PathsAndSettings.r"))
 ReportName <- "Progress Report 6 - June 30, 2022"
 
 
-replaceGraphs <- "yes"
+replaceGraphs <- "no"
 
 # function to generate the pdf
 #knit2pdf(here::here("scripts","Reporting","SixMonthReporting.rnw"), output=paste(pdf_filename, ".tex", sep=""))
@@ -202,7 +204,7 @@ write.csv(missingSGCN6msummary,paste(here::here("_data","output",updateName),"/m
 # comparison of the six month to now
 missingCompare <- merge(missingSGCN6msummary, missingSGCNnowsummary, by="TaxaDisplay")
 names(missingCompare) <- c("TaxaDisplay", "n_6m", "n_now")
-missingCompare$difference <- missingCompare$n_6m - missingCompare$n_now
+missingCompare$difference <- missingCompare$n_now - missingCompare$n_6m
 
 ################################################
 

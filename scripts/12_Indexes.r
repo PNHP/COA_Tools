@@ -38,6 +38,9 @@ CREATE INDEX lu_HabTerr_Code_index ON lu_HabTerr (Code);
 CREATE INDEX lu_SpecialHabitats_unique_id_index ON lu_SpecialHabitats (unique_id);
 CREATE INDEX lu_HabTerr_unique_id_index ON lu_HabTerr (unique_id);
 CREATE INDEX lu_LoticData_unique_id_index ON lu_LoticData (unique_id);
+CREATE INDEX lu_actionsLevel2_ELSeason_index ON lu_actionsLevel2 (ELSeason);
+CREATE INDEX lu_SGCN_ELSeason_index ON lu_SGCN (ELSeason);
+CREATE INDEX lu_PrimaryMacrogroup_ELSeason_index ON lu_PrimaryMacrogroup (ELSeason);
 
 
 

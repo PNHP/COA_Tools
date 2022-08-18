@@ -45,7 +45,6 @@ snails <- snails[which(snails$SCI_NAME %in% lu_sgcn$SNAME),]
 snails$LASTOBS <- year(parse_date_time(snails$DATE, c("%m/%d/%y","ymd","%mdy","d%by")))
 snails$LASTOBS[is.na(snails$LASTOBS)] <- "NO DATE"
 
-
 snails$DataSource <- "DillionSnails"
 snails$SeasonCode <- "y"
 snails$OccProb <- "k"
@@ -62,11 +61,8 @@ snails <- snails[c("SNAME","DataID","DataSource","Longitude","Latitude","LastObs
 #add in the SGCN fields
 snails <- merge(snails, lu_sgcn, by="SNAME", all.x=TRUE)
 
-# add in useCOA
-snails$useCOA <- NA
-
-snails$UseCOA <- with(snails, ifelse(snails$LastObs >= cutoffyear, "y", "n"))
-snails$OccProb <- "k"
+# add in and calculate useCOA based on lastobs date
+snails$useCOA <- with(snails, ifelse(snails$LastObs >= cutoffyear & snails$LastObs != "NO DATE", "y", "n"))
 
 # create a spatial layer
 snails_sf <- st_as_sf(snails, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")

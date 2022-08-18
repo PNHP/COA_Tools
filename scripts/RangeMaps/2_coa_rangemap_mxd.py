@@ -10,7 +10,7 @@
 
 # set folder where sws gdb and .mxds are included
 folder = r'H:\Scripts\COA_Tools\_data\output\_update2022q2'
-desiredFields = ['COUNTY_NAM','NAME','TaxaDisplay', 'SCOMNAME', 'SNAME', 'y', 'b', 'm', 'w', 'Occurrence', 'GRANK', 'SRANK', 'USESA', 'SPROT', 'PBSSTATUS', 'PrimMacro', 'Shape', 'OBJECTID']
+desiredFields = ['COUNTY_NAM','NAME','TaxaDisplay', 'SCOMNAME', 'SNAME', 'y', 'b', 'm', 'w', 'Occurrence', 'GRANK', 'SRANK', 'USESA', 'SPROT', 'PBSSTATUS', 'PrimMacro', 'OBJECTID', 'Shape']
 ######################################################################################################################################################
 #import modules
 import arcpy, os, datetime, sys
@@ -182,7 +182,7 @@ def format_mxd(mxd,df_name,fc,alltaxa):
             for name in lyr_names:
                 LayerNeedsFieldsTurnedOff = arcpy.mapping.ListLayers(mxd,name,df)[0]
                 field_info = arcpy.Describe(LayerNeedsFieldsTurnedOff).fieldInfo
-                for i in range(field_info.count):
+                for i in range(0, field_info.count):
                     if field_info.getfieldname(i) not in desiredFields:
                         field_info.setvisible(i,'HIDDEN')
                 arcpy.MakeFeatureLayer_management(LayerNeedsFieldsTurnedOff,'temp_layer','','',field_info)
@@ -204,12 +204,19 @@ def format_mxd(mxd,df_name,fc,alltaxa):
             lyr.name = scomname
     
     edit_attributes(alltaxa)
-    targetGroupLayer = arcpy.mapping.ListLayers(mxd,"All Taxa Groups",df)[0]
+    targetGroupLayer = arcpy.mapping.ListLayers(mxd,"All Taxa",df)[0]
     addLayer = arcpy.mapping.Layer(alltaxa)
     addLayer.name = "All Taxa"
     addLayer.visible = False
     arcpy.mapping.AddLayerToGroup(df, targetGroupLayer, addLayer, "AUTO_ARRANGE")
 
+    lyrs = arcpy.mapping.ListLayers(targetGroupLayer)
+    for lyr in lyrs:
+        if lyr.isFeatureLayer:
+            field_info = arcpy.Describe(lyr).fieldInfo
+            for i in range(0, field_info.count):
+                if field_info.getfieldname(i) not in desiredFields:
+                    field_info.setvisible(i, 'HIDDEN')
     mxd.save()
 
 df_name_county = "SGCN County Range Maps"

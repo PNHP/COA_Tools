@@ -24,7 +24,7 @@ library(purrr)
 library(data.table)
 library(dplyr)
 
-source(here::here("scripts","00a_APIsettings.r"))
+source(here::here("scripts","COA_API_PlaySpace","00a_APIsettings.r"))
 
 httr::set_config(config(ssl_verifypeer=0L, ssl_verifyhost=0L))
 a <- POST("https://pgcapigw.beta.pa.gov:9443/oauth2/token",

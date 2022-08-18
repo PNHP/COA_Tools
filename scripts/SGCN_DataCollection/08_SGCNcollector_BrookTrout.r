@@ -17,6 +17,10 @@ rm(list=ls())
 # load packages
 if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
   require(here)
+if (!requireNamespace("arcgisbinding", quietly = TRUE)) install.packages("arcgisbinding")
+  require(arcgisbinding)
+require(sf)
+arc.check_product()
 
 source(here::here("scripts","00_PathsAndSettings.r"))
 
@@ -26,12 +30,14 @@ loadSGCN("AF")
 
 
 # read in Brook trout data
-trout_file <- list.files(path=here::here("_data","input","SGCN_data","PFBC_BrookTrout"), pattern=".shp$")  # --- make sure your excel file is not open.
-trout_file
+#trout_file <- list.files(path=here::here("_data","input","SGCN_data","PFBC_BrookTrout"), pattern=".shp$")  # --- make sure your excel file is not open.
+#trout_file
 #look at the output and choose which shapefile you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 2
-trout_file <- here::here("_data","input","SGCN_data","PFBC_BrookTrout", trout_file[n])
+#n <- 2
+
+# using this trout file because needed to remove m values
+trout_file <- here::here("_data","input","SGCN_data","PFBC_BrookTrout","BrookTrout.gdb","Wild_BrookTrout_post_1990")
 
 # write to file tracker
 trackfiles("SGCN Brook Trout", trout_file)

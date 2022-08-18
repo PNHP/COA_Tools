@@ -44,6 +44,7 @@ lu_sgcnXpu[lu_sgcnXpu=="AAABC05010_y"] <- "AAABC05200_y" # mountain chorus frog
 lu_sgcnXpu[lu_sgcnXpu=="ARADE01010_y"] <- "ARADE01040_y" # copperhead
 lu_sgcnXpu[lu_sgcnXpu=="IMBIV21160_y"] <- "IMBIV21360_y" # eastern lampmussel
 lu_sgcnXpu[lu_sgcnXpu=="IIODO61070_y"] <- "IIODO61020_y" # Cherry-faced Meadowhawk
+lu_sgcnXpu[lu_sgcnXpu=="IMBIV39112_y"] <- "IMBIV39250_y" # pimpleback, Quadrula postulosa
 
 # i think this gets rid of some bad records, mayb strays from the biotics import
 lu_sgcnXpu <- lu_sgcnXpu[which(lu_sgcnXpu$ELSeason!="IMBIV39112_y"&lu_sgcnXpu$ELSeason!="ABNKD06020_y"&lu_sgcnXpu$ELSeason!="ABPBX03120_y"&lu_sgcnXpu$ELSeason!="ABPBX16010_y"&lu_sgcnXpu$ELSeason!="ABNTA07070_y"&lu_sgcnXpu$ELSeason!="ABPBK01010_y"&lu_sgcnXpu$ELSeason!="ABPBX01060_y"&lu_sgcnXpu$ELSeason!="ABPBXA4020_y"&lu_sgcnXpu$ELSeason!="ABNSB13040_y"&lu_sgcnXpu$ELSeason!="ABNNF19020_y"&lu_sgcnXpu$ELSeason!="ABPBA01010_y"&lu_sgcnXpu$ELSeason!="ABPBJ18100_y"&lu_sgcnXpu$ELSeason!="ABPBX05010_y"&lu_sgcnXpu$ELSeason!="ABPAU01010_y"&lu_sgcnXpu$ELSeason!="ABNNM08070_y"&lu_sgcnXpu$ELSeason!="ABPBY06030_y"&lu_sgcnXpu$ELSeason!="ABPBG10020_y"&lu_sgcnXpu$ELSeason!="ABPBX03050_y"&lu_sgcnXpu$ELSeason!="ABPBX03230_y"&lu_sgcnXpu$ELSeason!="ABNME05030_y"&lu_sgcnXpu$ELSeason!="ABNCA03010_y"&lu_sgcnXpu$ELSeason!="AMACC04010_y"&lu_sgcnXpu$ELSeason!="ABNME08020_y"&lu_sgcnXpu$ELSeason!="ABNKC12020_y"&lu_sgcnXpu$ELSeason!="ABNME13030"),]
