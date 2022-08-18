@@ -67,7 +67,7 @@
 \section*{Overview}
 \noindent Three main databases are maintained under this project:
 \begin{enumerate}
- \item{Species of Greatest Conservation Need (SGCN) Geodatabase – A geodatabase of SGCN location information compiled from various sources (e.g., PNHP Biotics,PGC/PFBC databases, eBird, and other community science databases). A subset of these records are used to create the modeled SGCN distribution data in the Conservation Opportunity Area (COA) tool.}
+ \item{Species of Greatest Conservation Need (SGCN) Geodatabase – A geodatabase of SGCN location information compiled from various sources (e.g., PNHP Biotics, PGC/PFBC databases, eBird, and other community science databases). A subset of these records are used to create the modeled SGCN distribution data in the Conservation Opportunity Area (COA) tool.}
  \item{SQLite Database – This database is delivered to NatureServe and drives the COA tool. This database contains tabular information about species distribution linked to planning units as well as other data about actions, threats, land ownership, etc.}
  \item{Range Map Geodatabase – This geodatabase is derived from the SQLite Database and consists of county and HUC8 range maps for all mapped SGCN. This database is delivered to NatureServe and drives the SGCN range map portion of the COA tool. Additionally, two .mxd files with the map symbology, one each for county and Hydrologic Unit Code (HUC) 8 boundaries, are delivered to NatureServe for inclusion into the COA tool.\\}
 \end{enumerate}
@@ -102,14 +102,14 @@ for(i in 1:nrow(updatetracker_sub)) {
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \section*{Description of Updates in COA tool database content}
-\noindent The following sections describe substantive changes in the SGCN geodatabase, the SQLite database for the COA tool, and the Range Map geodatabase. Not all changes and updates have been described here, instead we focused on the most important and relevant changes.
+\noindent The following sections describe substantive changes in the SGCN geodatabase, the SQLite database for the COA tool, and the Range Map geodatabase. Not all changes and updates have been described here. Instead, we focused on the most important and relevant changes.
 
 \subsection*{Changes in SGCN Geodatabase}
-\noindent The number of SGCN records increased from approximately \Sexpr{comma(nrow(SGCNold_sf))} records to \Sexpr{comma(nrow(SGCN_sf))}. A spreadsheet indicating the number of records available for each SGCN for the \Sexpr{updatetracker[which(updatetracker$updateName==updateName),"UpdateNameDisplay"]} update can be found at \\
+\noindent The number of SGCN records \Sexpr{ifelse(nrow(SGCNold_sf)>nrow(SGCN_sf),"decreased","increased")} from approximately \Sexpr{comma(nrow(SGCNold_sf))} to \Sexpr{comma(nrow(SGCN_sf))} records. Although most data sources from which we gather SGCN data saw an increase or no change in the number of records, a decline in SGCN records occurred in eBird, PGC bat, and TREC datasets, data which were not updated with new records during the last 6-month reporting period and had records age beyond the 25-year inclusion cutoff. A spreadsheet indicating the number of records available for each SGCN for the \Sexpr{updatetracker[which(updatetracker$updateName==updateName),"UpdateNameDisplay"]} update can be found at \\
 \Sexpr{paste("https://wildlifeactionmap.pa.gov/sites/default/files/","SGCNsummary", updateName,".csv", sep="")}.
 
 \subsection*{Data by Taxonomic Groups}
-\noindent This section includes an overview of current SGCN data for each major taxonomic group relative to the 25-year cutoff for most taxonomic groups---data beyond this 25-year window is not included in the tool (exception for fish, which go back to 1980).  Histograms and maps showing these are presented below. Note that the data presented as of the \Sexpr{updatetracker[which(updatetracker$updateName==updateName),"UpdateNameDisplay"]} update (i.e. previous data are not shown. %Due to size and scale limitations of the maps, we recommend that any detailed analysis of the spatial data be undertaken by using the spatial data provided to PFBC and PGC.  When known, we’ve provided additional details, data harvesting, and survey needs to fill in data gaps. Some of this data gathering (e.g., field surveys) are beyond the scope of this project, but could be supported by additional funding (e.g., State Wildlife Grants, Wild Resources Conservation Program, PA Department of Agriculture).\\
+\noindent This section includes an overview of current SGCN data for each major taxonomic group relative to the 25-year inclusion window that we employ for most taxonomic groups. SGCN data beyond the 25-year inclusion window are not included in the COA Tool, with the exception of fish, for which we include records that date back to 1980. Histograms and maps showing SGCN records as of the \Sexpr{updatetracker[which(updatetracker$updateName==updateName),"UpdateNameDisplay"]} update are presented below. Note that some data sources include records from just outside of Pennsylvania due to the rectangular bounding box that is used for queries of community science databases like eBird, iNaturalist, BAMONA, etc. Work is planned to remove these from the SGCN geodatabase in future updates. %Due to size and scale limitations of the maps, we recommend that any detailed analysis of the spatial data be undertaken by using the spatial data provided to PFBC and PGC.  When known, we’ve provided additional details, data harvesting, and survey needs to fill in data gaps. Some of this data gathering (e.g., field surveys) are beyond the scope of this project, but could be supported by additional funding (e.g., State Wildlife Grants, Wild Resources Conservation Program, PA Department of Agriculture).\\
 \medskip
 
 <<label=taxamaps, echo=FALSE, results='asis'>>=
@@ -142,14 +142,14 @@ for(i in 1:nrow(specieslooper)) {
 \noindent 
 <<label=SpeciesDataCompare, echo=FALSE, results='asis'>>=
 if(length(cnt_SGCN6mNoSeason)==length(cnt_SGCNnowNoSeason)){
-  cat(paste0("There was no change (",length(cnt_SGCN6mNoSeason)," unique SGCN and ",length(cnt_SGCN6m) ," including seasons) in the number of SGCN included in the COA Tool between ",updatetracker[which(updatetracker$updateName==updateName6m),'UpdateNameDisplay']," and ",updatetracker[which(updatetracker$updateName==updateName),'UpdateNameDisplay'],". "))
+  cat(paste0("There was no change (",length(cnt_SGCN6mNoSeason)," unique SGCN and ",length(cnt_SGCN6m) ," including seasons) in the number of SGCN included in the COA Tool between ",updatetracker[which(updatetracker$updateName==updateName6m),'UpdateNameDisplay']," and ",updatetracker[which(updatetracker$updateName==updateName),'UpdateNameDisplay'],"."))
 } else if(length(cnt_SGCN6mNoSeason)<length(cnt_SGCNnowNoSeason)){
   cat(paste0(
-    "In this update, we increased the number of SGCN that are spatially represented from ",length(cnt_SGCN6mNoSeason)," (",length(cnt_SGCN6m)," including seasons) in ",updatetracker[which(updatetracker$updateName==updateName6m),'UpdateNameDisplay']," to ",length(cnt_SGCNnowNoSeason)," (",length(cnt_SGCNnow)," including seasons) in ",updatetracker[which(updatetracker$updateName==updateName),'UpdateNameDisplay'],". "
+    "In this update, we increased the number of SGCN from ",length(cnt_SGCN6mNoSeason)," (",length(cnt_SGCN6m)," including seasons) in ",updatetracker[which(updatetracker$updateName==updateName6m),'UpdateNameDisplay']," to ",length(cnt_SGCNnowNoSeason)," (",length(cnt_SGCNnow)," including seasons) in ",updatetracker[which(updatetracker$updateName==updateName),'UpdateNameDisplay'],"."
       ))
 } else {
    cat(paste0(
-    "In this update, we decreased the number of SGCN that are spatially represented from ",length(cnt_SGCN6mNoSeason)," (",length(cnt_SGCN6m)," including seasons) in ",updatetracker[which(updatetracker$updateName==updateName6m),'UpdateNameDisplay']," to ",length(cnt_SGCNnowNoSeason)," (",length(cnt_SGCNnow)," including seasons) in ",updatetracker[which(updatetracker$updateName==updateName),'UpdateNameDisplay'],". "
+    "In this update, we decreased the number of SGCN from ",length(cnt_SGCN6mNoSeason)," (",length(cnt_SGCN6m)," including seasons) in ",updatetracker[which(updatetracker$updateName==updateName6m),'UpdateNameDisplay']," to ",length(cnt_SGCNnowNoSeason)," (",length(cnt_SGCNnow)," including seasons) in ",updatetracker[which(updatetracker$updateName==updateName),'UpdateNameDisplay'],"."
       )) 
 }
 
@@ -160,7 +160,17 @@ if(length(cnt_SGCN6mNoSeason)==length(cnt_SGCNnowNoSeason)){
 # }
 @
 
-Of the \Sexpr{prettyNum(PUcnt_total, big.mark=",", scientific=FALSE)} possible planning units, the number of planning units with at least one SGCN present \Sexpr{ifelse(PUchng>0, "decreased","increased")} by \Sexpr{ifelse(abs(PUchng)<=10, words(abs(PUchng)), prettyNum(abs(PUchng), big.mark=",", scientific=FALSE))} from \Sexpr{prettyNum(nrow(PUcount_6m), big.mark=",", scientific=FALSE)} to \Sexpr{prettyNum(nrow(PUcount_now), big.mark=",", scientific=FALSE)} between the two time periods. More than \Sexpr{round(100*(nrow(PUcount_now)/PUcnt_total),2)}\% of planning units report at least one SGCN (known or likely presence). However, a more careful examination of the data shows changes in richness among individual planning units as the graph below indicates:
+\noindent Of the \Sexpr{prettyNum(PUcnt_total, big.mark=",", scientific=FALSE)} planning units across Pennsylvania, more than \Sexpr{round(100*(nrow(PUcount_now)/PUcnt_total),2)}\% report at least one SGCN (likely or known presence).
+<<label=SpeciesPUCompare, echo=FALSE, results='asis'>>=
+if(PUchng>0){
+  cat(paste0("The number of planning units with at least one SGCN increased by ",PUchng," from ",nrow(PUcnt_6m)," to ",nrow(PUcount_now)," between the two update time periods."))
+} else if(PUchng<0){
+  cat(paste0("The number of planning units with at least one SGCN decreased by ",PUchng," from ",nrow(PUcnt_6m)," to ",nrow(PUcount_now)," between the two update time periods."))
+} else {
+   cat(paste0("The number of planning units with at least one SGCN did not change between the two update time periods, remaining at ",prettyNum(nrow(PUcount_now), big.mark=",", scientific=FALSE),"."))
+}
+@
+\noindent A more careful examination of the data shows changes in SGCN richness among individual planning units, indicated by the graph below:
 
 <<PU_Richness, fig.width=7.0, fig.height=4, include=FALSE, echo=FALSE>>=
 ggplot(data=PUcount_compare6m, aes(PUcount_compare6m$diff)) +
@@ -173,9 +183,10 @@ labs(title="Change in SGCN Richness of Attributed Planning Units", x ="Differenc
 \includegraphics{figure/PU_Richness-1.pdf}    %place it
 \end{center}
 
-\noindent Between the two time periods \Sexpr{prettyNum(PUcnt_nochange, big.mark=",", scientific=FALSE)} (\Sexpr{round((PUcnt_nochange/PUcnt_total)*100, digits=0)}\%) planning units had no-change (difference of zero). Additions of planning units containing at least one SGCN range from 1 (\Sexpr{prettyNum(PUcnt_plus1, big.mark=",", scientific=FALSE)} PUs) to \Sexpr{prettyNum(PUchng_max, big.mark=",", scientific=FALSE)} (\Sexpr{prettyNum(PUcnt_max, big.mark=",", scientific=FALSE)} PUs), with a total of \Sexpr{prettyNum(PUcnt_ge1, big.mark=",", scientific=FALSE)} PUs added. A total of \Sexpr{prettyNum(pu_loss, big.mark=",", scientific=FALSE)} species x planning unit intersections were removed from the planning units between the two updates, ranging from -1 (\Sexpr{prettyNum(PUcnt_minus1, big.mark=",", scientific=FALSE)} PUs) to \Sexpr{prettyNum(PUchng_min, big.mark=",", scientific=FALSE)} (\Sexpr{prettyNum(PUcnt_min, big.mark=",", scientific=FALSE)} PUs) per planning unit.  Overall, there is a net gain in records between the two data updates. \Sexpr{updatenotes[which(updatenotes$NoteType=="pu_change"&updatenotes$updateName==updateName),"NoteContent"]} \\
+\noindent Between the two update time periods, \Sexpr{prettyNum(PUcnt_nochange, big.mark=",", scientific=FALSE)} (\Sexpr{round((PUcnt_nochange/PUcnt_total)*100, digits=0)}\%) planning units had no-change in SGCN richness. Additions of planning units containing at least one SGCN range from 1 (\Sexpr{prettyNum(PUcnt_plus1, big.mark=",", scientific=FALSE)} PUs) to \Sexpr{prettyNum(PUchng_max, big.mark=",", scientific=FALSE)} (\Sexpr{prettyNum(PUcnt_max, big.mark=",", scientific=FALSE)} PUs), with a total of \Sexpr{prettyNum(PUcnt_ge1, big.mark=",", scientific=FALSE)} PUs added. A total of \Sexpr{prettyNum(pu_loss, big.mark=",", scientific=FALSE)} species x planning unit intersections were removed from the planning units between the two updates, ranging from -1 (\Sexpr{prettyNum(PUcnt_minus1, big.mark=",", scientific=FALSE)} PUs) to \Sexpr{prettyNum(PUchng_min, big.mark=",", scientific=FALSE)} (\Sexpr{prettyNum(PUcnt_min, big.mark=",", scientific=FALSE)} PUs) per planning unit. Overall, there is a net gain in records between the two data updates. \Sexpr{updatenotes[which(updatenotes$NoteType=="pu_change"&updatenotes$updateName==updateName),"NoteContent"]} \\
 
-\noindent The number of planning unit by SGCN intersections \Sexpr{ifelse(SGCNxPU_Total_diff<0, "increased","decreased")}  by \Sexpr{prettyNum(abs(SGCNxPU_Total_diff), big.mark=",", scientific=FALSE)} from \Sexpr{prettyNum(SGCNxPU_Total_6m, big.mark=",", scientific=FALSE)} to \Sexpr{prettyNum(SGCNxPU_Total_now, big.mark=",", scientific=FALSE)} records between \Sexpr{updatetracker[which(updatetracker$updateName==updateName6m),'UpdateNameDisplay']} to \Sexpr{updatetracker[which(updatetracker$updateName==updateName),'UpdateNameDisplay']}. Across SGCN, this ranged from a loss of \Sexpr{prettyNum(abs(min(SGCNxPU_Count$diff, na.rm=TRUE)), big.mark=",", scientific=FALSE)} records (\Sexpr{SGCNxPU_Count[which(SGCNxPU_Count$diff==min(SGCNxPU_Count$diff, na.rm=TRUE)),"SCOMNAME"]}) to a gain of \Sexpr{prettyNum(max(SGCNxPU_Count$diff, na.rm=TRUE), big.mark=",", scientific=FALSE)} records (\Sexpr{SGCNxPU_Count[which(SGCNxPU_Count$diff==max(SGCNxPU_Count$diff, na.rm=TRUE)),"SCOMNAME"]}). Between the two time periods, \Sexpr{prettyNum(nrow(SGCNxPU_Count[which(SGCNxPU_Count$diff==0),]), big.mark=",", scientific=FALSE)} SGCN had no change in the number of records. These data are outlined in the scatterplot presented below. Points that occur above the dashed 1:1 line indicated species that gained additional planning units between the \Sexpr{updatetracker[which(updatetracker$updateName==updateName6m),'UpdateNameDisplay']} and the \Sexpr{updatetracker[which(updatetracker$updateName==updateName),'UpdateNameDisplay']} updates. Increases in planning units typically are due to the incorporation of new records for a particular taxon but can also results from changes in mapping of existing records (e.g. CPP revision). Species that fall below the line show a decrease in planning units between the two time periods. Reasons for declines typically are due to particular occurrences falling outside the 25-year moving window for inclusion as a ‘known’ occurrence in the COA tool but may also result from revising the mapping of existing records.\\
+\noindent The number of planning unit by SGCN intersections \Sexpr{ifelse(SGCNxPU_Total_diff<0, "increased","decreased")} by \Sexpr{prettyNum(abs(SGCNxPU_Total_diff), big.mark=",", scientific=FALSE)} from \Sexpr{prettyNum(SGCNxPU_Total_6m, big.mark=",", scientific=FALSE)} to \Sexpr{prettyNum(SGCNxPU_Total_now, big.mark=",", scientific=FALSE)} between \Sexpr{updatetracker[which(updatetracker$updateName==updateName6m),'UpdateNameDisplay']} and \Sexpr{updatetracker[which(updatetracker$updateName==updateName),'UpdateNameDisplay']}. Across SGCN, this ranged from a loss of \Sexpr{prettyNum(abs(min(SGCNxPU_Count$diff, na.rm=TRUE)), big.mark=",", scientific=FALSE)} planning unit intersections (\Sexpr{SGCNxPU_Count[which(SGCNxPU_Count$diff==min(SGCNxPU_Count$diff, na.rm=TRUE)),"SCOMNAME"]}) to a gain of \Sexpr{prettyNum(max(SGCNxPU_Count$diff, na.rm=TRUE), big.mark=",", scientific=FALSE)} planning unit intersections (\Sexpr{SGCNxPU_Count[which(SGCNxPU_Count$diff==max(SGCNxPU_Count$diff, na.rm=TRUE)),"SCOMNAME"]}). Between the two time periods, \Sexpr{prettyNum(nrow(SGCNxPU_Count[which(SGCNxPU_Count$diff==0),]), big.mark=",", scientific=FALSE)} SGCN had no change in the number of occupied planning units. These data are outlined in the scatterplot presented below. Points that occur above the dashed 1:1 line indicated species that gained additional planning units between the \Sexpr{updatetracker[which(updatetracker$updateName==updateName6m),'UpdateNameDisplay']} and the \Sexpr{updatetracker[which(updatetracker$updateName==updateName),'UpdateNameDisplay']} updates. Increases in planning units typically are due to the incorporation of new records for a particular taxon but can also result from changes in mapping of existing records (e.g., CPP revision). Species that fall below the line show a decrease in planning units between the two update time periods. Reasons for declines typically are due to particular occurrences falling outside the 25-year moving window for inclusion as a ‘known’ occurrence in the COA tool, but may also result from revising the mapping of existing records or taxonomy fixes.\\
+
 \noindent \Sexpr{updatenotes[which(updatenotes$NoteType=="puXsgcn_change"&updatenotes$updateName==updateName),"NoteContent"]} \\
 
 <<changePU, fig.width=7.0, fig.height=6.5, include=FALSE, echo=FALSE>>=
@@ -203,7 +214,7 @@ ggplot(SGCNxPU_Count, aes(x=Count_6m, y=Count_Now, color=TaxaDisplay)) +
 \includegraphics{figure/changePU-1.pdf}    %place it
 \end{center}
 
-\noindent The following table presents a summary of the missing data as occurring in the SGCN x Planning Unit dataset--—representing the SGCN that appear in the COA tool (i.e. extant records).\\
+\noindent The following table presents a summary of SGCN that are missing from the SGCN x Planning Unit dataset, and therefore are not represented in the COA tool. These include SGCN for which we currently have no extant records within the SGCN database.\\
 
 \begin{longtable}{p{2.5in}C{1in}C{1in}C{1in}}
 %\caption{\textit{.}}
@@ -226,9 +237,9 @@ for(i in 1:nrow(missingCompare)){
 if(length(unique(missingCompare$difference))==1&unique(missingCompare$difference[1])==0){
   cat("No additional SGCN have been lost from the previous update, and no SGCN that are missing from previous updates have been added to the tool.")
 } else if(sum(missingCompare$difference)>0){
-  cat("Compared to the previous six months, there are",words(abs(sum(missingCompare$difference))),"more SGCN in this data update as the result of these species being added to the various databases queried by this tool.")
+  cat("Compared to the previous six months, there are",words(abs(sum(missingCompare$difference))),"fewer SGCN in this data update as a result of data aging beyond the cutoff date.")
 } else {
-  cat("Compared to the previous six months, there are",words(abs(sum(missingCompare$difference))),"fewer SGCN in this data update.  All of these are due to data aging beyond the cutoff date.\\\\")
+  cat("Compared to the previous six months, there are",words(abs(sum(missingCompare$difference))),"more SGCN in this data update as a result of extant records being added for SGCN that were not previously present in our SGCN database.\\\\")
 }
 @
 \subsubsection*{Habitat Suitability Models}
