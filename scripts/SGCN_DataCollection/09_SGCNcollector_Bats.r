@@ -2,14 +2,7 @@
 # Purpose: 
 # Author: Christopher Tracey
 # Created: 2016-08-11
-# Updated: 2016-08-17
-#
 # Updates:
-# insert date and info
-# * 2016-08-17 - 
-#
-# To Do List/Future Ideas:
-# * 
 #---------------------------------------------------------------------------------------------
 # clear the environments
 rm(list=ls())
@@ -29,14 +22,12 @@ dateswap <- function(fld){
 }
 openxlsx::convertToDate(42705)
 
-
-
 # read in the bat data 
 bat_file <- list.files(path=here::here("_data/input/SGCN_data/PGC_bats"), pattern=".xlsx$")  # --- make sure your excel file is not open.
 bat_file
 #look at the output and choose which shapefile you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 2
+n <- 4
 bat_file <- here::here("_data/input/SGCN_data/PGC_bats",bat_file[n])
 
 # write to file tracker
@@ -71,9 +62,6 @@ bat_EPFUcontrap <- read.xlsx(xlsxFile=bat_file, sheet=bat_sheets[n], skipEmptyRo
 #EPFU PGCtrap
 n <- 6 # enter its location in the list (first = 1, second = 2, etc)
 bat_LANOcontrap <- read.xlsx(xlsxFile=bat_file, sheet=bat_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE)
-
-
-
 
 names(bat_EPFUabc)
 bat_EPFUabc$SNAME <- "Eptesicus fuscus"

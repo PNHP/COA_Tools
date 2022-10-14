@@ -47,7 +47,7 @@ auk_set_ebd_path(here::here("_data","input","SGCN_data","eBird"), overwrite=TRUE
 fileList <- dir(path=here::here("_data","input","SGCN_data","eBird"), pattern = ".txt$")
 fileList
 #look at the output and choose which text file you want to run. enter its location in the list (first = 1, second = 2, etc)
-n <- 5
+n <- 7
 
 trackfiles("SGCN ebird", here::here("_data","input","SGCN_data","eBird",fileList[[n]])) # write to file tracker
 
@@ -59,6 +59,7 @@ ebd <- auk_ebd(f_in)
 ebd_filters <- auk_species(ebd, species=sgcnlistcrosswalk, taxonomy_version=2021)
 ebd_filtered <- auk_filter(ebd_filters, file=f_out, overwrite=TRUE)
 ebd_df <- read_ebd(ebd_filtered)
+
 
 ebd_df_backup <- ebd_df
 

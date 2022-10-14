@@ -2,14 +2,9 @@
 # Purpose: 
 # Author: Christopher Tracey
 # Created: 2016-08-11
-# Updated: 2016-08-17
 #
 # Updates:
-# insert date and info
-# * 2016-08-17 - 
-#
-# To Do List/Future Ideas:
-# * 
+# 2022-10-14 - MMOORE updated to include 3 woodcock email records sent by PGC.
 #---------------------------------------------------------------------------------------------
 # clear the environments
 rm(list=ls())
@@ -17,6 +12,8 @@ rm(list=ls())
 # load packages
 if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
 require(here)
+if (!requireNamespace("stringr", quietly = TRUE)) install.packages("stringr")
+require(stringr)
 
 source(here::here("scripts","00_PathsAndSettings.r"))
 
@@ -92,10 +89,12 @@ woodcock_file
 
 #look at the output and choose which .csv you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 1
+n <- 2
 woodcock_file <- here::here("_data/input/SGCN_data/PGC_Woodcock", woodcock_file[n])
+woodcock_email <- here::here("_data/input/SGCN_data/PGC_Woodcock/PGC_AMWO_EmailRprts.csv") # this includes 3 email records sent by PGC in 2022
 
 trackfiles("SGCN woodcock", woodcock_file) # write to file tracker
+trackfiles("SGCN woodcock 2022 email reports", woodcock_email) # write to file tracker
 
 #read in woodcock csv
 woodcock <- read.csv(woodcock_file, stringsAsFactors = FALSE, na.strings = c("", "NA"))
@@ -108,6 +107,15 @@ if(any(woodcock$Latitude==woodcock$Longitude)){
 } else {
   print("no duplicate pairs in the coordinates")
 }
+
+# read in 3 email records from PGC and format
+woodcock_email <- read.csv(woodcock_email, stringsAsFactors = FALSE, na.strings = c("", "NA"))
+woodcock_email$Latitude <- woodcock_email$Lat
+woodcock_email$Longitude <- woodcock_email$Long
+woodcock_email$Year <- sub(".*/", "", woodcock_email$Date)
+
+# merge 3 email records with woodcock data
+woodcock <- rbind(woodcock[,c("Latitude","Longitude","Year")],woodcock_email[,c("Latitude","Longitude","Year")])
 
 #create fields and populate with SGCN data
 woodcock$SNAME <- "Scolopax minor"
@@ -250,8 +258,6 @@ woodcockResearch$Longitude <- abs(as.numeric(woodcockResearch$Longitude)) * -1
 woodcockResearch_sf <- st_as_sf(woodcockResearch, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
 library(lwgeom)
 woodcockResearch_sf <- st_make_valid(woodcockResearch_sf)
-
-
 
 
 #project sf object to custom albers CRS

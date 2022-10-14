@@ -3,12 +3,13 @@
 # Purpose: 
 # Author: Christopher Tracey
 # Created: 2019-03-11
-# Updated: 2018-03-23
+# Updated: 2022-10-10
 #
 # Updates:
 # insert date and info
 # * 2018-03-21 - get list of species that are in Biotics
 # * 2018-03-23 - export shapefiles
+# * 2022-10-10 - MMOORE: updates to include ER polygons as spatial features where available as per PGC/PFBC request
 #
 # To Do List/Future Ideas:
 # * 
@@ -31,6 +32,20 @@ loadSGCN()
 biotics_crosswalk <- read.csv(biotics_crosswalk, stringsAsFactors=FALSE)
 lu_sgcnBiotics <- biotics_crosswalk$SNAME
 # lu_sgcnBioticsELCODE <- biotics_crosswalk$ELCODE
+
+########################################################################################
+# load in ER Polygons
+
+# CHANGE THIS EVERY TIME NEW ER DATASET IS AVAILABLE
+er_layer <- "PA_ERPOLY_ALL_20220707"
+er_gdb <- "W:/Heritage/Heritage_Data/Environmental_Review/_ER_POLYS/ER_Polys.gdb"
+er_poly <- arc.open(paste(er_gdb,er_layer, sep="/"))
+er_poly <- arc.select(er_poly, c("SNAME","EOID","BUF_TYPE"), where_clause="BUF_TYPE ='I' AND EOID <> 0") 
+er_sf <- arc.data2sf(er_poly)
+er_sf <- er_sf[which(er_sf$SNAME %in% unique(lu_sgcn$SNAME)),]
+names(er_sf)[names(er_sf) == 'EOID'] <- 'EO_ID'
+# clean up
+rm(er_poly)
 
 ########################################################################################
 # load in Conservation Planning Polygons
@@ -79,8 +94,6 @@ srcfeat_polygons <- arc.select(srcfeat_polygons, lu_srcfeature_names, where_clau
 srcfeat_polygons <- arc.data2sf(srcfeat_polygons)
 srcfeat_polygons_SGCN <- srcfeat_polygons[which(srcfeat_polygons$ELCODE %in% lu_sgcn$ELCODE),] # subset to SGCN
 srcfeat_polygons_SGCN <- srcfeat_polygons_SGCN[which(!is.na(srcfeat_polygons_SGCN$EO_ID)),] # drop independent source features
-
-
 
 # clean up
 rm(srcfeat_points, srcfeat_lines, srcfeat_polygons, lu_srcfeature_names)
@@ -172,8 +185,9 @@ rm(srcf_pt_sf1,srcf_ln_sf1,srcf_py_sf1)
 # merge into one
 srcf_combined <- rbind(srcf_pt_sf1buf,srcf_ln_sf1buf,srcf_py_sf1buf)
 
+# mark for coa use if lastobs > cutoffyearL and buffer is < 1000m
 srcf_combined$useCOA <- with(srcf_combined, ifelse(srcf_combined$LastObs>=cutoffyearL & srcf_combined$buffer<1000, "y", "n"))
-#add the occurrence probability
+# add the occurrence probability
 srcf_combined$OccProb = with(srcf_combined, ifelse(LastObs>=cutoffyearK , "k", ifelse(LastObs<cutoffyearK & LastObs>=cutoffyearL, "l", "u")))
 
 
@@ -187,15 +201,19 @@ srcf_combined[which(srcf_combined$SNAME %in% sf_b2w),]$SeasonCode <- "w"
 sf_w2y <- c("Lithobates pipiens","Lithobates sphenocephalus utricularius","Plestiodon anthracinus anthracinus","Virginia valeriae pulchra")
 srcf_combined[which(srcf_combined$SNAME %in% sf_b2y),]$SeasonCode <- "y"
 
-
-
 srcf_combined$ELSeason <- paste(srcf_combined$ELCODE,srcf_combined$SeasonCode,sep="_")
 
 # clean up
 rm(srcf_pt_sf1buf,srcf_ln_sf1buf,srcf_py_sf1buf)
 
-# remove the source features for which CPPs have been created
-final_srcf_combined <- srcf_combined[which(!srcf_combined$EO_ID %in% cppCore_sf$EO_ID),] 
+# remove the source features for which CPPs and ER polygons have been created
+final_srcf_combined <- srcf_combined[which(!srcf_combined$EO_ID %in% cppCore_sf$EO_ID & !srcf_combined$EO_ID %in% er_sf$EOID),]
+
+# old - delete after above ER code is implemented successfully
+#final_srcf_combined <- srcf_combined[which(!srcf_combined$EO_ID %in% cppCore_sf$EO_ID),]
+
+# remove the cpp polygons for which there are ER polygons
+cppCore_sf <- cppCore_sf[which(!cppCore_sf$EO_ID %in% er_sf$EO_ID),]
 
 # get attributes for the CPPs
 att_for_cpp <- srcf_combined[which(srcf_combined$EO_ID %in% cppCore_sf$EO_ID),] 
@@ -212,14 +230,10 @@ att_for_cpp[which(att_for_cpp$SNAME %in% cpp_b2y),]$SeasonCode <- "y"
 
 att_for_cpp$ELSeason <- paste(att_for_cpp$ELCODE, att_for_cpp$SeasonCode,sep="_")
 
-# clean up
-rm(srcf_combined)
-
 # clean up attributes to prep to join to the CPPs
 st_geometry(att_for_cpp) <- NULL
 att_for_cpp$SF_ID <- NULL
 att_for_cpp$SNAME <- NULL
-att_for_cpp$LU_DIST <- NULL
 att_for_cpp$LU_DIST <- NULL
 att_for_cpp$buffer <- NULL
 att_for_cpp$USE_CLASS <- NULL
@@ -232,6 +246,40 @@ att_for_cpp <- unique(att_for_cpp)
 cppCore_sf_final <- merge(cppCore_sf, att_for_cpp, by="EO_ID", all.x=TRUE)
 cppCore_sf_final <- cppCore_sf_final[which(!is.na(cppCore_sf_final$LastObs)),]
 
+# get attributes for the ER polys
+att_for_er <- srcf_combined[which(srcf_combined$EO_ID %in% er_sf$EO_ID),] 
+
+# replace bad season codes
+er_y2b <- c("Podilymbus podiceps","Botaurus lentiginosus","Ixobrychus exilis","Ardea alba","Nycticorax nycticorax","Nyctanassa violacea","Anas crecca","Anas rubripes","Anas discors","Pandion haliaetus","Haliaeetus leucocephalus","Circus cyaneus","Accipiter striatus","Accipiter gentilis","Buteo platypterus","Falco sparverius","Falco peregrinus","Bonasa umbellus","Rallus elegans","Rallus limicola","Porzana carolina","Gallinula galeata","Fulica americana","Charadrius melodus","Actitis macularius","Bartramia longicauda","Gallinago delicata","Scolopax minor","Sterna hirundo","Chlidonias niger","Tyto alba","Asio otus","Asio flammeus","Aegolius acadicus","Chordeiles minor","Antrostomus vociferus","Chaetura pelagica","Melanerpes erythrocephalus","Contopus cooperi","Empidonax flaviventris","Empidonax traillii","Progne subis","Riparia riparia","Certhia americana","Troglodytes hiemalis","Cistothorus platensis","Cistothorus palustris","Catharus ustulatus","Hylocichla mustelina","Dumetella carolinensis","Lanius ludovicianus","Vermivora cyanoptera","Vermivora chrysoptera","Oreothlypis ruficapilla","Setophaga caerulescens","Setophaga virens","Setophaga discolor","Setophaga striata","Setophaga cerulea","Mniotilta varia","Protonotaria citrea","Parkesia noveboracensis","Parkesia motacilla","Geothlypis formosa","Cardellina canadensis","Icteria virens","Piranga rubra","Piranga olivacea","Spiza americana","Spizella pusilla","Pooecetes gramineus","Passerculus sandwichensis","Ammodramus savannarum","Ammodramus henslowii","Zonotrichia albicollis","Dolichonyx oryzivorus","Sturnella magna","Loxia curvirostra","Spinus pinus","Lanius ludovicianus","Lanius ludovicianus migrans","Lasionycteris noctivagans")       
+att_for_er[which(att_for_er$SNAME %in% er_y2b),]$SeasonCode <- "b"
+er_b2y <- c("Lithobates pipiens","Lithobates sphenocephalus utricularius","Plestiodon anthracinus anthracinus","Sorex palustris albibarbis","Virginia pulchra","Myotis leibii","Myotis septentrionalis","Sceloporus undulatus")
+att_for_er[which(att_for_er$SNAME %in% er_b2y),]$SeasonCode <- "y"
+er_b2w <- c("Perimyotis subflavus")
+att_for_er[which(att_for_er$SNAME %in% er_b2y),]$SeasonCode <- "w"
+er_w2y <- c("Lithobates pipiens","Lithobates sphenocephalus utricularius","Plestiodon anthracinus anthracinus","Virginia valeriae pulchra")
+att_for_er[which(att_for_er$SNAME %in% er_b2y),]$SeasonCode <- "y"
+
+att_for_er$ELSeason <- paste(att_for_er$ELCODE, att_for_er$SeasonCode,sep="_")
+
+# clean up attributes to prep to join to the CPPs
+st_geometry(att_for_er) <- NULL
+att_for_er$SF_ID <- NULL
+att_for_er$SNAME <- NULL
+att_for_er$LU_DIST <- NULL
+att_for_er$buffer <- NULL
+att_for_er$USE_CLASS <- NULL
+att_for_er$LU_UNIT <- NULL
+att_for_er$LU_TYPE <- NULL
+att_for_er$EST_RA <-NULL
+
+att_for_er <- unique(att_for_er)
+
+er_sf_final <- merge(er_sf, att_for_er, by.x="EO_ID", all.x=TRUE)
+er_sf_final <- er_sf_final[which(!is.na(er_sf_final$LastObs)),]
+
+# clean up
+rm(srcf_combined)
+
 # replace the ET names with those from the SWAP
 cppCore_sf_final1 <- merge(cppCore_sf_final, biotics_crosswalk[c("SNAME","SGCN_NAME")], by="SNAME")
 cppCore_sf_final1$SNAME <- cppCore_sf_final1$SGCN_NAME
@@ -239,22 +287,30 @@ cppCore_sf_final1$SGCN_NAME <- NULL
 final_cppCore_sf <- cppCore_sf_final1
 rm(cppCore_sf_final1)
 
-
 final_srcf_combined1 <- merge(final_srcf_combined, biotics_crosswalk[c("SNAME","SGCN_NAME")], by="SNAME")
 final_srcf_combined1$SNAME <- final_srcf_combined1$SGCN_NAME
 final_srcf_combined1$SGCN_NAME <- NULL
 final_srcf_combined <- final_srcf_combined1
 rm(final_srcf_combined1)
 
+er_sf_final1 <- merge(er_sf_final, biotics_crosswalk[c("SNAME","SGCN_NAME")], by="SNAME")
+er_sf_final1$SNAME <- er_sf_final1$SGCN_NAME
+er_sf_final1$SGCN_NAME <- NULL
+final_er_sf <- er_sf_final1
+rm(er_sf_final1)
+
 # add in TaxaGroup
 final_cppCore_sf <- merge(final_cppCore_sf, unique(lu_sgcn[c("SNAME","TaxaGroup")]), all.x=TRUE)
 final_srcf_combined <- merge(final_srcf_combined, unique(lu_sgcn[c("SNAME","TaxaGroup")]), all.x=TRUE)
+final_er_sf <- merge(final_er_sf, unique(lu_sgcn[c("SNAME","TaxaGroup")]), all.x=TRUE)
 final_cppCore_sf$DataSource <- "PNHP CPP"
+final_er_sf$DataSource <- "PNHP ER"
 
 
 # field alignment
 final_cppCore_sf <- final_cppCore_sf[final_fields]
-final_srcf_combined <- final_srcf_combined[final_fields] 
+final_srcf_combined <- final_srcf_combined[final_fields]
+final_er_sf <- final_er_sf[final_fields]
 
 
 #final_srcf_combined$useCOA <- with(final_srcf_combined, ifelse(final_srcf_combined$LastObs>=cutoffyearL, "y", "n"))
@@ -264,17 +320,20 @@ final_srcf_combined <- final_srcf_combined[final_fields]
 # write a feature class to the gdb
 st_crs(final_cppCore_sf) <- customalbers
 st_crs(final_srcf_combined) <- customalbers
+st_crs(final_er_sf) <- customalbers
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_cppCore"), final_cppCore_sf, overwrite=TRUE, validate=TRUE)
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_Biotics"), final_srcf_combined, overwrite=TRUE, validate=TRUE)
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_er"), final_er_sf, overwrite=TRUE, validate=TRUE)
 
-BioticsCPP_ELSeason <- unique(c(final_cppCore_sf$ELSeason, final_srcf_combined$ELSeason))
+BioticsCPP_ELSeason <- unique(c(final_cppCore_sf$ELSeason, final_srcf_combined$ELSeason, final_er_sf$ELSeason))
 
 # get a vector of species that are in Biotics/CPP so we can use it to filter other datasets
 SGCN_biotics <- unique(final_srcf_combined[which(final_srcf_combined$useCOA=="y"),]$SNAME)
 SGCN_cpp <- unique(final_cppCore_sf[which(final_cppCore_sf$useCOA=="y"),]$SNAME)
+SGCN_er <- unique(final_er_sf[which(final_er_sf$useCOA=="y"),]$SNAME)
 
-SGCN_bioticsCPP <- unique(c(SGCN_biotics, SGCN_cpp))
-rm(SGCN_biotics, SGCN_cpp)
+SGCN_bioticsCPP <- unique(c(SGCN_biotics, SGCN_cpp, SGCN_er))
+rm(SGCN_biotics, SGCN_cpp, SGCN_er)
 
 #write.csv(SGCN_bioticsCPP, "SGCN_bioticsCPP.csv", row.names=FALSE)
 save(SGCN_bioticsCPP, file=updateData)
@@ -296,6 +355,3 @@ a <- lu_sgcn[lu_sgcn$ELSeason %in% sgcn_noDataFromBiotics ,]
 sgcn_InBioticsButNotInLuSGCN <- setdiff(BioticsCPP_ELSeason, lu_sgcn$ELSeason)
 print("The following ELSeason records are found in the Biotics/CPP data, but do not have matching records in the lu_sgcn table: ")
 print(sgcn_InBioticsButNotInLuSGCN)
-
-
-
