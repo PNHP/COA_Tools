@@ -35,7 +35,6 @@ lu_sgcnBiotics <- biotics_crosswalk$SNAME
 
 ########################################################################################
 # load in ER Polygons
-
 # CHANGE THIS EVERY TIME NEW ER DATASET IS AVAILABLE
 er_layer <- "PA_ERPOLY_ALL_20220707"
 er_gdb <- "W:/Heritage/Heritage_Data/Environmental_Review/_ER_POLYS/ER_Polys.gdb"
@@ -188,6 +187,8 @@ srcf_combined <- rbind(srcf_pt_sf1buf,srcf_ln_sf1buf,srcf_py_sf1buf)
 # mark for coa use if lastobs > cutoffyearL and buffer is < 1000m
 srcf_combined$useCOA <- with(srcf_combined, ifelse(srcf_combined$LastObs>=cutoffyearL & srcf_combined$buffer<1000, "y", "n"))
 # add the occurrence probability
+srcf_combined$useCOA <- with(srcf_combined, ifelse(srcf_combined$LastObs>=cutoffyearL & srcf_combined$buffer<1000, "y", "n"))
+#add the occurrence probability
 srcf_combined$OccProb = with(srcf_combined, ifelse(LastObs>=cutoffyearK , "k", ifelse(LastObs<cutoffyearK & LastObs>=cutoffyearL, "l", "u")))
 
 
@@ -200,6 +201,7 @@ sf_b2w <- c("Perimyotis subflavus")
 srcf_combined[which(srcf_combined$SNAME %in% sf_b2w),]$SeasonCode <- "w"
 sf_w2y <- c("Lithobates pipiens","Lithobates sphenocephalus utricularius","Plestiodon anthracinus anthracinus","Virginia valeriae pulchra")
 srcf_combined[which(srcf_combined$SNAME %in% sf_b2y),]$SeasonCode <- "y"
+
 
 srcf_combined$ELSeason <- paste(srcf_combined$ELCODE,srcf_combined$SeasonCode,sep="_")
 
@@ -214,6 +216,9 @@ final_srcf_combined <- srcf_combined[which(!srcf_combined$EO_ID %in% cppCore_sf$
 
 # remove the cpp polygons for which there are ER polygons
 cppCore_sf <- cppCore_sf[which(!cppCore_sf$EO_ID %in% er_sf$EO_ID),]
+
+# remove the source features for which CPPs have been created
+final_srcf_combined <- srcf_combined[which(!srcf_combined$EO_ID %in% cppCore_sf$EO_ID),] 
 
 # get attributes for the CPPs
 att_for_cpp <- srcf_combined[which(srcf_combined$EO_ID %in% cppCore_sf$EO_ID),] 
@@ -230,10 +235,14 @@ att_for_cpp[which(att_for_cpp$SNAME %in% cpp_b2y),]$SeasonCode <- "y"
 
 att_for_cpp$ELSeason <- paste(att_for_cpp$ELCODE, att_for_cpp$SeasonCode,sep="_")
 
+# clean up
+rm(srcf_combined)
+
 # clean up attributes to prep to join to the CPPs
 st_geometry(att_for_cpp) <- NULL
 att_for_cpp$SF_ID <- NULL
 att_for_cpp$SNAME <- NULL
+att_for_cpp$LU_DIST <- NULL
 att_for_cpp$LU_DIST <- NULL
 att_for_cpp$buffer <- NULL
 att_for_cpp$USE_CLASS <- NULL
@@ -306,12 +315,15 @@ final_er_sf <- merge(final_er_sf, unique(lu_sgcn[c("SNAME","TaxaGroup")]), all.x
 final_cppCore_sf$DataSource <- "PNHP CPP"
 final_er_sf$DataSource <- "PNHP ER"
 
+# add in TaxaGroup
+final_cppCore_sf <- merge(final_cppCore_sf, unique(lu_sgcn[c("SNAME","TaxaGroup")]), all.x=TRUE)
+final_srcf_combined <- merge(final_srcf_combined, unique(lu_sgcn[c("SNAME","TaxaGroup")]), all.x=TRUE)
+final_cppCore_sf$DataSource <- "PNHP CPP"
 
 # field alignment
 final_cppCore_sf <- final_cppCore_sf[final_fields]
 final_srcf_combined <- final_srcf_combined[final_fields]
 final_er_sf <- final_er_sf[final_fields]
-
 
 #final_srcf_combined$useCOA <- with(final_srcf_combined, ifelse(final_srcf_combined$LastObs>=cutoffyearL, "y", "n"))
 #add the occurence probability
@@ -326,6 +338,10 @@ arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_Biotics"
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_er"), final_er_sf, overwrite=TRUE, validate=TRUE)
 
 BioticsCPP_ELSeason <- unique(c(final_cppCore_sf$ELSeason, final_srcf_combined$ELSeason, final_er_sf$ELSeason))
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_cppCore"), final_cppCore_sf, overwrite=TRUE, validate=TRUE)
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_Biotics"), final_srcf_combined, overwrite=TRUE, validate=TRUE)
+
+BioticsCPP_ELSeason <- unique(c(final_cppCore_sf$ELSeason, final_srcf_combined$ELSeason))
 
 # get a vector of species that are in Biotics/CPP so we can use it to filter other datasets
 SGCN_biotics <- unique(final_srcf_combined[which(final_srcf_combined$useCOA=="y"),]$SNAME)
@@ -334,6 +350,9 @@ SGCN_er <- unique(final_er_sf[which(final_er_sf$useCOA=="y"),]$SNAME)
 
 SGCN_bioticsCPP <- unique(c(SGCN_biotics, SGCN_cpp, SGCN_er))
 rm(SGCN_biotics, SGCN_cpp, SGCN_er)
+
+SGCN_bioticsCPP <- unique(c(SGCN_biotics, SGCN_cpp))
+rm(SGCN_biotics, SGCN_cpp)
 
 #write.csv(SGCN_bioticsCPP, "SGCN_bioticsCPP.csv", row.names=FALSE)
 save(SGCN_bioticsCPP, file=updateData)

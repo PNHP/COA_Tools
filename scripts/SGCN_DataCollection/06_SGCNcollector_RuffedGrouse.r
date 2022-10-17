@@ -95,6 +95,10 @@ woodcock_email <- here::here("_data/input/SGCN_data/PGC_Woodcock/PGC_AMWO_EmailR
 
 trackfiles("SGCN woodcock", woodcock_file) # write to file tracker
 trackfiles("SGCN woodcock 2022 email reports", woodcock_email) # write to file tracker
+n <- 1
+woodcock_file <- here::here("_data/input/SGCN_data/PGC_Woodcock", woodcock_file[n])
+
+trackfiles("SGCN woodcock", woodcock_file) # write to file tracker
 
 #read in woodcock csv
 woodcock <- read.csv(woodcock_file, stringsAsFactors = FALSE, na.strings = c("", "NA"))
@@ -258,7 +262,6 @@ woodcockResearch$Longitude <- abs(as.numeric(woodcockResearch$Longitude)) * -1
 woodcockResearch_sf <- st_as_sf(woodcockResearch, coords=c("Longitude","Latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
 library(lwgeom)
 woodcockResearch_sf <- st_make_valid(woodcockResearch_sf)
-
 
 #project sf object to custom albers CRS
 woodcockResearch_sf <- st_transform(woodcockResearch_sf, crs=customalbers) # reproject to custom albers
