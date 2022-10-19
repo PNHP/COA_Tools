@@ -218,7 +218,7 @@ final_srcf_combined <- srcf_combined[which(!srcf_combined$EO_ID %in% cppCore_sf$
 cppCore_sf <- cppCore_sf[which(!cppCore_sf$EO_ID %in% er_sf$EO_ID),]
 
 # remove the source features for which CPPs have been created
-final_srcf_combined <- srcf_combined[which(!srcf_combined$EO_ID %in% cppCore_sf$EO_ID),] 
+#final_srcf_combined <- srcf_combined[which(!srcf_combined$EO_ID %in% cppCore_sf$EO_ID),]
 
 # get attributes for the CPPs
 att_for_cpp <- srcf_combined[which(srcf_combined$EO_ID %in% cppCore_sf$EO_ID),] 
@@ -232,17 +232,12 @@ cpp_b2w <- c("Perimyotis subflavus")
 att_for_cpp[which(att_for_cpp$SNAME %in% cpp_b2y),]$SeasonCode <- "w"
 cpp_w2y <- c("Lithobates pipiens","Lithobates sphenocephalus utricularius","Plestiodon anthracinus anthracinus","Virginia valeriae pulchra")
 att_for_cpp[which(att_for_cpp$SNAME %in% cpp_b2y),]$SeasonCode <- "y"
-
 att_for_cpp$ELSeason <- paste(att_for_cpp$ELCODE, att_for_cpp$SeasonCode,sep="_")
-
-# clean up
-rm(srcf_combined)
 
 # clean up attributes to prep to join to the CPPs
 st_geometry(att_for_cpp) <- NULL
 att_for_cpp$SF_ID <- NULL
 att_for_cpp$SNAME <- NULL
-att_for_cpp$LU_DIST <- NULL
 att_for_cpp$LU_DIST <- NULL
 att_for_cpp$buffer <- NULL
 att_for_cpp$USE_CLASS <- NULL
@@ -338,21 +333,14 @@ arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_Biotics"
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_er"), final_er_sf, overwrite=TRUE, validate=TRUE)
 
 BioticsCPP_ELSeason <- unique(c(final_cppCore_sf$ELSeason, final_srcf_combined$ELSeason, final_er_sf$ELSeason))
-arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_cppCore"), final_cppCore_sf, overwrite=TRUE, validate=TRUE)
-arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_Biotics"), final_srcf_combined, overwrite=TRUE, validate=TRUE)
 
-BioticsCPP_ELSeason <- unique(c(final_cppCore_sf$ELSeason, final_srcf_combined$ELSeason))
-
-# get a vector of species that are in Biotics/CPP so we can use it to filter other datasets
+# get a vector of species that are in Biotics/CPP/er so we can use it to filter other datasets
 SGCN_biotics <- unique(final_srcf_combined[which(final_srcf_combined$useCOA=="y"),]$SNAME)
 SGCN_cpp <- unique(final_cppCore_sf[which(final_cppCore_sf$useCOA=="y"),]$SNAME)
 SGCN_er <- unique(final_er_sf[which(final_er_sf$useCOA=="y"),]$SNAME)
 
 SGCN_bioticsCPP <- unique(c(SGCN_biotics, SGCN_cpp, SGCN_er))
 rm(SGCN_biotics, SGCN_cpp, SGCN_er)
-
-SGCN_bioticsCPP <- unique(c(SGCN_biotics, SGCN_cpp))
-rm(SGCN_biotics, SGCN_cpp)
 
 #write.csv(SGCN_bioticsCPP, "SGCN_bioticsCPP.csv", row.names=FALSE)
 save(SGCN_bioticsCPP, file=updateData)
