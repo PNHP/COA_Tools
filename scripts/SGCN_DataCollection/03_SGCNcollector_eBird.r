@@ -48,7 +48,7 @@ fileList <- dir(path=here::here("_data","input","SGCN_data","eBird"), pattern = 
 fileList
 #look at the output and choose which text file you want to run. enter its location in the list (first = 1, second = 2, etc)
 
-n <- 7
+n <- 8
 
 trackfiles("SGCN ebird", here::here("_data","input","SGCN_data","eBird",fileList[[n]])) # write to file tracker
 
@@ -57,12 +57,11 @@ trackfiles("SGCN ebird", here::here("_data","input","SGCN_data","eBird",fileList
 f_in <- here::here("_data","input","SGCN_data","eBird",fileList[[n]]) #"C:/Users/dyeany/Documents/R/eBird/ebd.txt"
 f_out <- "ebd_filtered_SGCN.txt"
 ebd <- auk_ebd(f_in)
-ebd_filters <- auk_species(ebd, species=sgcnlistcrosswalk, taxonomy_version=2021)
+ebd_filters <- auk_species(ebd, species=sgcnlistcrosswalk, taxonomy_version=2022)
 ebd_filtered <- auk_filter(ebd_filters, file=f_out, overwrite=TRUE)
 ebd_df <- read_ebd(ebd_filtered)
 
 ebd_df_backup <- ebd_df
-
 
 # change the species we had to change for the 2020 ebird taxomon back to our SGCN names
 ebd_df[which(ebd_df$scientific_name=="Spatula discors"),]$scientific_name <- "Anas discors"
@@ -71,7 +70,6 @@ ebd_df[which(ebd_df$scientific_name=="Leiothlypis ruficapilla"),]$scientific_nam
 ebd_df[which(ebd_df$scientific_name=="Oreothlypis ruficapilla"),] 
 ebd_df[which(ebd_df$scientific_name=="Centronyx henslowii"),]$scientific_name <- "Ammodramus henslowii" 
 ebd_df[which(ebd_df$scientific_name=="Ammodramus henslowii"),] 
-
 
 # gets rid of the bad data lines
 ebd_df$latitude <- as.numeric(as.character(ebd_df$latitude))

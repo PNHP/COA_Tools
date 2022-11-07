@@ -134,7 +134,6 @@ fc_list <- ogrListLayers(sgcn_folder)
 final_list <- fc_list[grepl("final",fc_list)]
 final_list # print out the final list
 
-
 data <- arc.open(path=here::here("_data","output",updateName,"SGCN.gdb",final_list[1]))
 sgcn <- arc.select(data,columns)
 sgcn_sf <- arc.data2sf(sgcn)
@@ -151,5 +150,3 @@ for(name in final_list){
 
 sgcn_final <- sgcn_sf[which(sgcn_sf$useCOA=='y'),]
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","allSGCNuse"), sgcn_final, overwrite=TRUE, validate=TRUE)
-
-

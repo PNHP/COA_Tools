@@ -26,7 +26,7 @@ SpecificHab_file <- list.files(path=here::here("_data/input"), pattern=".xlsx$")
 SpecificHab_file
 #look at the output and choose which shapefile you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 10
+n <- 11
 SpecificHab_file <- here::here("_data/input", SpecificHab_file[n])
 
 trackfiles("Specific Habitats", SpecificHab_file) # write to file tracker
@@ -106,7 +106,4 @@ trackfiles("Special Habitats", here::here("_data","input","lu_SpecialHabitats.cs
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database
 dbWriteTable(db, "lu_SpecialHabitats", HabSpecial, overwrite=TRUE) # write the table to the sqlite
 dbDisconnect(db) # disconnect the db
-
-
-
 

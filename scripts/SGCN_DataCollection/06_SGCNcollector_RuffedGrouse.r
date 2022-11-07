@@ -26,7 +26,7 @@ grouse_file <- list.files(path=here::here("_data/input/SGCN_data/PGC_Grouse"), p
 grouse_file
 #look at the output and choose which shapefile you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 5
+n <- 6
 grouse_file <- here::here("_data/input/SGCN_data/PGC_Grouse", grouse_file[n])
 
 trackfiles("SGCN grouse", here::here("_data/input/SGCN_data/PGC_Grouse", grouse_file[n])) # write to file tracker
@@ -92,13 +92,8 @@ woodcock_file
 n <- 2
 woodcock_file <- here::here("_data/input/SGCN_data/PGC_Woodcock", woodcock_file[n])
 woodcock_email <- here::here("_data/input/SGCN_data/PGC_Woodcock/PGC_AMWO_EmailRprts.csv") # this includes 3 email records sent by PGC in 2022
-
 trackfiles("SGCN woodcock", woodcock_file) # write to file tracker
 trackfiles("SGCN woodcock 2022 email reports", woodcock_email) # write to file tracker
-n <- 1
-woodcock_file <- here::here("_data/input/SGCN_data/PGC_Woodcock", woodcock_file[n])
-
-trackfiles("SGCN woodcock", woodcock_file) # write to file tracker
 
 #read in woodcock csv
 woodcock <- read.csv(woodcock_file, stringsAsFactors = FALSE, na.strings = c("", "NA"))
@@ -116,10 +111,13 @@ if(any(woodcock$Latitude==woodcock$Longitude)){
 woodcock_email <- read.csv(woodcock_email, stringsAsFactors = FALSE, na.strings = c("", "NA"))
 woodcock_email$Latitude <- woodcock_email$Lat
 woodcock_email$Longitude <- woodcock_email$Long
-woodcock_email$Year <- sub(".*/", "", woodcock_email$Date)
+woodcock_email$Year <- as.integer(sub(".*/", "", woodcock_email$Date))
+woodcock_email$DataSource <- "PGC Woodcock Email Data"
+
+woodcock$DataSource <- "PGC Woodcock Data"
 
 # merge 3 email records with woodcock data
-woodcock <- rbind(woodcock[,c("Latitude","Longitude","Year")],woodcock_email[,c("Latitude","Longitude","Year")])
+woodcock <- bind_rows(woodcock, woodcock_email)
 
 #create fields and populate with SGCN data
 woodcock$SNAME <- "Scolopax minor"
@@ -127,7 +125,6 @@ woodcock$SCOMNAME <- "American Woodcock"
 woodcock$ELCODE <- "ABNNF19020"
 woodcock$SeasonCode <- "b"
 woodcock$ELSeason <- paste(woodcock$ELCODE, woodcock$SeasonCode, sep = "_")
-woodcock$DataSource <- "PGC Woodcock Data"
 woodcock$DataID <- paste(gsub("\\s", "", woodcock$Route), gsub("\\s", "", woodcock$Stop), sep = "_")
 names(woodcock)[names(woodcock)=='Year'] <- 'LastObs'
 woodcock$TaxaGroup <- "AB"

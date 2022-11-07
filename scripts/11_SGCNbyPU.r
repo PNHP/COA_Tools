@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------
-# Name:        7_SGCNbyPU.r
-# Purpose:     Create an empty, new COA databases
+# Name:        11_SGCNbyPU.r
+# Purpose:     
 # Author:      Christopher Tracey
 # Created:     2019-03-31
 # Updated:     
@@ -66,4 +66,3 @@ dbDisconnect(db) # disconnect the db
 a <- as.data.frame(table(sgcnXpu$ELSeason))
 a1 <- merge(a, lu_sgcn, by.x="Var1", by.y="ELSeason")
 write.csv(a1, here::here("_data","output",updateName,"countBySpecies.csv"))
-

@@ -81,4 +81,3 @@ sgcn_pond <- st_transform(sgcn_pond, crs=customalbers) # reproject to custom alb
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_POND"), sgcn_pond, overwrite=TRUE)
 sgcn_pond_buff <- st_buffer(sgcn_pond, dist=100) # buffer by 100m
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_POND"), sgcn_pond_buff, overwrite=TRUE)
-

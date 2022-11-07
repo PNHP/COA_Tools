@@ -109,6 +109,3 @@ waterfowlSGCN <- merge(waterfowlSGCN, lu_sgcn, by=c("SNAME","SeasonCode"), all.x
 #keep only final fields and write source point and final feature classes to SGCN GDB
 waterfowlSGCN <- waterfowlSGCN[final_fields]
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_PGCwaterfowl"), waterfowlSGCN, overwrite=TRUE, validate = TRUE) # write a feature class to the gdb
-
-
-

@@ -58,8 +58,6 @@ fishdata_master$x.2 <- NULL
 fishdata_extra <- read.csv(here::here("_data/input/SGCN_data/PFBC_FishDPF","UpdatedFishDataFromDoug.csv"), stringsAsFactors=FALSE)
 fishdata_extra$X <- NULL
 
-
-
 fishdata <- rbind(fishdata_master, fishdata_extra)
 
 fishdata <- fishdata_master
@@ -122,11 +120,3 @@ fishdata_sf <- st_transform(fishdata_sf, crs=customalbers) # reproject to the cu
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_PFBC_DPF"), fishdata_sf, overwrite=TRUE) # write a feature class into the geodatabase
 fishdata_buffer <- st_buffer(fishdata_sf, dist=100) # buffer by 100m
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_PFBC_DPF"), fishdata_buffer, overwrite=TRUE) # write a feature class into the geodatabase
-
-
-
-
-
-
-
-

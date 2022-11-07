@@ -8,8 +8,10 @@
 # Created:     15/11/2018
 #-------------------------------------------------------------------------------
 
+#!!!!!!!!!!!CHANGE PATH BELOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # set folder where sws gdb and .mxds are included
-folder = r'H:\Scripts\COA_Tools\_data\output\_update2022q2'
+folder = r'H:\Scripts\COA_Tools\_data\output\_update2022q3'
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 desiredFields = ['COUNTY_NAM','NAME','TaxaDisplay', 'SCOMNAME', 'SNAME', 'y', 'b', 'm', 'w', 'Occurrence', 'GRANK', 'SRANK', 'USESA', 'SPROT', 'PBSSTATUS', 'PrimMacro', 'OBJECTID', 'Shape']
 ######################################################################################################################################################
 #import modules
@@ -196,12 +198,16 @@ def format_mxd(mxd,df_name,fc,alltaxa):
         else:
             pass
 
+    mxd.save()
+
     for lyr in arcpy.mapping.ListLayers(mxd):
         if not lyr.isGroupLayer:
             with arcpy.da.SearchCursor(lyr,'SCOMNAME') as cursor:
                 for row in cursor:
                     scomname = row[0]
             lyr.name = scomname
+
+    mxd.save()
     
     edit_attributes(alltaxa)
     targetGroupLayer = arcpy.mapping.ListLayers(mxd,"All Taxa",df)[0]

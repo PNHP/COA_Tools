@@ -71,6 +71,3 @@ TREC_sf <- TREC_sf[final_fields]# field alignment
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_TREC"), TREC_sf, overwrite=TRUE) # write a feature class into the geodatabase
 TREC_buffer_sf <- st_buffer(TREC_sf, 100) # buffer the points by 100m
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_TREC"), TREC_buffer_sf, overwrite=TRUE) # write a feature class to the gdb
-
-
-

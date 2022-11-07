@@ -7,8 +7,8 @@
 #
 # Updates:
 # insert date and info
-# * 2018-03-21 - get list of species that are in Biotics
-# * 2018-03-23 - export shapefiles
+# * 2018-03-21 - CT: get list of species that are in Biotics
+# * 2018-03-23 - CT: export shapefiles
 # * 2022-10-10 - MMOORE: updates to include ER polygons as spatial features where available as per PGC/PFBC request
 #
 # To Do List/Future Ideas:
@@ -36,7 +36,8 @@ lu_sgcnBiotics <- biotics_crosswalk$SNAME
 ########################################################################################
 # load in ER Polygons
 # CHANGE THIS EVERY TIME NEW ER DATASET IS AVAILABLE
-er_layer <- "PA_ERPOLY_ALL_20220707"
+# make sure ER dataset is in custom albers projection
+er_layer <- "PA_ERPOLY_ALL_20220707_proj"
 er_gdb <- "W:/Heritage/Heritage_Data/Environmental_Review/_ER_POLYS/ER_Polys.gdb"
 er_poly <- arc.open(paste(er_gdb,er_layer, sep="/"))
 er_poly <- arc.select(er_poly, c("SNAME","EOID","BUF_TYPE"), where_clause="BUF_TYPE ='I' AND EOID <> 0") 
@@ -310,11 +311,6 @@ final_er_sf <- merge(final_er_sf, unique(lu_sgcn[c("SNAME","TaxaGroup")]), all.x
 final_cppCore_sf$DataSource <- "PNHP CPP"
 final_er_sf$DataSource <- "PNHP ER"
 
-# add in TaxaGroup
-final_cppCore_sf <- merge(final_cppCore_sf, unique(lu_sgcn[c("SNAME","TaxaGroup")]), all.x=TRUE)
-final_srcf_combined <- merge(final_srcf_combined, unique(lu_sgcn[c("SNAME","TaxaGroup")]), all.x=TRUE)
-final_cppCore_sf$DataSource <- "PNHP CPP"
-
 # field alignment
 final_cppCore_sf <- final_cppCore_sf[final_fields]
 final_srcf_combined <- final_srcf_combined[final_fields]
@@ -362,3 +358,4 @@ a <- lu_sgcn[lu_sgcn$ELSeason %in% sgcn_noDataFromBiotics ,]
 sgcn_InBioticsButNotInLuSGCN <- setdiff(BioticsCPP_ELSeason, lu_sgcn$ELSeason)
 print("The following ELSeason records are found in the Biotics/CPP data, but do not have matching records in the lu_sgcn table: ")
 print(sgcn_InBioticsButNotInLuSGCN)
+

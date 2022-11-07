@@ -28,7 +28,7 @@ bat_file <- list.files(path=here::here("_data/input/SGCN_data/PGC_bats"), patter
 bat_file
 #look at the output and choose which shapefile you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 3
+n <- 1
 bat_file <- here::here("_data/input/SGCN_data/PGC_bats",bat_file[n])
 
 # write to file tracker

@@ -1,6 +1,6 @@
 #---------------------------------------------------------------------------------------------
 # Name: 11a_SGCNbyPU_UpdatedModels_OneTime.r
-# Purpose: Update SGCNxPU table with updated models.
+# Purpose: Update SGCNxPU table with updated models to be done when needed.
 # Author: Molly Moore
 # Created: 2022-10-11
 # Updates:

@@ -25,7 +25,7 @@ source(here::here("scripts","00_PathsAndSettings.r"))
 ReportName <- "Progress Report 6 - June 30, 2022"
 
 
-replaceGraphs <- "no"
+replaceGraphs <- "yes"
 
 # function to generate the pdf
 #knit2pdf(here::here("scripts","Reporting","SixMonthReporting.rnw"), output=paste(pdf_filename, ".tex", sep=""))

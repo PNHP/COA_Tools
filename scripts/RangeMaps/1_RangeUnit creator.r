@@ -255,6 +255,3 @@ countyagg <- merge(countyagg,data_sgcn,by="ELCODE", all.x=TRUE)
 countyagg <- countyagg[c("ELCODE","COUNTY_NAM","TaxaDisplay","SCOMNAME","SNAME","PrimMacro","b","m","w","y","Occurrence","GRANK","SRANK","USESA","SPROT","PBSSTATUS")]
 countyagg_all <- merge(county_shp, countyagg, by="COUNTY_NAM")
 arc.write(here::here("_data","output",updateName,"sws.gdb","_county_SGCN"), countyagg_all, overwrite=TRUE, validate=TRUE) # , shape_info=arc.shapeinfo(county_shpprj)
-
-
-

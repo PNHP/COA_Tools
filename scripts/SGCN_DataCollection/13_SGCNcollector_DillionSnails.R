@@ -40,8 +40,6 @@ trackfiles("SGCN AquaticSnails", here::here("_data","input","SGCN_data","Snails"
 # subset to the species group one wants to query
 snails <- snails[which(snails$SCI_NAME %in% lu_sgcn$SNAME),]
 
-
-
 snails$LASTOBS <- year(parse_date_time(snails$DATE, c("%m/%d/%y","ymd","%mdy","d%by")))
 snails$LASTOBS[is.na(snails$LASTOBS)] <- "NO DATE"
 
@@ -71,5 +69,3 @@ snails_sf <- snails_sf[final_fields]
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_snails"), snails_sf, overwrite=TRUE) # write a feature class into the geodatabase
 snails_buffer_sf <- st_buffer(snails_sf, dist=100) # buffer by 100m
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_snails"), snails_buffer_sf, overwrite=TRUE) # write a feature class into the geodatabase
-
-

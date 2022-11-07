@@ -205,4 +205,3 @@ arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_inat"), 
 
 unique(inatrecs3$SNAME)
 table(inatrecs3$SNAME,inatrecs3$TaxaGroup)
-
