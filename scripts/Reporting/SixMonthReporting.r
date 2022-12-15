@@ -22,10 +22,10 @@ require(beepr)
 source(here::here("scripts","00_PathsAndSettings.r"))
 
 # progress report name
-ReportName <- "Progress Report 6 - June 30, 2022"
+ReportName <- "Progress Report 7 - December 14, 2022"
 
 
-replaceGraphs <- "yes"
+replaceGraphs <- "no"
 
 # function to generate the pdf
 #knit2pdf(here::here("scripts","Reporting","SixMonthReporting.rnw"), output=paste(pdf_filename, ".tex", sep=""))
@@ -147,7 +147,7 @@ PUcount_compare6m$diff <- PUcount_compare6m$n_now-PUcount_compare6m$n_6m
 
 summary(PUcount_compare6m)
 
-PUchng <- nrow(PUcount_6m)-nrow(PUcount_now)
+PUchng <- nrow(PUcount_now)-nrow(PUcount_6m)
 
 PUchng_max <- max(PUcount_compare6m$diff, na.rm=TRUE)
 PUchng_min <- min(PUcount_compare6m$diff, na.rm=TRUE)
@@ -185,8 +185,8 @@ SGCNxPU_Count <- merge(SGCNxPU_Count, lu_sgcn_now, by="ELSeason")
 SGCNxPU_Count[which(substr(SGCNxPU_Count$TaxaDisplay,1,12)=="Invertebrate"),]$TaxaDisplay <- "Invertebrate"
 
 SGCNxPU_Total_6m <- sum(SGCNxPU_Count$Count_6m, na.rm=TRUE)
-SGCNxPU_Total_now <- sum(SGCNxPU_Count$Count_Now)
-SGCNxPU_Total_diff <- SGCNxPU_Total_6m - SGCNxPU_Total_now
+SGCNxPU_Total_now <- sum(SGCNxPU_Count$Count_Now, na.rm=TRUE)
+SGCNxPU_Total_diff <- SGCNxPU_Total_now - SGCNxPU_Total_6m
 
 #####
 # get the species that are missing from the PU data

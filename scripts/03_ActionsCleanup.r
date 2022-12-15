@@ -30,7 +30,7 @@ COA_actions_file <- list.files(path=here::here("_data/input"), pattern=".xlsx$")
 COA_actions_file
 #look at the output and choose which excel file you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 12
+n <- 11
 COA_actions_file <- here::here("_data/input",COA_actions_file[n])
 
 # write to file tracker
@@ -38,18 +38,16 @@ trackfiles("COA Actions", COA_actions_file)
 
 #get a list of the sheets in the file
 COA_actions_sheets <- getSheetNames(COA_actions_file)
-#look at the output and choose which excel sheet you want to load
+☺#look at the output and choose which excel sheet you want to load
 # Enter the actions sheet (eg. "lu_actionsLevel2") 
 COA_actions_sheets # list the sheets
 n <- 3 # enter its location in the list (first = 1, second = 2, etc)
 COA_actions <- read.xlsx(xlsxFile=COA_actions_file, sheet=COA_actions_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE)
 
 # rename two problematic fields
-names(COA_actions)[names(COA_actions) == ''] <- 'SpeciesID'
+names(COA_actions)[names(COA_actions) == 'X1'] <- 'SpeciesID'
 names(COA_actions)[names(COA_actions) == 'Reference#'] <- 'ReferenceID'
 
-# cleanup
-rm(n)
 
 #############################################################################################################
 # checks on data integrity

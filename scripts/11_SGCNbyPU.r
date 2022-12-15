@@ -29,7 +29,7 @@ dbDisconnect(db) # disconnect the db
 
 unique(sgcnXpu$OccProb)
 
-sgcnXpu[which(sgcnXpu$OccProb=="confirmed"),"OccProb"] <- "k" # replace these bad values from whereever they are coming from!
+sgcnXpu[which(sgcnXpu$OccProb=="confirmed"),"OccProb"] <- "k" # replace these bad values from wherever they are coming from!
 
 # subset out the known occurrences from the older dataset
 sgcnXpu_oldK <- sgcnXpu[which(sgcnXpu$OccProb=="k" | (substr(sgcnXpu$ELSeason,start=1,stop=2)=="AF" & sgcnXpu$OccProb=="l")),]
