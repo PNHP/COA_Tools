@@ -66,3 +66,4 @@ dbDisconnect(db) # disconnect the db
 a <- as.data.frame(table(sgcnXpu$ELSeason))
 a1 <- merge(a, lu_sgcn, by.x="Var1", by.y="ELSeason")
 write.csv(a1, here::here("_data","output",updateName,"countBySpecies.csv"))
+

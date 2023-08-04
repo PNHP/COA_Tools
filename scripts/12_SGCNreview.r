@@ -41,6 +41,7 @@ dbDisconnect(db) # disconnect the db
 lu_sgcnXpu[lu_sgcnXpu=="ABPBXB2020_b"] <- "ABPBXB2040_b" # eastern meadowlark
 lu_sgcnXpu[lu_sgcnXpu=="IMBIV47060_y"] <- "IMBIV4C010_y" # rainbow
 lu_sgcnXpu[lu_sgcnXpu=="ABPBG10010_b"] <- "ABPBG10030_b" # sedge wren
+lu_sgcnXpu[lu_sgcnXpu=="AMAFB09030_y"] <- "AMAFB09026_y" # northern flying squirrel
 
 # remove problematic bat records (little brown and indiana year-round - find out where these are coming from)
 lu_sgcnXpu <- lu_sgcnXpu[which(lu_sgcnXpu$ELSeason!="AMACC01100_y"&lu_sgcnXpu$ELSeason!="AMACC01010_y"),]

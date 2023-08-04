@@ -30,7 +30,7 @@ COA_actions_file <- list.files(path=here::here("_data/input"), pattern=".xlsx$")
 COA_actions_file
 #look at the output and choose which excel file you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 11
+n <- 15
 COA_actions_file <- here::here("_data/input",COA_actions_file[n])
 
 # write to file tracker
@@ -38,7 +38,7 @@ trackfiles("COA Actions", COA_actions_file)
 
 #get a list of the sheets in the file
 COA_actions_sheets <- getSheetNames(COA_actions_file)
-☺#look at the output and choose which excel sheet you want to load
+#look at the output and choose which excel sheet you want to load
 # Enter the actions sheet (eg. "lu_actionsLevel2") 
 COA_actions_sheets # list the sheets
 n <- 3 # enter its location in the list (first = 1, second = 2, etc)
@@ -92,11 +92,12 @@ COA_references$ActionCategory2 <- NULL
 library(httr)
 
 for(l in 1:nrow(COA_references)){
-   if(isFALSE(http_error(COA_references$LINK[l]))){
-     print(paste("url for -",COA_references$REF_NAME[l],"- is valid"), sep=" ")
-   } else if(isTRUE(http_error(COA_references$LINK[l]))){
-     print(paste("url for -",COA_references$REF_NAME[l],"- is NOT VALID"), sep=" ")
-   }
+  if(is.na(COA_references$LINK[l])){
+    print(paste("url for -",COA_references$REF_NAME[l],"- is NULL"), sep=" ")}
+  else if(isFALSE(http_error(COA_references$LINK[l]))){
+     print(paste("url for -",COA_references$REF_NAME[l],"- is valid"), sep=" ")}
+  else if(isTRUE(http_error(COA_references$LINK[l]))){
+     print(paste("url for -",COA_references$REF_NAME[l],"- is NOT VALID"), sep=" ")}
   }
 
 # 
@@ -135,3 +136,4 @@ dbDisconnect(db) # disconnect the db
 
 # write to file tracker
 trackfiles("Survey Needs", here::here("_data","input","lu_SGCNsurvey.csv"))
+

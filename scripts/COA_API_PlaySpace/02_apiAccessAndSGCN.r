@@ -27,7 +27,7 @@ library(dplyr)
 source(here::here("scripts","COA_API_PlaySpace","00a_APIsettings.r"))
 
 httr::set_config(config(ssl_verifypeer=0L, ssl_verifyhost=0L))
-a <- POST("https://pgcapigw.beta.pa.gov:9443/oauth2/token",
+a <- POST("https://pgcapigw.pa.gov:9443/oauth2/token",
           body=list(grant_type="password",
                     username=var_username,
                     password=var_password,
@@ -42,7 +42,7 @@ if(a$status==200){
 )
 
 a.df <- as.data.frame(fromJSON(content(a, type="text")))
-get_resp <- GET("http://pgcapigw.beta.pa.gov/wapapi/1.0/plan/2015-2025",
+get_resp <- GET("http://pgcapigw.pa.gov/wapapi/1.0/plan/2015-2025",
                 add_headers("Content-Type"="application/json",
                             Accept="application/+json",
                             "Authorization"=paste("Bearer", as.character(a.df$access_token))
@@ -101,19 +101,18 @@ lu_sgcn$ELSeason <- trimws(lu_sgcn$ELSeason, which="both")
 ################################################################
 # TESTING PURPOSES!!!!!!########################################
 ################################################################
-lu_sgcn_2022q1 <- "E:/COA/COA_Tools/_data/input/lu_SGCN_update2022q1.csv"
-lu_sgcn_2022q1 <- read.csv(lu_sgcn_2022q1)
-
-sgcn_compare <- merge(lu_sgcn, lu_sgcn_2022q1, by = "ELSeason", all = TRUE, suffixes = c("","_2022"))
-sgcn_compare <- sgcn_compare %>%
-  mutate(sname_match  = if_else(SNAME==SNAME_2022, "y", "n"),
-         scomname_match = if_else(SCOMNAME==SCOMNAME_2022, "y", "n"),
-         grank_match = if_else(GRANK==GRANK_2022,"y","n"),
-         srank_match = if_else(SRANK==SRANK_2022,"y","n"))
-
-
-write.csv(sgcn_compare,'H:/Scripts/COA_Tools/scripts/COA_API_PlaySpace/lu_sgcn_API_compare.csv',row.names=TRUE)
-
+# lu_sgcn_2022q1 <- "H:/Scripts/COA_Tools/_data/input/lu_SGCN_update2022q1.csv"
+# lu_sgcn_2022q1 <- read.csv(lu_sgcn_2022q1)
+# 
+# sgcn_compare <- merge(lu_sgcn, lu_sgcn_2022q1, by = "ELSeason", all = TRUE, suffixes = c("","_2022"))
+# sgcn_compare <- sgcn_compare %>%
+#   mutate(sname_match  = if_else(SNAME==SNAME_2022, "y", "n"),
+#          scomname_match = if_else(SCOMNAME==SCOMNAME_2022, "y", "n"),
+#          grank_match = if_else(GRANK==GRANK_2022,"y","n"),
+#          srank_match = if_else(SRANK==SRANK_2022,"y","n"))
+# 
+# 
+# write.csv(sgcn_compare,'H:/Scripts/COA_Tools/scripts/COA_API_PlaySpace/lu_sgcn_API_compare.csv',row.names=TRUE)
 ################################################################
 # DONE WITH TESTING!!!!!########################################
 ################################################################

@@ -22,10 +22,10 @@ require(beepr)
 source(here::here("scripts","00_PathsAndSettings.r"))
 
 # progress report name
-ReportName <- "Progress Report 7 - December 14, 2022"
+ReportName <- "Progress Report 8 - July 7, 2023"
 
 
-replaceGraphs <- "no"
+replaceGraphs <- "yes"
 
 # function to generate the pdf
 #knit2pdf(here::here("scripts","Reporting","SixMonthReporting.rnw"), output=paste(pdf_filename, ".tex", sep=""))
@@ -59,6 +59,7 @@ loadSGCN()
 # assign the database names for the updates
 databasename_now <- here::here("_data","output",updateName,"coa_bridgetest.sqlite") # most recent update
 databasename_6m <- here::here("_data","output",updateName6m,"coa_bridgetest.sqlite") # update from six months ago
+databasename_prev <- here::here("_data","output",updateNameprev,"coa_bridgetest.sqlite") # update from previous update
 
 # load in the taxanomic groups
 db <- dbConnect(SQLite(), dbname=databasename_now)

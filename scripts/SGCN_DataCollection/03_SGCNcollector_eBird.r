@@ -156,6 +156,7 @@ ebd_df1 <- read.csv("eBirdBACKUPOct.csv", stringsAsFactors = FALSE)
 # create a spatial layer
 ebird_sf <- st_as_sf(ebd_df1, coords=c("longitude","latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
 ebird_sf <- st_transform(ebird_sf, crs=customalbers) # reproject to the custom albers
+#ebird_sf <- st_transform(ebird_sf, crs=4326) # reproject to the custom albers
 ebird_sf <- ebird_sf[final_fields]
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_eBird"), ebird_sf, overwrite=TRUE) # write a feature class into the geodatabase
 ebird_buffer <- st_buffer(ebird_sf, dist=100) # buffer by 100m

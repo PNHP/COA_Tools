@@ -136,3 +136,4 @@ gbif_sf <- gbif_sf[final_fields] # field alignment
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_GBIF"), gbif_sf, overwrite=TRUE) # write a feature class into the geodatabase
 gbif_buffer_sf <- st_buffer(gbif_sf, dist=100) # buffer by 100m
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_GBIF"), gbif_buffer_sf, overwrite=TRUE) # write a feature class into the geodatabase
+

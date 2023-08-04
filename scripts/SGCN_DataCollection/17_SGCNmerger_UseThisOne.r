@@ -24,10 +24,8 @@ columns <- c('OBJECTID','ELCODE','ELSeason','SNAME','SCOMNAME','SeasonCode','Dat
 
 sgcn_folder <- here::here("_data","output",updateName,"SGCN.gdb")
 
-# get the Biotics/CPP data as polygons 
-data <- arc.open(path=here::here("_data","output",updateName,"SGCN.gdb","final_Biotics"))
-tmpBiotics_poly <- arc.select(data,columns)
-tmpBiotics_poly_sf <- arc.data2sf(tmpBiotics_poly)
+# list of datasets that only have final datasets and not source features. These will be used to create source polygon layer
+finalList_srcpy <- c("final_Biotics", "final_cppCore", "final_er", "final_PGCwaterfowl")
 
 # get all the srcpt layers
 subset(ogrDrivers(), grepl("GDB", name))
@@ -67,10 +65,24 @@ for(name in finalList_srcln){
   sgcn_srcln_sf <- rbind(sgcn_srcln_sf, data_srcln_sf)
 }
 
+# get source poly layers - layers for which there were no source points or lines.
+data <- arc.open(path=here::here("_data","output",updateName,"SGCN.gdb",finalList_srcpy[1]))
+sgcn_srcpy <- arc.select(data,columns)
+sgcn_srcpy_sf <- arc.data2sf(sgcn_srcpy)
+sgcn_srcpy_sf <- sgcn_srcpy_sf[0,]
+
+for(name in finalList_srcpy){
+  print(name)
+  data <- arc.open(path=here::here("_data","output",updateName,"SGCN.gdb",name))
+  data <- arc.select(data,columns)
+  data_srcpy_sf <- arc.data2sf(data)
+  sgcn_srcpy_sf <- rbind(sgcn_srcpy_sf, data_srcpy_sf)
+}
+
 # copy to the proper names
 tmp_ln <- sgcn_srcln_sf
 tmp_pt <- sgcn_srcpt_sf
-tmp_py <- tmpBiotics_poly_sf
+tmp_py <- sgcn_srcpy_sf
 
 names(tmp_ln)
 names(tmp_py)
@@ -150,3 +162,4 @@ for(name in final_list){
 
 sgcn_final <- sgcn_sf[which(sgcn_sf$useCOA=='y'),]
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","allSGCNuse"), sgcn_final, overwrite=TRUE, validate=TRUE)
+

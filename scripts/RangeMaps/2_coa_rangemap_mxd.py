@@ -10,7 +10,7 @@
 
 #!!!!!!!!!!!CHANGE PATH BELOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # set folder where sws gdb and .mxds are included
-folder = r'H:\Scripts\COA_Tools\_data\output\_update2022q3'
+folder = r'H:\Scripts\COA_Tools\_data\output\_update2023q2'
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 desiredFields = ['COUNTY_NAM','NAME','TaxaDisplay', 'SCOMNAME', 'SNAME', 'y', 'b', 'm', 'w', 'Occurrence', 'GRANK', 'SRANK', 'USESA', 'SPROT', 'PBSSTATUS', 'PrimMacro', 'OBJECTID', 'Shape']
 ######################################################################################################################################################

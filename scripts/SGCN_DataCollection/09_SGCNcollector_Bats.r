@@ -52,7 +52,7 @@ bat_EPFUhiber <- read.xlsx(xlsxFile=bat_file, sheet=bat_sheets[n], skipEmptyRows
 n <- 3 # enter its location in the list (first = 1, second = 2, etc)
 bat_EPFUPGCtrap <- read.xlsx(xlsxFile=bat_file, sheet=bat_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE)
 
-#EPFU PGCtrap
+#LANO PGCtrap
 n <- 4 # enter its location in the list (first = 1, second = 2, etc)
 bat_LANOPGCtrap <- read.xlsx(xlsxFile=bat_file, sheet=bat_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE)
 
@@ -60,7 +60,7 @@ bat_LANOPGCtrap <- read.xlsx(xlsxFile=bat_file, sheet=bat_sheets[n], skipEmptyRo
 n <- 5 # enter its location in the list (first = 1, second = 2, etc)
 bat_EPFUcontrap <- read.xlsx(xlsxFile=bat_file, sheet=bat_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE)
 
-#EPFU PGCtrap
+#LANO PGCtrap
 n <- 6 # enter its location in the list (first = 1, second = 2, etc)
 bat_LANOcontrap <- read.xlsx(xlsxFile=bat_file, sheet=bat_sheets[n], skipEmptyRows=FALSE, rowNames=FALSE)
 
@@ -214,3 +214,4 @@ arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_bats"), 
 bats_buffer_sf <- st_buffer(bats_sf, 100) # buffer the points by 100m
 bats_buffer_sf <- st_make_valid(bats_buffer_sf)
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_bats"), bats_buffer_sf, overwrite=TRUE, validate=TRUE) # write a feature class to the gdb
+

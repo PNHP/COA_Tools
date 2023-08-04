@@ -54,8 +54,8 @@ brooktrout <- merge(brooktrout, lu_sgcn[c("ELCODE","ELSeason","SNAME","SCOMNAME"
 
 brooktrout$DataSource <- "PFBC"
 brooktrout$DataID <- rownames(brooktrout)
-brooktrout$OccProb <- "k"
 brooktrout$LastObs <- as.integer(brooktrout$Year_sampl)
+brooktrout$OccProb <- with(brooktrout, ifelse(brooktrout$LastObs>=cutoffyearK , "k", ifelse(brooktrout$LastObs<cutoffyearK & brooktrout$LastObs>=cutoffyearL, "l", "u")))
 brooktrout$useCOA <- "y"
 
 brooktrout <- brooktrout[final_fields]
@@ -65,3 +65,4 @@ brooktrout_sf <- st_transform(brooktrout, crs=customalbers) # reproject to custo
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcln_brooktrout_sf"), brooktrout_sf, overwrite=TRUE, validate=TRUE) # write a feature class to the gdb
 brooktrout_buffer_sf <- st_buffer(brooktrout_sf, 100) # buffer the points by 100m
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_brooktrout"), brooktrout_buffer_sf, overwrite=TRUE, validate=TRUE) # write a feature class to the gdb
+

@@ -103,6 +103,7 @@ fishdata <- fishdata[c("SNAME","SCOMNAME","TaxaGroup","ELCODE","DataSource","Dat
 
 fishdata$SeasonCode <- "y"
 fishdata$ELSeason <- paste(fishdata$ELCODE,"_y",sep="")
+fishdata$lat <- gsub("<a0>","",fishdata$lat)
 fishdata$lat <- as.numeric(as.character(fishdata$lat))
 
 fishdata <- fishdata[complete.cases(fishdata), ]
@@ -120,3 +121,4 @@ fishdata_sf <- st_transform(fishdata_sf, crs=customalbers) # reproject to the cu
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_PFBC_DPF"), fishdata_sf, overwrite=TRUE) # write a feature class into the geodatabase
 fishdata_buffer <- st_buffer(fishdata_sf, dist=100) # buffer by 100m
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_PFBC_DPF"), fishdata_buffer, overwrite=TRUE) # write a feature class into the geodatabase
+

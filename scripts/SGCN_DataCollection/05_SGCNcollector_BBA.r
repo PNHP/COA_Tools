@@ -67,3 +67,4 @@ arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_BBAptct"
 bba_buffer_sf <- st_buffer(bba_sf, 100) # buffer the points by 100m
 bba_buffer_sf <- bba_buffer_sf[final_fields] 
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_BBAptct"), bba_buffer_sf, overwrite=TRUE) # write a feature class to the gdb
+
