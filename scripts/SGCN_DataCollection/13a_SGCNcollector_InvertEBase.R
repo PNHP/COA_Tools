@@ -11,7 +11,7 @@ loadSGCN()
 # load the arcgis license
 arc.check_product() 
 
-occurrences <- "H:/Scripts/COA_Tools/_data/input/SGCN_data/Snails/SymbOutput_2023-07-06_064117_DwC-A/occurrences.csv"
+occurrences <- "H:/Scripts/COA_Tools/_data/input/SGCN_data/Snails/SymbOutput_2023-10-23_105554_DwC-A/occurrences.csv"
 
 mollusks <- read.csv(occurrences,fileEncoding = "latin1")
 
@@ -52,3 +52,4 @@ sgcn_snails_sf <- sgcn_snails_sf %>%
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_InvertEBase"), sgcn_snails_sf, overwrite=TRUE) # write a feature class into the geodatabase
 sgcn_snails_buffer_sf <- st_buffer(sgcn_snails_sf, dist=100) # buffer by 100m
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_InvertEBase"), sgcn_snails_buffer_sf, overwrite=TRUE) # write a feature class into the geodatabase
+

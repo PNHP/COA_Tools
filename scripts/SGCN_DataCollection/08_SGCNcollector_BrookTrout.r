@@ -36,19 +36,19 @@ loadSGCN("AF")
 #trout <- here::here("_data/input/SGCN_data/PFBC_BrookTrout", trout_file[n])
 
 # using this trout file because needed to remove m values
-trout_file <- here::here("_data","input","SGCN_data","PFBC_BrookTrout","BrookTrout.gdb","Wild_BrookTrout_post_1991")
+trout_file <- here::here("_data","input","SGCN_data","PFBC_BrookTrout","BrookTrout.gdb","Wild_BrookTrout_post_1992")
 
 # write to file tracker
 trackfiles("SGCN Brook Trout", trout_file)
 
 # open file and do stuff
 brooktrout <- arc.open(trout_file)
-brooktrout <- arc.select(brooktrout, c("SSB","Year_sampl"))
+brooktrout <- arc.select(brooktrout, c("Year_sampl"))
 brooktrout <- arc.data2sf(brooktrout)
 st_crs(brooktrout) <- 4269 #set coordinate system to NAD83 which matches input.
 
 brooktrout$SNAME <- "Salvelinus fontinalis"
-brooktrout$SSB <- NULL
+# brooktrout$SSB <- NULL
 
 brooktrout <- merge(brooktrout, lu_sgcn[c("ELCODE","ELSeason","SNAME","SCOMNAME","SeasonCode","TaxaGroup")], by="SNAME", all.x=TRUE)
 

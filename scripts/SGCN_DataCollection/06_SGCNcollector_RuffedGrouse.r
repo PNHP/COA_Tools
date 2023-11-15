@@ -20,24 +20,42 @@ source(here::here("scripts","00_PathsAndSettings.r"))
 # read in SGCN data
 loadSGCN("AB")
 
+############THIS IS FOR SHAPEFILE FORMAT########################################
 # read in the grouse data 
 #get the threats template
-grouse_file <- list.files(path=here::here("_data/input/SGCN_data/PGC_Grouse"), pattern=".shp$")  # --- make sure your excel file is not open.
+# grouse_file <- list.files(path=here::here("_data/input/SGCN_data/PGC_Grouse"), pattern=".shp$")  # --- make sure your excel file is not open.
+# grouse_file
+# #look at the output and choose which shapefile you want to run
+# #enter its location in the list (first = 1, second = 2, etc)
+# n <- 6
+# grouse_file <- here::here("_data/input/SGCN_data/PGC_Grouse", grouse_file[n])
+# 
+# trackfiles("SGCN grouse", here::here("_data/input/SGCN_data/PGC_Grouse", grouse_file[n])) # write to file tracker
+# 
+# grouse_file <- arc.open(grouse_file)
+# grouse_file <- arc.select(grouse_file)
+# grouse_sf <- arc.data2sf(grouse_file)
+# st_crs(grouse_sf) <- 4326
+
+#############END SHAPEFILE FORMAT###############################################
+
+#############THIS IS FOR CSV FORMAT#############################################
+# read in the grouse data 
+#get the threats template
+grouse_file <- list.files(path=here::here("_data/input/SGCN_data/PGC_Grouse"), pattern=".csv$")  # --- make sure your excel file is not open.
 grouse_file
 #look at the output and choose which shapefile you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 6
+n <- 2
 grouse_file <- here::here("_data/input/SGCN_data/PGC_Grouse", grouse_file[n])
 
 trackfiles("SGCN grouse", here::here("_data/input/SGCN_data/PGC_Grouse", grouse_file[n])) # write to file tracker
 
-grouse_file <- arc.open(grouse_file)
-grouse_file <- arc.select(grouse_file)
-grouse_sf <- arc.data2sf(grouse_file)
-st_crs(grouse_sf) <- 4326
+grouse_csv <- read.csv(grouse_file, stringsAsFactors=FALSE)
+grouse_sf <- st_as_sf(grouse_csv, coords=c("Long","Lat"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
 
-grouse_sf$LastObs <- year(grouse_sf$date_of_ob)
-grouse_sf$dayofyear <- yday(grouse_sf$date_of_ob)
+grouse_sf$LastObs <- year(as.Date(grouse_sf$Date,format="%m/%d/%Y"))
+grouse_sf$dayofyear <- yday(as.Date(grouse_sf$Date,format="%m/%d/%Y"))
 
 grouse_sf$SNAME <- "Bonasa umbellus"
 grouse_sf$SCOMNAME <- "Ruffed Grouse"
@@ -54,16 +72,18 @@ for(i in 1:nrow(birdseason)){
   grouse_sf$season[grouse_sf$SCOMNAME==comname & grouse_sf$dayofyear>=startdate & grouse_sf$dayofyear<=enddate] <- substr(as.character(season), 1, 1)
 }
 grouse_sf <- grouse_sf[which(!is.na(grouse_sf$season)),]
-grouse_sf$SCOMNAME <- NULL
 
-grouse_sf$ELSeason <- paste(grouse_sf$ELCODE, grouse_sf$season, sep="_")
+#grouse_sf$DataID <- grouse_sf$globalid # use with Shapefile input
+grouse_sf$DataID <- NA
 
-grouse_sf$DataID <- grouse_sf$globalid
-
-grouse_sf <- grouse_sf[c("SNAME","LastObs","season","geom","DataID")]
+#grouse_sf <- grouse_sf[c("SNAME","LastObs","season","geom","DataID")] # use this for shapefile input
 
 #add in the SGCN fields
+grouse_sf$SCOMNAME <- NULL
 grouse_sf <- merge(grouse_sf, lu_sgcn, by.x=c("SNAME","season"), by.y=c("SNAME","SeasonCode"),  all.x=TRUE)
+
+
+grouse_sf$ELSeason <- paste(grouse_sf$ELCODE, grouse_sf$season, sep="_")
 
 # add additonal fields 
 grouse_sf$DataSource <- "PGC Grouse Data"
@@ -71,8 +91,8 @@ grouse_sf$OccProb <- "k"
 grouse_sf$useCOA <- "y"
 colnames(grouse_sf)[colnames(grouse_sf)=="season"] <- "SeasonCode"
 
-grouse_sf <- grouse_sf[final_fields]
-
+grouse_sf <- subset(grouse_sf, select = final_fields)
+                     
 # create a spatial layer
 grouse_sf <- st_transform(grouse_sf, crs=customalbers) # reproject to the custom albers
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_PGCgrouse"), grouse_sf, overwrite=TRUE) # write a feature class into the geodatabase
@@ -91,9 +111,9 @@ woodcock_file
 #enter its location in the list (first = 1, second = 2, etc)
 n <- 2
 woodcock_file <- here::here("_data/input/SGCN_data/PGC_Woodcock", woodcock_file[n])
-woodcock_email <- here::here("_data/input/SGCN_data/PGC_Woodcock/PGC_AMWO_EmailRprts.csv") # this includes 3 email records sent by PGC in 2022
+# woodcock_email <- here::here("_data/input/SGCN_data/PGC_Woodcock/PGC_AMWO_EmailRprts.csv") # this includes 3 email records sent by PGC in 2022
 trackfiles("SGCN woodcock", woodcock_file) # write to file tracker
-trackfiles("SGCN woodcock 2022 email reports", woodcock_email) # write to file tracker
+# trackfiles("SGCN woodcock 2022 email reports", woodcock_email) # write to file tracker
 
 #read in woodcock csv
 woodcock <- read.csv(woodcock_file, stringsAsFactors = FALSE, na.strings = c("", "NA"))
@@ -107,17 +127,17 @@ if(any(woodcock$Latitude==woodcock$Longitude)){
   print("no duplicate pairs in the coordinates")
 }
 
-# read in 3 email records from PGC and format
-woodcock_email <- read.csv(woodcock_email, stringsAsFactors = FALSE, na.strings = c("", "NA"))
-woodcock_email$Latitude <- woodcock_email$Lat
-woodcock_email$Longitude <- woodcock_email$Long
-woodcock_email$Year <- as.integer(sub(".*/", "", woodcock_email$Date))
-woodcock_email$DataSource <- "PGC Woodcock Email Data"
+# # read in 3 email records from PGC and format
+# woodcock_email <- read.csv(woodcock_email, stringsAsFactors = FALSE, na.strings = c("", "NA"))
+# woodcock_email$Latitude <- woodcock_email$Lat
+# woodcock_email$Longitude <- woodcock_email$Long
+# woodcock_email$Year <- as.integer(sub(".*/", "", woodcock_email$Date))
+# woodcock_email$DataSource <- "PGC Woodcock Email Data"
 
 woodcock$DataSource <- "PGC Woodcock Data"
 
 # merge 3 email records with woodcock data
-woodcock <- bind_rows(woodcock, woodcock_email)
+# woodcock <- bind_rows(woodcock, woodcock_email)
 
 #create fields and populate with SGCN data
 woodcock$SNAME <- "Scolopax minor"
@@ -267,4 +287,63 @@ woodcockResearch_sf <- woodcockResearch_sf[final_fields]
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_PGCwoodcockRes"), woodcockResearch_sf, overwrite=TRUE) # write a feature class to the gdb
 woodcockResearch_buffer_sf <- st_buffer(woodcock_sf, 100) # buffer the points by 100m
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_PGCwoodcockRes"), woodcockResearch_buffer_sf, overwrite=TRUE) # write a feature class to the gdb
+
+########################
+### NEW WOODCOCK DATA
+
+# read in the woodcock data 
+woodcock_file <- list.files(path=here::here("_data/input/SGCN_data/PGC_Woodcock"), pattern=".csv$")  # --- make sure your excel file is not open.
+woodcock_file
+#look at the output and choose which shapefile you want to run
+#enter its location in the list (first = 1, second = 2, etc)
+n <- 3
+woodcock_file <- here::here("_data/input/SGCN_data/PGC_Woodcock", woodcock_file[n])
+
+trackfiles("SGCN woodcock 2023 data", here::here("_data/input/SGCN_data/PGC_Woodcock", woodcock_file[n])) # write to file tracker
+
+woodcock_csv <- read.csv(woodcock_file, stringsAsFactors=FALSE)
+woodcock_sf <- st_as_sf(woodcock_csv, coords=c("Long","Lat"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+
+woodcock_sf$LastObs <- year(as.Date(woodcock_sf$Date,format="%m/%d/%Y"))
+woodcock_sf$dayofyear <- yday(as.Date(woodcock_sf$Date,format="%m/%d/%Y"))
+
+woodcock_sf$SNAME <- "Scolopax minor"
+woodcock_sf$SCOMNAME <- "American Woodcock"
+
+### assign a migration date to each ebird observation.
+birdseason <- read.csv(here::here("scripts","SGCN_DataCollection","lu_eBird_birdseason.csv"), colClasses = c("character","character","integer","integer"),stringsAsFactors=FALSE)
+
+woodcock_sf$season <- NA
+for(i in 1:nrow(birdseason)){
+  comname <- birdseason[i,1]
+  season <- birdseason[i,2]
+  startdate <- birdseason[i,3]
+  enddate <- birdseason[i,4]
+  woodcock_sf$season[woodcock_sf$SCOMNAME==comname & woodcock_sf$dayofyear>=startdate & woodcock_sf$dayofyear<=enddate] <- substr(as.character(season), 1, 1)
+}
+woodcock_sf <- woodcock_sf[which(!is.na(woodcock_sf$season)),]
+
+#grouse_sf$DataID <- grouse_sf$globalid # use with Shapefile input
+woodcock_sf$DataID <- NA
+
+#add in the SGCN fields
+woodcock_sf$SCOMNAME <- NULL
+woodcock_sf <- merge(woodcock_sf, lu_sgcn, by.x=c("SNAME","season"), by.y=c("SNAME","SeasonCode"),  all.x=TRUE)
+
+woodcock_sf$ELSeason <- paste(woodcock_sf$ELCODE, woodcock_sf$season, sep="_")
+
+# add additonal fields 
+woodcock_sf$DataSource <- "PGC Woodcock Data 2023"
+woodcock_sf$OccProb <- "k"
+woodcock_sf$useCOA <- "y"
+colnames(woodcock_sf)[colnames(woodcock_sf)=="season"] <- "SeasonCode"
+
+woodcock_sf <- subset(woodcock_sf, select = final_fields)
+woodcock_sf <- woodcock_sf[which(!is.na(woodcock_sf$ELCODE)),]
+
+# create a spatial layer
+woodcock_sf <- st_transform(woodcock_sf, crs=customalbers) # reproject to the custom albers
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_PGCwoodcock_db"), woodcock_sf, overwrite=TRUE) # write a feature class into the geodatabase
+woodcock_buffer <- st_buffer(woodcock_sf, dist=100) # buffer by 100m
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_PGCwoodcock_db"), woodcock_buffer, overwrite=TRUE) # write a feature class into the geodatabase
 

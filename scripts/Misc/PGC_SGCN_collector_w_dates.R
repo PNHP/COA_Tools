@@ -1,43 +1,282 @@
-#---------------------------------------------------------------------------------------------
-# Name: 1_SGCNcollector_BioticsCPP.r
-# Purpose: 
-# Author: Christopher Tracey
-# Created: 2019-03-11
-# Updated: 2022-10-10
-#
-# Updates:
-# insert date and info
-# * 2018-03-21 - CT: get list of species that are in Biotics
-# * 2018-03-23 - CT: export shapefiles
-# * 2022-10-10 - MMOORE: updates to include ER polygons as spatial features where available as per PGC/PFBC request
-#
-# To Do List/Future Ideas:
-# * 
-#---------------------------------------------------------------------------------------------
-
 # clear the environments
 rm(list=ls())
 
 # load packages
-if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
-require(here)
+if (!requireNamespace("RSQLite", quietly=TRUE)) install.packages("RSQLite")
+require(RSQLite)
+if (!requireNamespace("openxlsx", quietly=TRUE)) install.packages("openxlsx")
+require(openxlsx)
+if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
+require(sf)
+if (!requireNamespace("arcgisbinding", quietly = TRUE)) install.packages("arcgisbinding")
+require(arcgisbinding)
+if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr")
+require(dplyr)
+if (!requireNamespace("lubridate", quietly = TRUE)) install.packages("lubridate")
+require(lubridate)
+if (!requireNamespace("reshape", quietly = TRUE)) install.packages("reshape")
+require(reshape)
+if (!requireNamespace("plyr", quietly = TRUE)) install.packages("plyr")
+require(plyr)
+if (!requireNamespace("stringr", quietly = TRUE)) install.packages("stringr")
+require(stringr)
+if (!requireNamespace("auk", quietly = TRUE)) install.packages("auk")
+require(auk)
 
-source(here::here("scripts","00_PathsAndSettings.r"))
+# load the arcgis license
+arc.check_product() 
 
-######################################################################################
+# update name
+updateName <- "PGC_SGCN_20230913"
+updateNameprev <- "_update2023q2"
+
+# create a directory for this update unless it already exists
+ifelse(!dir.exists(here::here("_data","output",updateName)), dir.create(here::here("_data","output",updateName)), FALSE)
+
+# rdata  file
+updateData <- here::here("_data","output",updateName,paste(updateName, "RData", sep="."))
+
+# output database name
+databasename <- here::here("_data","output",updateName,"coa_bridgetest.sqlite")
+
+# paths to biotics shapefiles
+biotics_path <- "W:/Heritage/Heritage_Data/Biotics_datasets.gdb"
+bioticsFeatServ_path <- "https://maps.waterlandlife.org/arcgis/rest/services/PNHP/Biotics/FeatureServer"
+biotics_crosswalk <- here::here("_data","input","crosswalk_BioticsSWAP.csv") # note that nine species are not in Biotics at all
+
+# paths to to server path to access cpp shapefiles, we connect to the cpp file in '02_SGCNcollector_BioticsCPP.r'
+serverPath <- paste("C:/Users/",Sys.getenv("USERNAME"),"/AppData/Roaming/ESRI/ArcGISPro/Favorites/PNHP_Working_PGH-gis0.sde/",sep="")
+
+# cutoff year for records
+cutoffyear <- as.integer(substr(updateName, 8, 11)) - 25  # keep data that's only within 25 years
+cutoffyearK <- cutoffyear # keep data that's only within 25 years for known records
+cutoffyearL <- 1980  # 
+
+# final fields for arcgis
+final_fields <- c("ELCODE","ELSeason","SNAME","SCOMNAME","SeasonCode","DataSource","DataID","OccProb","Date","LastObs","useCOA","TaxaGroup", "geometry") 
+
+# custom albers projection
+customalbers <- "+proj=aea +lat_1=40 +lat_2=42 +lat_0=39 +lon_0=-78 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs "
+
+# function to load SGCN species list
+loadSGCN <- function(taxagroup) {
+  if (!requireNamespace("RSQLite", quietly = TRUE)) install.packages("RSQLite")
+  require(RSQLite)
+  db <- dbConnect(SQLite(), dbname = databasename)
+  SQLquery <- paste("SELECT ELCODE, SNAME, SCOMNAME, TaxaGroup, SeasonCode, ELSeason"," FROM lu_sgcn ")
+  lu_sgcn <- dbGetQuery(db, statement = SQLquery)
+  if(missing(taxagroup)){
+    lu_sgcn <<- lu_sgcn
+    sgcnlist <<- unique(lu_sgcn$SNAME)
+  } else {
+    lu_sgcn <<- lu_sgcn[which(lu_sgcn$TaxaGroup==taxagroup),] # limit by taxagroup code
+    sgcnlist <<- unique(lu_sgcn$SNAME)
+  }
+  dbDisconnect(db) # disconnect the db
+}
+
+
+
 # read in SGCN data
+loadSGCN("AB")
+sgcnlist <- unique(lu_sgcn$SNAME)
+
+# create a list with the changes for the ebird taxonomy
+sgcnlistcrosswalk <- sgcnlist
+sgcnlistcrosswalk[sgcnlistcrosswalk=="Anas discors"] <- "Spatula discors"
+sgcnlistcrosswalk[sgcnlistcrosswalk=="Oreothlypis ruficapilla"] <- "Leiothlypis ruficapilla"
+sgcnlistcrosswalk[sgcnlistcrosswalk=="Ammodramus henslowii"] <- "Centronyx henslowii"
+
+# set the auk path
+auk_set_ebd_path(here::here("_data","input","SGCN_data","eBird"), overwrite=TRUE)
+
+# eBird data ##############################################
+#get a list of what's in the directory
+fileList <- dir(path=here::here("_data","input","SGCN_data","eBird"), pattern = ".txt$")
+fileList
+#look at the output and choose which text file you want to run. enter its location in the list (first = 1, second = 2, etc)
+
+n <- 8
+
+# # read in the file using auk
+## Note: it's good to run each of these in turn, as it can fail if you do all of them at once.
+f_in <- here::here("_data","input","SGCN_data","eBird",fileList[[n]]) #"C:/Users/dyeany/Documents/R/eBird/ebd.txt"
+f_out <- "ebd_filtered_SGCN.txt"
+ebd <- auk_ebd(f_in)
+ebd_filters <- auk_species(ebd, species=sgcnlistcrosswalk, taxonomy_version=2022)
+ebd_filtered <- auk_filter(ebd_filters, file=f_out, overwrite=TRUE)
+ebd_df <- read_ebd(ebd_filtered)
+
+ebd_df_backup <- ebd_df
+
+# change the species we had to change for the 2020 ebird taxomon back to our SGCN names
+ebd_df[which(ebd_df$scientific_name=="Spatula discors"),]$scientific_name <- "Anas discors"
+ebd_df[which(ebd_df$scientific_name=="Anas discors"),]
+ebd_df[which(ebd_df$scientific_name=="Leiothlypis ruficapilla"),]$scientific_name <- "Oreothlypis ruficapilla" 
+ebd_df[which(ebd_df$scientific_name=="Oreothlypis ruficapilla"),] 
+ebd_df[which(ebd_df$scientific_name=="Centronyx henslowii"),]$scientific_name <- "Ammodramus henslowii" 
+ebd_df[which(ebd_df$scientific_name=="Ammodramus henslowii"),]
+
+# gets rid of the bad data lines
+ebd_df$latitude <- as.numeric(as.character(ebd_df$latitude))
+ebd_df$longitude <- as.numeric(as.character(ebd_df$longitude))
+ebd_df <- ebd_df[!is.na(as.numeric(as.character(ebd_df$latitude))),]
+ebd_df <- ebd_df[!is.na(as.numeric(as.character(ebd_df$longitude))),]
+
+### Filter out unsuitable protocols (e.g. Traveling, etc.) and keep only suitable protocols (e.g. Stationary, etc.)
+ebd_df <- ebd_df[which(ebd_df$locality_type=="P"|ebd_df$locality_type=="H"),]
+ebd_df <- ebd_df[which(ebd_df$protocol_type=="Banding"|
+                         ebd_df$protocol_type=="Stationary"|
+                         ebd_df$protocol_type=="eBird - Stationary Count"|
+                         ebd_df$protocol_type=="Incidental"|
+                         ebd_df$protocol_type=="eBird - Casual Observation"|
+                         ebd_df$protocol_type=="eBird--Rusty Blackbird Blitz"|
+                         ebd_df$protocol_type=="Rusty Blackbird Spring Migration Blitz"|
+                         ebd_df$protocol_type=="International Shorebird Survey (ISS)"|
+                         ebd_df$protocol_type=="eBird--Heron Stationary Count"|
+                         ebd_df$protocol_type=="Random"|
+                         ebd_df$protocol_type=="eBird Random Location Count"|
+                         ebd_df$protocol_type=="Historical"),]
+### Next filter out records by Focal Season for each SGCN using day-of-year
+# library(lubridate)
+ebd_df$dayofyear <- yday(ebd_df$observation_date) ## Add day of year to eBird dataset based on the observation date.
+birdseason <- read.csv(here::here("scripts","SGCN_DataCollection","lu_eBird_birdseason.csv"), colClasses = c("character","character","integer","integer"),stringsAsFactors=FALSE)
+
+### assign a migration date to each ebird observation.
+ebd_df$season <- NA
+for(i in 1:nrow(birdseason)){
+  comname<-birdseason[i,1]
+  season<-birdseason[i,2]
+  startdate<-birdseason[i,3]
+  enddate<-birdseason[i,4]
+  ebd_df$season[ebd_df$common_name==comname & ebd_df$dayofyear>startdate & ebd_df$dayofyear<enddate] <- as.character(season)
+}
+
+# drops any species that has an NA due to be outside the season dates
+ebd_df <- ebd_df[!is.na(ebd_df$season),]
+
+# add additonal fields 
+ebd_df$DataSource <- "eBird"
+ebd_df$OccProb <- "k"
+names(ebd_df)[names(ebd_df)=='scientific_name'] <- 'SNAME'
+names(ebd_df)[names(ebd_df)=='common_name'] <- 'SCOMNAME'
+names(ebd_df)[names(ebd_df)=='global_unique_identifier'] <- 'DataID'
+names(ebd_df)[names(ebd_df)=='lon'] <- 'longitude'
+names(ebd_df)[names(ebd_df)=='lat'] <- 'latitude'
+names(ebd_df)[names(ebd_df)=='observation_date'] <- 'Date'
+ebd_df$LastObs <- year(parse_date_time(ebd_df$Date, orders=c("ymd","mdy")))
+ebd_df <- ebd_df[which(!is.na(ebd_df$Date)),] # deletes one without a date
+
+ebd_df$useCOA <- NA
+ebd_df$useCOA <- with(ebd_df, ifelse(ebd_df$LastObs >= cutoffyear, "y", "n"))
+
+# drops the unneeded columns. 
+ebd_df <- ebd_df[c("SNAME","DataID","longitude","latitude","Date","useCOA","DataSource","OccProb","season")]
+
+ebd_df$season <- substr(ebd_df$season, 1, 1)
+
+#add in the SGCN fields
+ebd_df <- merge(ebd_df, lu_sgcn, by="SNAME", all.x=TRUE)
+
+ebd_df$ELSeason <- paste(ebd_df$ELCODE, ebd_df$season, sep="_")
+
+# create a list of ebird SGCN elseason codes
+sgcnfinal <- lu_sgcn$ELSeason
+
+# drop species that we don't want to use eBird data for as
+drop_from_eBird <- c("ABNKC10010_b", "ABNNM10020_b", "ABNGA11010_b", "ABNNM08070_b", "ABNGA04040_b", "ABNKC12060_b", "ABNKC01010_b", "ABNKD06070_b", "ABNNB03070_b", "ABNSB13040_b", "ABNGA13010_b")
+sgcnfinal <- sgcnfinal[which(!sgcnfinal %in% drop_from_eBird) ] 
+
+# create the final layer
+ebd_df1 <- ebd_df[which(ebd_df$ELSeason %in% sgcnfinal),]
+# field alignment
+names(ebd_df1)[names(ebd_df1)=='season'] <- 'SeasonCode'
+
+# this 
+write.csv(ebd_df1, "eBirdBACKUPOct.csv", row.names=FALSE) 
+ebd_df1 <- read.csv("eBirdBACKUPOct.csv", stringsAsFactors = FALSE)
+
+# create a spatial layer
+ebird_sf <- st_as_sf(ebd_df1, coords=c("longitude","latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+ebird_sf <- st_transform(ebird_sf, crs=customalbers) # reproject to the custom albers
+#ebird_sf <- st_transform(ebird_sf, crs=4326) # reproject to the custom albers
+ebird_sf <- ebird_sf[final_fields]
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_eBird"), ebird_sf, overwrite=TRUE) # write a feature class into the geodatabase
+ebird_buffer <- st_buffer(ebird_sf, dist=100) # buffer by 100m
+arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_eBird"), ebird_buffer, overwrite=TRUE) # write a feature class into the geodatabase
+
+# delete unneeded stuff
+rm(birdseason, lu_sgcn, ebd, ebd_df_backup, ebd_filtered, ebd_filters)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+
+# Load SGCN data from Biotics, CPPs, and ER polygons, and create centroid layer
 loadSGCN()
 
 # load the Biotics Crosswalk
 biotics_crosswalk <- read.csv(biotics_crosswalk, stringsAsFactors=FALSE)
 lu_sgcnBiotics <- biotics_crosswalk$SNAME
-# lu_sgcnBioticsELCODE <- biotics_crosswalk$ELCODE
+lu_sgcnBioticsELCODE <- biotics_crosswalk$ELCODE
 
 ########################################################################################
 # load in ER Polygons
 # CHANGE THIS EVERY TIME NEW ER DATASET IS AVAILABLE
 # make sure ER dataset is in custom albers projection
-er_layer <- "PA_ERPOLY_ALL_202308_albers"
+er_layer <- "PA_ERPOLY_ALL_20220707_proj"
 er_gdb <- "W:/Heritage/Heritage_Data/Environmental_Review/_ER_POLYS/ER_Polys.gdb"
 er_poly <- arc.open(paste(er_gdb,er_layer, sep="/"))
 er_poly <- arc.select(er_poly, c("SNAME","EOID","BUF_TYPE"), where_clause="BUF_TYPE ='I' AND EOID <> 0") 
@@ -192,6 +431,7 @@ srcf_combined$useCOA <- with(srcf_combined, ifelse(srcf_combined$LastObs>=cutoff
 #add the occurrence probability
 srcf_combined$OccProb = with(srcf_combined, ifelse(LastObs>=cutoffyearK , "k", ifelse(LastObs<cutoffyearK & LastObs>=cutoffyearL, "l", "u")))
 
+
 # replace bad season codes
 sf_y2b <- c("Circus hudsonius","Cistothorus stellaris","Podilymbus podiceps","Botaurus lentiginosus","Ixobrychus exilis","Ardea alba","Nycticorax nycticorax","Nyctanassa violacea","Anas crecca","Anas rubripes","Anas discors","Pandion haliaetus","Haliaeetus leucocephalus","Circus cyaneus","Accipiter striatus","Accipiter gentilis","Buteo platypterus","Falco sparverius","Falco peregrinus","Bonasa umbellus","Rallus elegans","Rallus limicola","Porzana carolina","Gallinula galeata","Fulica americana","Charadrius melodus","Actitis macularius","Bartramia longicauda","Gallinago delicata","Scolopax minor","Sterna hirundo","Chlidonias niger","Tyto alba","Asio otus","Asio flammeus","Aegolius acadicus","Chordeiles minor","Antrostomus vociferus","Chaetura pelagica","Melanerpes erythrocephalus","Contopus cooperi","Empidonax flaviventris","Empidonax traillii","Progne subis","Riparia riparia","Certhia americana","Troglodytes hiemalis","Cistothorus platensis","Cistothorus palustris","Catharus ustulatus","Hylocichla mustelina","Dumetella carolinensis","Lanius ludovicianus","Vermivora cyanoptera","Vermivora chrysoptera","Oreothlypis ruficapilla","Setophaga caerulescens","Setophaga virens","Setophaga discolor","Setophaga striata","Setophaga cerulea","Mniotilta varia","Protonotaria citrea","Parkesia noveboracensis","Parkesia motacilla","Geothlypis formosa","Cardellina canadensis","Icteria virens","Piranga rubra","Piranga olivacea","Spiza americana","Spizella pusilla","Pooecetes gramineus","Passerculus sandwichensis","Ammodramus savannarum","Ammodramus henslowii","Zonotrichia albicollis","Dolichonyx oryzivorus","Sturnella magna","Loxia curvirostra","Spinus pinus","Lanius ludovicianus","Lanius ludovicianus migrans","Lasionycteris noctivagans")  
 srcf_combined[which(srcf_combined$SNAME %in% sf_y2b),]$SeasonCode <- "b"
@@ -201,6 +441,7 @@ sf_b2w <- c("Perimyotis subflavus")
 srcf_combined[which(srcf_combined$SNAME %in% sf_b2w),]$SeasonCode <- "w"
 sf_w2y <- c("Lithobates pipiens","Lithobates sphenocephalus utricularius","Plestiodon anthracinus anthracinus","Virginia valeriae pulchra")
 srcf_combined[which(srcf_combined$SNAME %in% sf_b2y),]$SeasonCode <- "y"
+
 
 srcf_combined$ELSeason <- paste(srcf_combined$ELCODE,srcf_combined$SeasonCode,sep="_")
 
@@ -322,35 +563,3 @@ st_crs(final_er_sf) <- customalbers
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_cppCore"), final_cppCore_sf, overwrite=TRUE, validate=TRUE)
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_Biotics"), final_srcf_combined, overwrite=TRUE, validate=TRUE)
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_er"), final_er_sf, overwrite=TRUE, validate=TRUE)
-
-BioticsCPP_ELSeason <- unique(c(final_cppCore_sf$ELSeason, final_srcf_combined$ELSeason, final_er_sf$ELSeason))
-
-# get a vector of species that are in Biotics/CPP/er so we can use it to filter other datasets
-SGCN_biotics <- unique(final_srcf_combined[which(final_srcf_combined$useCOA=="y"),]$SNAME)
-SGCN_cpp <- unique(final_cppCore_sf[which(final_cppCore_sf$useCOA=="y"),]$SNAME)
-SGCN_er <- unique(final_er_sf[which(final_er_sf$useCOA=="y"),]$SNAME)
-
-SGCN_bioticsCPP <- unique(c(SGCN_biotics, SGCN_cpp, SGCN_er))
-rm(SGCN_biotics, SGCN_cpp, SGCN_er)
-
-#write.csv(SGCN_bioticsCPP, "SGCN_bioticsCPP.csv", row.names=FALSE)
-save(SGCN_bioticsCPP, file=updateData)
-
-a <- setdiff(unique(final_cppCore_sf$ELCODE), unique(lu_sgcn$ELCODE))
-b <- setdiff(unique(lu_sgcn$ELCODE), unique(final_cppCore_sf$ELCODE))
-a <- table(cppCore_sf_final$SNAME, final_cppCore_sf$SeasonCode)
-b <- table(final_srcf_combined$SNAME, final_srcf_combined$SeasonCode)
-
-# QC checks
-
-# get ELSeason values that are in lu_sgcn table, but not spatially represented in lu_sgcnXpu table
-sgcn_noDataFromBiotics <- setdiff(lu_sgcn$ELSeason, BioticsCPP_ELSeason)
-print("The following ELSeason records are found in the lu_sgcn table, but are not spatially represented in the  Biotics/CPP data: ")
-print(lu_sgcn[lu_sgcn$ELSeason %in% sgcn_noDataFromBiotics ,])
-a <- lu_sgcn[lu_sgcn$ELSeason %in% sgcn_noDataFromBiotics ,]
-
-# get ELSeason values that are in lu_sgcnXpu table, but do not have a matching ELSeason record in lu_sgcn
-sgcn_InBioticsButNotInLuSGCN <- setdiff(BioticsCPP_ELSeason, lu_sgcn$ELSeason)
-print("The following ELSeason records are found in the Biotics/CPP data, but do not have matching records in the lu_sgcn table: ")
-print(sgcn_InBioticsButNotInLuSGCN)
-

@@ -162,6 +162,7 @@ SGCN[SGCN=="bat_LANOcontrap"] <- "PGC"
 SGCN[SGCN=="bat_LANOPGCtrap"] <- "PGC"
 SGCN[SGCN=="PGCCon_2021-2022"] <- "PGC"
 SGCN[SGCN=="PGC Woodcock Email Data"] <- "PGC"
+SGCN[SGCN=="PGC_captures"] <- "PGC"
 SGCN[SGCN=="PNHP CPP"] <- "PNHP Biotics"
 SGCN[SGCN=="PNHP ER"] <- "PNHP Biotics"
            
@@ -202,3 +203,4 @@ cat("\n")
 write.table(SGCNsummary, row.names=FALSE, col.names=TRUE, sep=",")
 sink()                      
 options(useFancyQuotes = TRUE)
+

@@ -21,10 +21,13 @@ require(stringr)
 # load the arcgis license
 arc.check_product() 
 
+# updateName <- "PGC_SGCN_20230913"
+# updateNameprev <- "_update2023q2"
+
 # update name
-updateName <- "_update2023q2"
-updateNameprev <- "_update2023q1"
-updateName6m <- "_update2022q4"
+updateName <- "_update2023q3"
+updateNameprev <- "_update2023q2"
+updateName6m <- "_update2023q1"
   
 # create a directory for this update unless it already exists
 ifelse(!dir.exists(here::here("_data","output",updateName)), dir.create(here::here("_data","output",updateName)), FALSE)

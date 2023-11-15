@@ -22,10 +22,10 @@ require(beepr)
 source(here::here("scripts","00_PathsAndSettings.r"))
 
 # progress report name
-ReportName <- "Progress Report 8 - July 7, 2023"
+ReportName <- "Progress Report - October 26, 2023"
 
 
-replaceGraphs <- "yes"
+replaceGraphs <- "no"
 
 # function to generate the pdf
 #knit2pdf(here::here("scripts","Reporting","SixMonthReporting.rnw"), output=paste(pdf_filename, ".tex", sep=""))

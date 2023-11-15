@@ -82,10 +82,11 @@ names(speciesmatch) <- "SNAME"
 speciesmatch <- merge(speciesmatch, SGCNinat, all.x=TRUE)
 speciesmatch$SNAME <- as.character(speciesmatch$SNAME)
 
-print("The following species do not match the original SGNC list:")
+print("The following species do not match the original SGCN list:")
 speciesmatch[which(is.na(speciesmatch$match)),]$SNAME
 
 # REALLY NEED TO MAKE THIS AN "IF" CHECK!
+inatrecs[which(inatrecs$scientific_name=="Apterodela unipunctata"),]$scientific_name <- "Cicindela unipunctata"
 inatrecs[which(inatrecs$scientific_name=="Bonasa umbellus umbellus"),]$scientific_name <- "Bonasa umbellus"
 inatrecs[which(inatrecs$scientific_name=="Buteo platypterus platypterus"),]$scientific_name <- "Buteo platypterus"
 inatrecs[which(inatrecs$scientific_name=="Callophrys gryneus gryneus"),]$scientific_name <- "Callophrys gryneus"
@@ -105,10 +106,7 @@ inatrecs[which(inatrecs$scientific_name=="Phanogomphus borealis"),]$scientific_n
 inatrecs[which(inatrecs$scientific_name=="Sthenopis pretiosus"),]$scientific_name <- "Sthenopis auratus"
 inatrecs[which(inatrecs$scientific_name=="Spinus pinus pinus"),]$scientific_name <- "Spinus pinus"
 
-
 unique(inatrecs$scientific_name)
-
-
 
 # remove the E. invaria records as we have no idea...
 inatrecs <- inatrecs[which(inatrecs$scientific_name!="Ephemerella invaria"),]

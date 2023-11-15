@@ -33,4 +33,3 @@ names(b) <- c("NameUpdate","item","filename","lastmoddate")
 dbCreateTable(dbTrack, "filetracker", b)  # , "item"=TEXT, "filename"=TEXT, "lastmoddate"=REAL
 dbDisconnect(dbTrack) # disconnect the db
 
-

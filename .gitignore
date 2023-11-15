@@ -73,3 +73,4 @@ scripts/COA_API_PlaySpace/00a_APIsettings.r
 *.RDataTmp
 .RDataTmp
 
+.idea/COA_Tools.iml

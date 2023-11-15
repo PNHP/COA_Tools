@@ -23,7 +23,7 @@ from operator import itemgetter
 arcpy.env.overwriteOutput = True
 
 # define path to SGCN database - this will change!!!
-sgcn_gdb = r"H:\\Scripts\\COA_Tools\\_data\\output\\_update2023q2\\SGCN.gdb"
+sgcn_gdb = r"H:\\Scripts\\COA_Tools\\_data\\output\\_update2023q3\\SGCN.gdb"
 
 # define dataset names - these shouldn't change unless there is larger change
 PUs = os.path.join(sgcn_gdb, 'PlanningUnit_Hex10acre')  # planning polygon unit

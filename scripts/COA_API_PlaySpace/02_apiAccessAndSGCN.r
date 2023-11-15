@@ -26,27 +26,111 @@ library(dplyr)
 
 source(here::here("scripts","COA_API_PlaySpace","00a_APIsettings.r"))
 
+for(n in 1:7){
+  #TESTING
+  url = paste0("https://x2jgywcc1l.execute-api.us-east-1.amazonaws.com/Prod/plan/2015-2025?taxonId=",n)
+  print(url)
+  key = "LIYYaz75873DpBgJgrwYn6TyGBYceOjoaTxrrFUE"
+  get_resp <- GET(url,
+      add_headers('Content-type'='application/json',
+                  'x-api-key'=key))
+  
+  #ENDTESTING
+  
+  # httr::set_config(config(ssl_verifypeer=0L, ssl_verifyhost=0L))
+  # a <- POST("https://pgcapigw.beta.pa.gov:9443/oauth2/token",
+  #           body=list(grant_type="password",
+  #                     username=var_username,
+  #                     password=var_password,
+  #                     client_id=var_client_id,
+  #                     client_secret=var_client_secret),
+  #           encode="form")
+  # 
+  # 
+  # if(a$status==200){
+  #   cat("Connected to the API, you're good to go!")
+  # } else(
+  #   cat("API connection failed, try again!")
+  # )
+  # 
+  # a.df <- as.data.frame(fromJSON(content(a, type="text")))
+  
+  # get_resp <- GET("http://pgcapigw.pa.gov/wapapi/1.0/plan/2015-2025?taxonId=2",
+  #                 add_headers("Content-Type"="application/json",
+  #                             Accept="application/+json",
+  #                             "Authorization"=paste("Bearer", as.character(a.df$access_token))
+  #                             ))
+  
+  
+  b <- content(get_resp, "text")
+  parsed <- jsonlite::fromJSON(b, simplifyVector=FALSE, flatten=TRUE)
+  wapdata <- parsed$Plan
+  
+  rm(a, a.df, b, get_resp, parsed, var_client_id, var_client_secret, var_username, var_password) # remove so they aren't hanging around 
+  
+  # process into data tables
+  dt_list <- map(wapdata, as.data.table)
+  warnings()
+
+  dat <- rbindlist(dt_list, fill=TRUE, idcol=FALSE)
+  dat <- as.data.frame(dat)
+  
+  if(n==1){
+    dt_new <- dat
+  } else{
+    dt_new <- rbind(dt_new,dat)
+  }
+}
+
+dt_new <- dt_new %>% # change column names to match what we use
+  dplyr::rename(
+    SCOMNAME = CommonName,
+    SNAME = ScientificName,
+    GRANK = GRank,
+    SRANK = SRank
+  )
+
+# get a vector of non list columns
+nonlistcol <- names(sapply(dt_new, class)[!sapply(dt_new, class) %in% c("list")])
+
+####
+lu_sgcn_new <- dt_new[c("SpeciesId","Taxon","SubTaxon","SCOMNAME","SNAME","ELSubId","ELCode","Season","ELSeason","Sensitivity","GRANK","GRankYear","SRANK","SRankYear")]
+lu_sgcn_new <- unique(lu_sgcn_new)
+lu_sgcn_new <- dplyr::rename(lu_sgcn_new, ELCODE=ELCode, SeasonCode=Season, SENSITV_SP=Sensitivity)
+lu_sgcn_new <- lu_sgcn_new %>% # delete rows were all the reference columns are unpopulated 
+  filter(!if_all(c(ELCODE), is.na))
+# update taxa groups to deal with differences in the WAP database
+taxagroups <- read.csv(here::here("_data","input","lu_SGCN_taxagroups.csv"), stringsAsFactors = FALSE)
+taxagroups <- unique(taxagroups[c("ELCODE","TaxaGroup","TaxaDisplay")])
+lu_sgcn_new <- merge(x=lu_sgcn_new, y=taxagroups, by="ELCODE", all.x=TRUE)
+lu_sgcn_new <- lu_sgcn_new[c("ELCODE","SNAME","SCOMNAME","SeasonCode","ELSeason","GRANK","SRANK","SENSITV_SP","Taxon","SubTaxon","TaxaGroup","TaxaDisplay")]
+
+
+
+
 httr::set_config(config(ssl_verifypeer=0L, ssl_verifyhost=0L))
 a <- POST("https://pgcapigw.pa.gov:9443/oauth2/token",
-          body=list(grant_type="password",
-                    username=var_username,
-                    password=var_password,
-                    client_id=var_client_id,
-                    client_secret=var_client_secret),
-          encode="form")
+         body=list(grant_type="password",
+                   username=var_username,
+                   password=var_password,
+                   client_id=var_client_id,
+                   client_secret=var_client_secret),
+         encode="form")
+
 
 if(a$status==200){
-  cat("Connected to the API, you're good to go!")
+ cat("Connected to the API, you're good to go!")
 } else(
-  cat("API connection failed, try again!")
+ cat("API connection failed, try again!")
 )
 
 a.df <- as.data.frame(fromJSON(content(a, type="text")))
-get_resp <- GET("http://pgcapigw.pa.gov/wapapi/1.0/plan/2015-2025",
-                add_headers("Content-Type"="application/json",
-                            Accept="application/+json",
-                            "Authorization"=paste("Bearer", as.character(a.df$access_token))
-                            ))
+get_resp <- GET("https://pgcapigw.pa.gov/wapapi/1.0/plan/2015-2025",
+               add_headers("Content-Type"="application/json",
+                           Accept="application/+json",
+                           "Authorization"=paste("Bearer", as.character(a.df$access_token))
+                           ))
+
 b <- content(get_resp, "text")
 parsed <- jsonlite::fromJSON(b, simplifyVector=FALSE, flatten=TRUE)
 wapdata <- parsed$Plan
@@ -59,6 +143,7 @@ warnings()
 
 dt <- rbindlist(dt_list, fill=TRUE, idcol=FALSE)
 dt <- as.data.frame(dt)
+
 
 rm(wapdata, dt_list)
 

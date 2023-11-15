@@ -28,7 +28,7 @@ bat_file <- list.files(path=here::here("_data/input/SGCN_data/PGC_bats"), patter
 bat_file
 #look at the output and choose which shapefile you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 1
+n <- 2
 bat_file <- here::here("_data/input/SGCN_data/PGC_bats",bat_file[n])
 
 # write to file tracker
@@ -135,21 +135,42 @@ bat_file
 #look at the output and choose which shapefile you want to run
 #enter its location in the list (first = 1, second = 2, etc)
 n <- 1
-bat_file <- here::here("_data/input/SGCN_data/PGC_bats",bat_file[n])
+bat_file_22 <- here::here("_data/input/SGCN_data/PGC_bats",bat_file[n])
+n <- 2
+bat_file_23 <- here::here("_data/input/SGCN_data/PGC_bats",bat_file[n])
 
 # load in 21-22 PGC bat data
-bats1 <- read.csv(bat_file)
+bats1 <- read.csv(bat_file_22)
+bats2 <- read.csv(bat_file_23)
 
 # set up PGC species code to ELCODE crosswalk
 PGC_crosswalk <- data.frame("PGC_code"=c("MYLU", "MYSO", "EPFU", "MYLE", "MYSE", "PESU", "LANO"),"ELCODE"=c("AMACC01010","AMACC01100","AMACC04010","AMACC01130","AMACC01150","AMACC03020","AMACC02010"), stringsAsFactors=FALSE)
+species_crosswalk <- data.frame("Species"=c("Little Brown","Indiana","Big Brown","Small-footed","Northern Long-eared","Tricolored","Silver-haired"),
+                                "ELCODE"=c("AMACC01010","AMACC01100","AMACC04010","AMACC01130","AMACC01150","AMACC03020","AMACC02010"))
 
 # join ELCODE to dataset using PGC crosswalk
 bats1 <- bats1 %>%
   left_join(PGC_crosswalk, by = c("Species.Code" = "PGC_code"))
+bats2 <- bats2 %>%
+  left_join(species_crosswalk, by = c("Species" = "Species"))
+
+
+bats2$Survey.Date <- paste(bats2$Month,bats2$Day,bats2$Year, sep="/")
+
+colnames(bats2)[colnames(bats2)=="LAT"] <- "LATITUDE"
+colnames(bats2)[colnames(bats2)=="LONG"] <- "LONGITUDE"
+
+common_cols <- intersect(colnames(bats1), colnames(bats2))
+
+bat_cap <- rbind(
+  subset(bats1, select = common_cols), 
+  subset(bats2, select = common_cols)
+)
+
 
 # fill season code based on bat safe dates
 # add day of year to bat survey date
-bats1$dayofyear <- yday(as.Date(bats1$Survey.Date, format="%m/%d/%Y"))
+bat_cap$dayofyear <- yday(as.Date(bat_cap$Survey.Date, format="%m/%d/%Y"))
 
 # assign start and end dates for bat breeding (5/15 - 8/1)
 start_day <- yday(as.Date("5/15/2022", format="%m/%d/%Y"))
@@ -159,27 +180,30 @@ end_day <- yday(as.Date("8/1/2022", format="%m/%d/%Y"))
 winter_bats <- c("AMACC04010", "AMACC01100", "AMACC01010", "AMACC03020", "AMACC02010")
 # assign season code based on if survey day of year are between start and end days
 # season codes for Big Brown, Little Brown, Indiana, and Tricolored are broken into breeding and wintering. All the rest are breeding and year round.
-bats1$SeasonCode <- ifelse(bats1$ELCODE %in% winter_bats,(ifelse(bats1$dayofyear >= start_day & bats1$dayofyear <= end_day, "b", "w")), "y")
+bat_cap$SeasonCode <- ifelse(bat_cap$ELCODE %in% winter_bats,(ifelse(bat_cap$dayofyear >= start_day & bat_cap$dayofyear <= end_day, "b", "w")), "y")
 # remove wintering silver-haired bats because they are not SGCN
-bats1 <- bats1[which(!(bats1$ELCODE=="AMACC02010"&bats1$SeasonCode=="w")),]
+bat_cap <- bat_cap[which(!(bat_cap$ELCODE=="AMACC02010"&bat_cap$SeasonCode=="w")),]
 
 # merge in the SGCN data
-bats1 <- merge(bats1, lu_sgcn, by=c("ELCODE", "SeasonCode"), all.x=TRUE)
+bat_cap <- merge(bat_cap, lu_sgcn, by=c("ELCODE", "SeasonCode"), all.x=TRUE)
 
 # add COA fields
-bats1$LastObs <- format(as.Date(bats1$Survey.Date, format="%m/%d/%Y"),"%Y")
-bats1$useCOA <- with(bats1, ifelse(bats1$LastObs >= cutoffyear, "y", "n"))
-bats1$DataSource <- "PGCCon_2021-2022"
-bats1$OccProb <- "k"
-bats1$DataID <- NA
-names(bats1)[names(bats1) == "LONGITUDE"] <- "Longitude"
-names(bats1)[names(bats1) == "LATITUDE"] <- "Latitude"
+bat_cap$LastObs <- format(as.Date(bat_cap$Survey.Date, format="%m/%d/%Y"),"%Y")
+bat_cap$useCOA <- with(bat_cap, ifelse(bat_cap$LastObs >= cutoffyear, "y", "n"))
+bat_cap$DataSource <- "PGC_captures"
+bat_cap$OccProb <- "k"
+bat_cap$DataID <- NA
+names(bat_cap)[names(bat_cap) == "LONGITUDE"] <- "Longitude"
+names(bat_cap)[names(bat_cap) == "LATITUDE"] <- "Latitude"
 
 # limit fields to those in the other bat data prepare to rbind
-bats1 <- bats1[,names(bats1) %in% names(bats)]
+common_cols <- intersect(colnames(bat_cap), colnames(bats))
 
 # rbind bat data together
-bats <- rbind(bats, bats1)
+bats <- rbind(
+  subset(bats, select = common_cols), 
+  subset(bat_cap, select = common_cols)
+)
 
 # proceed with latitude/longitude checks for accuracy
 library(measurements)
