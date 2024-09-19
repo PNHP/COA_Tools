@@ -43,6 +43,16 @@ lu_sgcnXpu[lu_sgcnXpu=="IMBIV47060_y"] <- "IMBIV4C010_y" # rainbow
 lu_sgcnXpu[lu_sgcnXpu=="ABPBG10010_b"] <- "ABPBG10030_b" # sedge wren
 lu_sgcnXpu[lu_sgcnXpu=="AMAFB09030_y"] <- "AMAFB09026_y" # northern flying squirrel
 
+# fixes that we should look for source
+lu_sgcnXpu[lu_sgcnXpu=="ABNKC12060_b"] <- "ABNKC12061_b" # northern goshawk
+lu_sgcnXpu[lu_sgcnXpu=="ABNKC12060_m"] <- "ABNKC12061_m"
+lu_sgcnXpu[lu_sgcnXpu=="ABNKC12060_w"] <- "ABNKC12061_w"
+
+lu_sgcnXpu[lu_sgcnXpu=="ARADB23010_y"] <- "ARADB23011_y" # Northern rough greensnake
+
+lu_sgcnXpu[lu_sgcnXpu=="IILEP42010_y"] <- "IILEP42011_y" # Arctic skipper
+
+
 # remove problematic bat records (little brown and indiana year-round - find out where these are coming from)
 lu_sgcnXpu <- lu_sgcnXpu[which(lu_sgcnXpu$ELSeason!="AMACC01100_y"&lu_sgcnXpu$ELSeason!="AMACC01010_y"),]
 
@@ -192,7 +202,7 @@ SGCNsummary <- SGCNsummary[which(!is.na(SGCNsummary$`Taxonomic Group`)),]
 
 
 a1 <- "The following information regarding Wildlife Action Plan Conservation Opportunity Area Tool data sources, number of records for each data source, and the record dates is provided by the Pennsylvania Natural Heritage Program (PNHP) for reference purposes. Please contact Pennsylvania Game Commission (birds, mammals, terrestrial invertebrates; PGCSWAP@pa.gov) or Pennsylvania Fish & Boat Commission (fish, amphibians, reptiles, aquatic or terrestrial invertebrates; RA-FBSWAP@pa.gov) for more information."
-b1 <- "KEY: BAMONA = Butterflies and Moths of North America; BBA_PtCt = Pennsylvania Breeding Bird Atlas point counts (Wilson et al. 2012); DillonSnails = aquatic snail records contributed by an expert in the field; eBird = free bird sighting database administered by Cornell Lab of Ornithology (ebird.org); GBIF = Global Biodiversity Information Facility, an open access index of species occurrence records (more information can be found at https://www.gbif.org/en/what-is-gbif); iNaturalist = (www.inaturalist.org); PFBC = Pennsylvania Fish & Boat Commission data; PGC = Pennsylvania Game Commission data; PNHP Biotics = Pennsylvania Natural Heritage Program database of unique, threatened or endangered species that is linked with NatureServe, a global biodiversity conservation organization (more information can be found at http://www.natureserve.org/conservation-tools/biotics-5); PNHP POND = Pond Observation Networked Database, a database of vernal pool data; PSU-Brittingham-Miller = bird data from a Pennsylvania State University research lab; TREC = Tom Ridge Environmental Center in Erie, PA; USFS-NRS = SGNC data contributed by the Allegheny National Forest; Xerces = Xerces Society, an invertebrate conservation organization (more information can be found at https://xerces.org/)." 
+b1 <- "KEY: BAMONA = Butterflies and Moths of North America; BBA_PtCt = Pennsylvania Breeding Bird Atlas point counts (Wilson et al. 2012); DillonSnails = aquatic snail records contributed by an expert in the field; eBird = free bird sighting database administered by Cornell Lab of Ornithology (ebird.org); GBIF = Global Biodiversity Information Facility, an open access index of species occurrence records (more information can be found at https://www.gbif.org/en/what-is-gbif); iNaturalist = (www.inaturalist.org); PFBC = Pennsylvania Fish & Boat Commission data; PGC = Pennsylvania Game Commission data; PNHP Biotics = Pennsylvania Natural Heritage Program database of unique, threatened or endangered species that is linked with NatureServe, a global biodiversity conservation organization (more information can be found at http://www.natureserve.org/conservation-tools/biotics-5); PNHP POND = Poool Observation Networked Database, a database of vernal pool data; PSU-Brittingham-Miller = bird data from a Pennsylvania State University research lab; TREC = Tom Ridge Environmental Center in Erie, PA; USFS-NRS = SGNC data contributed by the Allegheny National Forest; Xerces = Xerces Society, an invertebrate conservation organization (more information can be found at https://xerces.org/)." 
 
 
 options(useFancyQuotes = FALSE)

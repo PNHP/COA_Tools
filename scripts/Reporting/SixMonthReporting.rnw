@@ -46,7 +46,7 @@
 % %add footers
  \lfoot{
   \small   %small font. The double slashes is newline in fancyhdr
-  \textcolor{gray}{\leftmark \\ Conservation Opportunity Area Tool Six Month Report \\ \Sexpr{ReportName}} }
+  \textcolor{gray}{\leftmark \\ Conservation Opportunity Area Tool Annual Report \\ \Sexpr{ReportName}} }
  \rfoot{
   \small  
   \textcolor{gray}{page \thepage }
@@ -80,14 +80,15 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{General Updates and Comments}
-\noindent One update to the COA database was provided during this reporting period:
+\noindent Four updates to the COA database were provided during this reporting period:
 \begin{center}
-\begin{tabular}{cccc} 
+\begin{tabular}{cccc}
  \hline
  Update	& Time period	& Delivered to PGC-PFBC	& Delivered to NatureServe \\
  \hline 
 <<label=updatesincluded, echo=FALSE, results='asis'>>=
-updatetracker_sub <- updatetracker[updatetracker$updateName %in% c(updateName, updateNameprev),] # use this one if 2 updates are included
+updatetracker_sub <- updatetracker[updatetracker$updateName %in% c(updateName_q3, updateName_q4, updateName_q1, updateName_q2),] # use this on if 4 updates are included for the annual report.
+#updatetracker_sub <- updatetracker[updatetracker$updateName %in% c(updateName, updateNameprev),] # use this one if 2 updates are included
 #updatetracker_sub <- updatetracker[updatetracker$updateName %in% c(updateName),] # use this one if only 1 update is included
 for(i in 1:nrow(updatetracker_sub)) {
   cat(paste0(updatetracker_sub$UpdateNameDisplay[i], " & ", updatetracker_sub$UpdateTimePeriod[i], " & ", updatetracker_sub$DateCommisions[i], " & ", updatetracker_sub$DateNS[i], " \\\\"))
@@ -97,7 +98,7 @@ for(i in 1:nrow(updatetracker_sub)) {
 \end{tabular}
 \end{center}
 
-\noindent A copy of the SGCN geodatabase was delivered to the agencies for the update during this reporting period. Agency copies of the SGCN geodatabase were limited to their jurisdictional species plus terrestrial invertebrates. \\\\
+\noindent A copy of the SGCN geodatabase was delivered to the agencies for the updates during this reporting period. Agency copies of the SGCN geodatabase were limited to their jurisdictional species plus terrestrial invertebrates. \\\\
 \noindent \Sexpr{updatenotes[which(updatenotes$NoteType=="general"&updatenotes$updateName==updateName),"NoteContent"]} 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -110,7 +111,7 @@ for(i in 1:nrow(updatetracker_sub)) {
 \Sexpr{paste("https://wildlifeactionmap.pa.gov/sites/default/files/","SGCNsummary", updateName,".csv", sep="")}.
 
 \subsection*{Data by Taxonomic Groups}
-\noindent This section includes an overview of current SGCN data for each major taxonomic group relative to the 25-year inclusion window that we employ for most taxonomic groups. SGCN data beyond the 25-year inclusion window are not included in the COA Tool, with the exception of fish, for which we include records that date back to 1980. Histograms and maps showing SGCN records as of the \Sexpr{updatetracker[which(updatetracker$updateName==updateName),"UpdateNameDisplay"]} update are presented below. Note that some data sources include records from just outside of Pennsylvania due to the rectangular bounding box that is used for queries of community science databases like eBird, iNaturalist, BAMONA, etc. Work is planned to remove these from the SGCN geodatabase in future updates. %Due to size and scale limitations of the maps, we recommend that any detailed analysis of the spatial data be undertaken by using the spatial data provided to PFBC and PGC.  When known, we’ve provided additional details, data harvesting, and survey needs to fill in data gaps. Some of this data gathering (e.g., field surveys) are beyond the scope of this project, but could be supported by additional funding (e.g., State Wildlife Grants, Wild Resources Conservation Program, PA Department of Agriculture).\\
+\noindent This section includes an overview of current SGCN data for each major taxonomic group relative to the 25-year inclusion window that we employ for most taxonomic groups. SGCN data beyond the 25-year inclusion window are not included in the COA Tool, with the exception of fish, as well as SGCN records from Biotics, for which we include records that date back to 1980 as Likely occurrences. Histograms and maps showing SGCN records as of the \Sexpr{updatetracker[which(updatetracker$updateName==updateName),"UpdateNameDisplay"]} update are presented below. %Due to size and scale limitations of the maps, we recommend that any detailed analysis of the spatial data be undertaken by using the spatial data provided to PFBC and PGC. When known, we’ve provided additional details, data harvesting, and survey needs to fill in data gaps. Some of this data gathering (e.g., field surveys) are beyond the scope of this project, but could be supported by additional funding (e.g., State Wildlife Grants, Wild Resources Conservation Program, PA Department of Agriculture).\\
 \medskip
 
 <<label=taxamaps, echo=FALSE, results='asis'>>=
@@ -150,12 +151,14 @@ if(length(cnt_SGCN6mNoSeason)==length(cnt_SGCNnowNoSeason)){
   cat(paste0("In the most recent update, ", updatetracker[which(updatetracker$updateName==updateName),'UpdateNameDisplay'], ", there were ", length(cnt_SGCNnowNoSeason)," SGCN (",length(cnt_SGCNnow)," including seasons) ", " that were spatially represented in the COA Tool, an overall decrease from the ", updatetracker[which(updatetracker$updateName==updateName6m),'UpdateNameDisplay'], " update, which included ", length(cnt_SGCN6mNoSeason)," (",length(cnt_SGCN6m)," including seasons) SGCN."))
 }
 
+
 # if(nrow(SGCNlost6m)==0){
 #   cat("Therefore, there were no changes to SGCN included in the COA Tool between the two updates.\\")
 # } else {
 #    #While it appears that \Sexpr{words(length(cnt_SGCNnowNoSeason)-length(cnt_SGCN6mNoSeason))} SGCN were added into the COA tool for this update, the actual data are a little more complicated---35 SGCN were added, with 17 SGCN removed from the tool. Fifteen SGCN removed were freshwater snails with last observation dates beyond the 25-year cutoff that thus aged out of inclusion in the COA tool.\\  
 # }
 @
+\noindent \Sexpr{updatenotes[which(updatenotes$NoteType=="speciesdata"&updatenotes$updateName==updateName),"NoteContent"]} 
 
 \\
 \noindent The following table presents a summary of SGCN, by taxa group, that are not currently spatially represented in the COA tool. These include SGCN for which we currently have no records that fall within the age cutoff in the SGCN database.\\

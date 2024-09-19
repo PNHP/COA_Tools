@@ -1,3 +1,6 @@
+# clear the environments
+rm(list=ls())
+
 # load packages
 if (!requireNamespace("arcgisbinding", quietly = TRUE)) install.packages("arcgisbinding")
 require(arcgisbinding)
@@ -22,10 +25,10 @@ require(beepr)
 source(here::here("scripts","00_PathsAndSettings.r"))
 
 # progress report name
-ReportName <- "Progress Report - October 26, 2023"
+ReportName <- "Annual Update Report - July 29, 2024"
+PDFName <- "YearlyReport"
 
-
-replaceGraphs <- "no"
+replaceGraphs <- "yes"
 
 # function to generate the pdf
 #knit2pdf(here::here("scripts","Reporting","SixMonthReporting.rnw"), output=paste(pdf_filename, ".tex", sep=""))
@@ -302,7 +305,7 @@ if(replaceGraphs=="yes"){
 
 
 # make a species list looper 
-spabbv <- c("salamanders","frogs","birds","fish","mammals","turtles","lizards","snakes","crayfishes","caves","beetles","mayflies","bees","moths","dragonflies","stoneflies","caddisflies","spiders","mussels","butterflies","craneflies","sawflies","fsnails","tsnails")
+spabbv <- c("salamanders","frogs","birds","fish","mammals","turtles","lizards","snakes","crayfishes","beetles","mayflies","moths","dragonflies","stoneflies","caddisflies","spiders","mussels","caves","bees","butterflies","craneflies","sawflies","fsnails","tsnails")
 specieslooper <- data.frame(taxalist,spabbv)
 specieslooper$taxalist <- as.character(specieslooper$taxalist)
 specieslooper$spabbv <- as.character(specieslooper$spabbv)
@@ -318,10 +321,13 @@ updateNotes_SQLquery <- "SELECT * FROM updateNotes"
 updatenotes <- dbGetQuery(db, statement=updateNotes_SQLquery)
 dbDisconnect(db) 
 
+cnt_SGCNnowNoSeason <- cnt_SGCNnowNoSeason[ !cnt_SGCNnowNoSeason == 'AFCKA01030']
+cnt_SGCNnow <- cnt_SGCNnow[ !cnt_SGCNnowNoSeason == 'AFCKA01030_y']
+
 ##############################################################################################################
 ## Write the output document for the intro ###############
 setwd(here::here("_data/output",updateName)) #, "countyIntros", nameCounty, sep="/")
-pdf_filename <- paste(updateName,"_SixMonthReport",sep="") # ,gsub("[^0-9]", "", Sys.time() )
+pdf_filename <- paste(updateName,"_",PDFName,sep="") # ,gsub("[^0-9]", "", Sys.time() )
 makePDF("SixMonthReporting.rnw", pdf_filename) # user created function
 deletepdfjunk(pdf_filename) # user created function # delete .txt, .log etc if pdf is created successfully.
 setwd(here::here()) # return to the main wd

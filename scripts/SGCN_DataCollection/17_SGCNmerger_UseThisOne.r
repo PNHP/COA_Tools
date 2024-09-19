@@ -3,19 +3,20 @@
 # Purpose: 
 # Author: Molly Moore
 # Created: 2019-10-21
-# Updated: 
-#
 # Updates:
-# 
+# 2024-07-17 - replaced rgdal functions with sf package functions because of deprecation of rgdal.
 #
 # To Do List/Future Ideas:
 # * 
 #---------------------------------------------------------------------------------------------
+# clear the environments
+rm(list=ls())
+
 # load packages
 if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
 require(here)
-if (!requireNamespace("rgdal", quietly = TRUE)) install.packages("rgdal")
-require(rgdal)
+if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
+require(sf)
 
 source(here::here("scripts","00_PathsAndSettings.r"))
 
@@ -27,13 +28,11 @@ sgcn_folder <- here::here("_data","output",updateName,"SGCN.gdb")
 # list of datasets that only have final datasets and not source features. These will be used to create source polygon layer
 finalList_srcpy <- c("final_Biotics", "final_cppCore", "final_er", "final_PGCwaterfowl")
 
-# get all the srcpt layers
-subset(ogrDrivers(), grepl("GDB", name))
-fc_list <- ogrListLayers(sgcn_folder)
+# get a list of all the srcpt layers by filtering for those that have "srcpt" in name
+fc_list <- st_layers(sgcn_folder)$name
 finalList_srcpt <- fc_list[grepl("srcpt",fc_list)]
-finalList_srcpt # print out the final list
 
-data <- arc.open(path=here::here("_data","output",updateName,"SGCN.gdb",finalList_srcpt[1]))
+data <- arc.open(path=here::here("_data","output",updateName,"SGCN.gdb",finalList_srcpt[2]))
 sgcn_srcpt <- arc.select(data,columns)
 sgcn_srcpt_sf <- arc.data2sf(sgcn_srcpt)
 sgcn_srcpt_sf <- sgcn_srcpt_sf[0,]
@@ -46,11 +45,9 @@ for(name in finalList_srcpt){
   sgcn_srcpt_sf <- rbind(sgcn_srcpt_sf, data_srcpt_sf)
 }
 
-# get all the srcln layers
-subset(ogrDrivers(), grepl("GDB", name))
-fc_list <- ogrListLayers(sgcn_folder)
+# get a list of all the srcln layers by filtering for those that have "srcln" in name
+fc_list <- st_layers(sgcn_folder)$name
 finalList_srcln <- fc_list[grepl("srcln",fc_list)]
-finalList_srcln # print out the final list
 
 data <- arc.open(path=here::here("_data","output",updateName,"SGCN.gdb",finalList_srcln[1]))
 sgcn_srcln <- arc.select(data,columns)
@@ -140,11 +137,9 @@ arc.write(path=here::here("_data","output",updateName,"SGCN_PGC.gdb","sgcn_pgc_p
 
 ##########################
 
-sgcn_folder <- here::here("_data","output",updateName,"SGCN.gdb")
-subset(ogrDrivers(), grepl("GDB", name))
-fc_list <- ogrListLayers(sgcn_folder)
+# get a list of all the srcln layers by filtering for those that have "srcln" in name
+fc_list <- st_layers(sgcn_folder)$name
 final_list <- fc_list[grepl("final",fc_list)]
-final_list # print out the final list
 
 data <- arc.open(path=here::here("_data","output",updateName,"SGCN.gdb",final_list[1]))
 sgcn <- arc.select(data,columns)
@@ -160,6 +155,18 @@ for(name in final_list){
   sgcn_sf <- rbind(sgcn_sf,data_sf)
 }
 
+# load in county buff layer and intersect with sgcn data to keep only PA records for final dataset
 sgcn_final <- sgcn_sf[which(sgcn_sf$useCOA=='y'),]
+
+#county_buff <- here::here("_data","output",updateName,"SGCN.gdb","CountyBuffer")
+#data <- arc.open(county_buff)
+#county_buff <- arc.select(data)
+#county_buff_sf <- arc.data2sf(county_buff)
+
+#sgcn_final1 <- st_make_valid(sgcn_final)
+#county_buff_sf <- st_make_valid(county_buff_sf)
+#sgcn_final1 <- st_crop(sgcn_final, county_buff_sf)
+
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","allSGCNuse"), sgcn_final, overwrite=TRUE, validate=TRUE)
+print("We're done here")
 

@@ -42,7 +42,7 @@ bamona_file <- list.files(path=here::here("_data","input","SGCN_data","bamona"),
 bamona_file
 #look at the output and choose which shapefile you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 15
+n <- 13
 bamona_file <- here::here("_data","input","SGCN_data","bamona", bamona_file[n])
 
 # write to file tracker

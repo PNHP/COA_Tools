@@ -70,3 +70,4 @@ snails_sf <- snails_sf %>%
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","srcpt_snails"), snails_sf, overwrite=TRUE) # write a feature class into the geodatabase
 snails_buffer_sf <- st_buffer(snails_sf, dist=100) # buffer by 100m
 arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_snails"), snails_buffer_sf, overwrite=TRUE) # write a feature class into the geodatabase
+

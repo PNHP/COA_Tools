@@ -56,6 +56,7 @@ unique(sgcnXpu$OccProb)
 
 # bind the new Known table to the model based table
 sgcnXpu_newTable <- rbind(sgcnXpu_newK,sgcnXpu_models)
+sgcnXpu_newTable <- distinct(sgcnXpu_newTable)
 
 # write the table to the database
 db <- dbConnect(SQLite(), dbname=databasename) # connect to the database

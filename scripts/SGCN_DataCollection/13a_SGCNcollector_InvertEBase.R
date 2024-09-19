@@ -11,7 +11,7 @@ loadSGCN()
 # load the arcgis license
 arc.check_product() 
 
-occurrences <- "H:/Scripts/COA_Tools/_data/input/SGCN_data/Snails/SymbOutput_2023-10-23_105554_DwC-A/occurrences.csv"
+occurrences <- "H:/Scripts/COA_Tools/_data/input/SGCN_data/Snails/SymbOutput_2024-07-16_123920_DwC-A/occurrences.csv"
 
 mollusks <- read.csv(occurrences,fileEncoding = "latin1")
 

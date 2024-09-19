@@ -23,15 +23,22 @@ from operator import itemgetter
 arcpy.env.overwriteOutput = True
 
 # define path to SGCN database - this will change!!!
-sgcn_gdb = r"H:\\Scripts\\COA_Tools\\_data\\output\\_update2023q3\\SGCN.gdb"
+sgcn_gdb = r"H:/Scripts/COA_Tools/_data/output/_update2024q2/SGCN.gdb"
 
 # define dataset names - these shouldn't change unless there is larger change
 PUs = os.path.join(sgcn_gdb, 'PlanningUnit_Hex10acre')  # planning polygon unit
+county_buff = os.path.join(sgcn_gdb, 'CountyBuffer')
 all_sgcn = os.path.join(sgcn_gdb, 'allSGCNuse')
+
+county_buff_lyr = arcpy.MakeFeatureLayer_management(county_buff,"county_buff_lyr")
+all_sgcn_lyr = arcpy.MakeFeatureLayer_management(all_sgcn, "all_sgcn_lyr")
+arcpy.SelectLayerByLocation_management(all_sgcn_lyr,"INTERSECT",county_buff_lyr,"","NEW_SELECTION","INVERT")
+if arcpy.Describe(all_sgcn_lyr).FIDSet:
+    arcpy.management.DeleteFeatures(all_sgcn_lyr)
 
 print("Dissolving SGCN layer!")
 # dissolve the allSGCN layer
-all_sgcn_diss = arcpy.PairwiseDissolve_analysis(all_sgcn, os.path.join(sgcn_gdb, "allGSCNuse_dissolve"), "ELSeason;OccProb", None, "MULTI_PART")
+all_sgcn_diss = arcpy.PairwiseDissolve_analysis(all_sgcn_lyr, os.path.join(sgcn_gdb, "allGSCNuse_dissolve"), "ELSeason;OccProb", None, "MULTI_PART")
 
 print("Tabulate Intersect!")
 # tabulate intersect between PUs and SGCN dissolve layer

@@ -70,6 +70,8 @@ Index/COA_Update/segments_4
 *.tmp
 *.png
 scripts/COA_API_PlaySpace/00a_APIsettings.r
+scripts/COA_API_PlaySpace/02_apiAccessAndSGCN.r
+scripts/COA_API_PlaySpace
 *.RDataTmp
 .RDataTmp
 

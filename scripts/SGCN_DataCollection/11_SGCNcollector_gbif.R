@@ -24,6 +24,8 @@ if (!requireNamespace("purrr", quietly = TRUE)) install.packages("purrr")
 require(purrr)
 if (!requireNamespace("tidyr", quietly = TRUE)) install.packages("tidyr")
 require(tidyr)
+if (!requireNamespace("triebeard", quietly = TRUE)) install.packages("triebeard")
+require(triebeard)
 
 source(here::here("scripts","00_PathsAndSettings.r"))
 

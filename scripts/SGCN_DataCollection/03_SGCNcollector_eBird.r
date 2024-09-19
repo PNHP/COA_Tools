@@ -48,7 +48,7 @@ fileList <- dir(path=here::here("_data","input","SGCN_data","eBird"), pattern = 
 fileList
 #look at the output and choose which text file you want to run. enter its location in the list (first = 1, second = 2, etc)
 
-n <- 9
+n <- 8
 
 trackfiles("SGCN ebird", here::here("_data","input","SGCN_data","eBird",fileList[[n]])) # write to file tracker
 
@@ -76,6 +76,7 @@ ebd_df <- ebd_df[!is.na(as.numeric(as.character(ebd_df$longitude))),]
 
 ### Filter out unsuitable protocols (e.g. Traveling, etc.) and keep only suitable protocols (e.g. Stationary, etc.)
 ebd_df <- ebd_df[which(ebd_df$locality_type=="P"|ebd_df$locality_type=="H"),]
+#ebd_df <- ebd_df[which(ebd_df$locality_type=="P"),] # just keep personal location, exclude hot spots
 ebd_df <- ebd_df[which(ebd_df$protocol_type=="Banding"|
            ebd_df$protocol_type=="Stationary"|
            ebd_df$protocol_type=="eBird - Stationary Count"|

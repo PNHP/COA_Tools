@@ -23,6 +23,7 @@ if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
 require(here)
 
 source(here::here("scripts","00_PathsAndSettings.r"))
+arc.check_portal()
 
 ######################################################################################
 # read in SGCN data
@@ -37,12 +38,12 @@ lu_sgcnBiotics <- biotics_crosswalk$SNAME
 # load in ER Polygons
 # CHANGE THIS EVERY TIME NEW ER DATASET IS AVAILABLE
 # make sure ER dataset is in custom albers projection
-er_layer <- "PA_ERPOLY_ALL_202308_albers"
+er_layer <- "PA_ERPOLY_ALL_20240220_albers"
 er_gdb <- "W:/Heritage/Heritage_Data/Environmental_Review/_ER_POLYS/ER_Polys.gdb"
 er_poly <- arc.open(paste(er_gdb,er_layer, sep="/"))
 er_poly <- arc.select(er_poly, c("SNAME","EOID","BUF_TYPE"), where_clause="BUF_TYPE ='I' AND EOID <> 0") 
 er_sf <- arc.data2sf(er_poly)
-er_sf <- er_sf[which(er_sf$SNAME %in% unique(lu_sgcn$SNAME)),]
+er_sf <- er_sf[which(er_sf$SNAME %in% unique(biotics_crosswalk$SNAME)),]
 names(er_sf)[names(er_sf) == 'EOID'] <- 'EO_ID'
 # clean up
 rm(er_poly)
@@ -53,14 +54,17 @@ rm(er_poly)
 # use this if you are not within the WPC network---caution, it may not be displaying all the records
 #cpps <- "https://maps.waterlandlife.org/arcgis/rest/services/PNHP/CPP/FeatureServer/0"
 #cppCore <- arc.open(cpps)
+#cppCore <- arc.open(paste(serverPath,"PNHP.DBO.CPP_Core", sep=""))
 # use this to hit the enterprise gdb server
-cppCore <- arc.open(paste(serverPath,"PNHP.DBO.CPP_Core", sep=""))
+cpp_url <- "https://gis.waterlandlife.org/server/rest/services/PNHP/CPP_EDIT/FeatureServer/0"
+cppCore <- arc.open(cpp_url)
+
 
 #cppCore <- arc.open(cpps)
 cppCore <- arc.select(cppCore, c("SNAME","EO_ID","Status"), where_clause="Status ='c' OR Status ='r'") 
 cppCore_sf <- arc.data2sf(cppCore)
 #### cppCore_sf <- cppCore_sf[which(cppCore_sf$SNAME %in% unique(lu_sgcn$SNAME)),] # bad SGCN names
-cppCore_sf <- cppCore_sf[which(cppCore_sf$SNAME %in% unique(lu_sgcn$SNAME)),]
+cppCore_sf <- cppCore_sf[which(cppCore_sf$SNAME %in% unique(biotics_crosswalk$SNAME)),]
 
 # clean up
 rm(cppCore)

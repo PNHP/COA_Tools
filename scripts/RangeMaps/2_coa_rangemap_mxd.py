@@ -10,7 +10,7 @@
 
 #!!!!!!!!!!!CHANGE PATH BELOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # set folder where sws gdb and .mxds are included
-folder = r'H:\Scripts\COA_Tools\_data\output\_update2023q3'
+folder = r'H:\Scripts\COA_Tools\_data\output\_update2024q2'
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 desiredFields = ['COUNTY_NAM','NAME','TaxaDisplay', 'SCOMNAME', 'SNAME', 'y', 'b', 'm', 'w', 'Occurrence', 'GRANK', 'SRANK', 'USESA', 'SPROT', 'PBSSTATUS', 'PrimMacro', 'OBJECTID', 'Shape']
 ######################################################################################################################################################
@@ -129,7 +129,7 @@ def edit_attributes(path):
         arcpy.AlterField_management(path,"NAME",new_field_name="NAME",new_field_alias="Watershed Name")
     else:
         pass
-    arcpy.AlterField_management(path,"TaxaDisplay",new_field_alias="Taxanomic Group")
+    arcpy.AlterField_management(path,"TaxaDisplay",new_field_alias="Taxonomic Group")
     arcpy.AlterField_management(path,"SCOMNAME",new_field_alias="Common Name")
     arcpy.AlterField_management(path,"SNAME",new_field_alias="Scientific Name")
     arcpy.AlterField_management(path,"b",new_field_alias="Breeding (B) Species of Greatest Conservation Need")
@@ -234,9 +234,9 @@ alltaxa_county = os.path.join(db,"_county_SGCN")
 alltaxa_huc = os.path.join(db,"_HUC8_SGCN")
 
 #print("Checking layers for county .mxd...")
-taxa_layer_check(county_mxd,df_name_county,fc_county)
+#taxa_layer_check(county_mxd,df_name_county,fc_county)
 #print("Checking layers for huc .mxd...")
-taxa_layer_check(huc_mxd,df_name_huc,fc_huc)
+#taxa_layer_check(huc_mxd,df_name_huc,fc_huc)
 
 format_mxd(county_mxd,df_name_county,fc_county,alltaxa_county)
 format_mxd(huc_mxd,df_name_huc,fc_huc,alltaxa_huc)

@@ -74,7 +74,7 @@ fishdata$TaxaGroup <- "AF"
 ##names(fishdata)[names(fishdata) == "common_name"] <- "SCOMNAME"
 names(fishdata)[names(fishdata) == "long"] <- "lon"
 
-# replace the older taxonomy with updated names from the SWAP.  Need to do this before the ELCODE join
+# replace the older taxonomy with updated names from the SWAP. Need to do this before the ELCODE join. Are we missing others here??
 fishdata$SNAME[fishdata$SNAME=="Acipenser oxyrinchus"] <- "Acipenser oxyrhynchus"
 fishdata$SNAME[fishdata$SNAME=="Cottus sp."] <- "Cottus sp. cf. cognatus"
 fishdata$SNAME[fishdata$SNAME=="Notropis dorsalis"] <- "Hybopsis dorsalis"
@@ -82,6 +82,7 @@ fishdata$SNAME[fishdata$SNAME=="Lota sp."] <- "Lota lota pop. 4"
 fishdata$SNAME[fishdata$SNAME=="Lota sp. "] <- "Lota lota pop. 4" # extra space after "sp."
 fishdata$SNAME[fishdata$SNAME=="Notropis heterolepis"] <- "Notropis heterodon"
 fishdata$SNAME[fishdata$SNAME=="Chaenobryttus gulosus"] <- "Lepomis gulosus"
+fishdata$SNAME[fishdata$SNAME=="Amia calva"] <- "Amia ocellicauda"
 
 # add in the ELCODE
 ###SGCNfish <- read.csv("SGCNfish.csv")
@@ -103,7 +104,7 @@ fishdata <- fishdata[c("SNAME","SCOMNAME","TaxaGroup","ELCODE","DataSource","Dat
 
 fishdata$SeasonCode <- "y"
 fishdata$ELSeason <- paste(fishdata$ELCODE,"_y",sep="")
-fishdata$lat <- gsub("<a0>","",fishdata$lat)
+#fishdata$lat <- gsub("<a0> ","",fishdata$lat)
 fishdata$lat <- as.numeric(as.character(fishdata$lat))
 
 fishdata <- fishdata[complete.cases(fishdata), ]

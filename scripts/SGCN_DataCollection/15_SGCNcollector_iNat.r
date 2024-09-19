@@ -138,7 +138,6 @@ inatrecs1$dayofyear <- yday(inatrecs1$datetime) ## Add day of year to eBird data
 inatrecs1birds <- inatrecs1[which(inatrecs1$iconic_taxon_name=="Aves"),]
 inatrecs1nobirds <- inatrecs1[which(inatrecs1$iconic_taxon_name!="Aves"),]
 
-
 birdseason <- read.csv(here::here("scripts","SGCN_DataCollection","lu_eBird_birdseason.csv"), colClasses = c("character","character","integer","integer"),stringsAsFactors=FALSE)
 
 ### assign a migration date to each ebird observation.
@@ -203,3 +202,4 @@ arc.write(path=here::here("_data","output",updateName,"SGCN.gdb","final_inat"), 
 
 unique(inatrecs3$SNAME)
 table(inatrecs3$SNAME,inatrecs3$TaxaGroup)
+
