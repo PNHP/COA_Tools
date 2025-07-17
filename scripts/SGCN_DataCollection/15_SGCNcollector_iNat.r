@@ -9,6 +9,7 @@
 # # insert date and info
 # # * 2018-03-21 - get list of species that are in Biotics
 # # * 2018-03-23 - export shapefiles
+# # 2024-10-17 - MMOORE - updated to handle requests of greater than 10,000 records per species by breaking up requests by year if more than 10,000 records returned.
 # #
 # # To Do List/Future Ideas:
 # # * 
@@ -41,22 +42,43 @@ SGCNinat <- sgcnlist
 SGCNinat <- sgcnlist[which(!sgcnlist %in% SGCN_bioticsCPP)]
 SGCNinat <- SGCNinat[order(SGCNinat)]
 
+#get current year and 25 years of data for if we need to request by year because there are more than 10,000 records for a species
+years <- cutoffyear:year(now())
+
 a <- list()
 k <- NULL
+list_index <- 1
+
 for(x in 1:length(SGCNinat)){
-  #get metadata on the number of occurrences
   print(paste("getting metadata from iNaturalist for ",SGCNinat[x],".", sep="") )
-  try(k <- get_inat_obs(taxon_name=SGCNinat[x], bounds=c(39.7198, -80.519891, 42.26986,	-74.689516) , geo=TRUE, meta=TRUE) ) # this step first queries iNat to see if there are any records present, if there are it actually downloads them.
+  try(k <- get_inat_obs(taxon_name=SGCNinat[x], bounds=c(39.7198, -80.519891, 42.26986,	-74.689516), geo=TRUE, meta=TRUE, quality="research")) # this step first queries iNat to see if there are any records present, if there are it actually downloads them.
   Sys.sleep(10) # this is too throttle our requests so we don't overload their servers
   if(is.list(k)){
     print(paste("There are ", k$meta$found, " records on iNaturalist", sep=""))
-    if(k$meta$found>0){
-      a[[x]] <- get_inat_obs(taxon_name=SGCNinat[x], bounds=c(39.7198, -80.519891, 42.26986,	-74.689516) , geo=TRUE, maxresults = k$meta$found) 
+    if(k$meta$found>0 && k$meta$found<=10000){
+      a[[list_index]] <- get_inat_obs(taxon_name=SGCNinat[x], bounds=c(39.7198, -80.519891, 42.26986,	-74.689516), geo=TRUE, quality="research", maxresults = k$meta$found)
       k <- NULL
-    } else {}
-  } else {
-    print("No records found")
+      list_index = list_index + 1
+    }
+    else if(k$meta$found>10000){
+      p <- NULL
+      l <- list()
+      for(y in years){
+        #get metadata on the number of occurrences
+        print(paste("getting metadata from iNaturalist for year: ",y,".", sep="") )
+        try(p <- get_inat_obs(taxon_name=SGCNinat[x], bounds=c(39.7198, -80.519891, 42.26986,	-74.689516), geo=TRUE, meta=TRUE, quality="research", year=y) ) # this step first queries iNat to see if there are any records present, if there are it actually downloads them.
+        Sys.sleep(10) # this is too throttle our requests so we don't overload their servers
+        if(is.list(p)){
+          print(paste("There are ", p$meta$found, " records on iNaturalist", sep=""))
+          a[[list_index]] <- get_inat_obs(taxon_name=SGCNinat[x], bounds=c(39.7198, -80.519891, 42.26986,	-74.689516), geo=TRUE, quality="research", year=y, maxresults = p$meta$found)
+          p <- NULL
+          list_index = list_index + 1
+        }
+        else{print("No records found for year.")}
+      }
+    }
   }
+  else{print("No records found for species.")}
 }
 
 # convert to a data frame
@@ -105,6 +127,33 @@ inatrecs[which(inatrecs$scientific_name=="Faxonius limosus"),]$scientific_name <
 inatrecs[which(inatrecs$scientific_name=="Phanogomphus borealis"),]$scientific_name <- "Gomphus borealis"
 inatrecs[which(inatrecs$scientific_name=="Sthenopis pretiosus"),]$scientific_name <- "Sthenopis auratus"
 inatrecs[which(inatrecs$scientific_name=="Spinus pinus pinus"),]$scientific_name <- "Spinus pinus"
+inatrecs[which(inatrecs$scientific_name=="Apantesis phyllira"),]$scientific_name <- "Grammia phyllira"
+inatrecs[which(inatrecs$scientific_name=="Aquila chrysaetos canadensis"),]$scientific_name <- "Aquila chrysaetos"
+inatrecs[which(inatrecs$scientific_name=="Buteo platypterus platypterus"),]$scientific_name <- "Buteo platypterus"
+inatrecs[which(inatrecs$scientific_name=="Certhia americana americana"),]$scientific_name <- "Certhia americana"
+inatrecs[which(inatrecs$scientific_name=="Cicindela scutellaris rugifrons"),]$scientific_name <- "Cicindela scutellaris"
+inatrecs[which(inatrecs$scientific_name=="Cygnus columbianus bewickii"),]$scientific_name <- "Cygnus columbianus"
+inatrecs[which(inatrecs$scientific_name=="Cygnus columbianus columbianuss"),]$scientific_name <- "Cygnus columbianus"
+inatrecs[which(inatrecs$scientific_name=="Danaus plexippus plexippus"),]$scientific_name <- "Spinus pinus"
+inatrecs[which(inatrecs$scientific_name=="Faxonius limosus"),]$scientific_name <- "Orconectes limosus"
+inatrecs[which(inatrecs$scientific_name=="Glaucopsyche lygdamus couperi"),]$scientific_name <- "Glaucopsyche lygdamus"
+inatrecs[which(inatrecs$scientific_name=="Gomphurus septima delawarensis"),]$scientific_name <- "Gomphus septima delawarensis"
+inatrecs[which(inatrecs$scientific_name=="Icteria virens virens"),]$scientific_name <- "Icteria virens"
+inatrecs[which(inatrecs$scientific_name=="Miniellus procne"),]$scientific_name <- "Notropis procne"
+inatrecs[which(inatrecs$scientific_name=="Papaipema duplicatus"),]$scientific_name <- "Papaipema duplicata"
+inatrecs[which(inatrecs$scientific_name=="Passerculus sandwichensis savanna"),]$scientific_name <- "Passerculus sandwichensis"
+inatrecs[which(inatrecs$scientific_name=="Phanogomphus borealis"),]$scientific_name <- "Gomphus borealis"
+inatrecs[which(inatrecs$scientific_name=="Pipilo erythrophthalmus erythrophthalmus"),]$scientific_name <- "Pipilo erythrophthalmuss"
+inatrecs[which(inatrecs$scientific_name=="Podiceps auritus cornutus"),]$scientific_name <- "Podiceps auritus"
+inatrecs[which(inatrecs$scientific_name=="Salvelinus fontinalis fontinalis"),]$scientific_name <- "Salvelinus fontinalis"
+inatrecs[which(inatrecs$scientific_name=="Satyrium favonius ontario"),]$scientific_name <- "Satyrium favonius"
+inatrecs[which(inatrecs$scientific_name=="Spatula discors"),]$scientific_name <- "Anas discors"
+inatrecs[which(inatrecs$scientific_name=="Spizella pusilla pusilla"),]$scientific_name <- "Spizella pusilla"
+inatrecs[which(inatrecs$scientific_name=="Sthenopis pretiosus"),]$scientific_name <- "Sthenopis auratus"
+
+print("The following species do not match the original SGCN list:")
+speciesmatch[which(is.na(speciesmatch$match)),]$SNAME
+
 
 unique(inatrecs$scientific_name)
 
