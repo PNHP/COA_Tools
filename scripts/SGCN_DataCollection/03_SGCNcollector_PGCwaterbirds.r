@@ -84,7 +84,8 @@ birdplots <- merge(plotsSubset, waterfowl1, by.x=c("Statum","Plot_Num"), by.y=c(
 birdplots <- birdplots[which(!is.na(birdplots$NW_Lat)),]  # why is there not '24' stratum
 
 # wetlands
-nwi <- arc.open(paste("C:/Users/mmoore/AppData/Roaming/ESRI/ArcGISPro/Favorites/StateLayers_Default_pgh-gis0.sde/","StateLayers.DBO.USFWS_NWI", sep=""))
+nwi_url <- "H://Scripts/COA_Tools/_data/misc/PA_geodatabase_wetlands.gdb/PA_Wetlands"
+nwi <- arc.open(nwi_url)
 nwi <- arc.select(nwi)
 nwi <- arc.data2sf(nwi)
 nwi <- st_buffer(nwi, dist=0)

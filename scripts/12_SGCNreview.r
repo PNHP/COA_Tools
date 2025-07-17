@@ -51,7 +51,10 @@ lu_sgcnXpu[lu_sgcnXpu=="ABNKC12060_w"] <- "ABNKC12061_w"
 lu_sgcnXpu[lu_sgcnXpu=="ARADB23010_y"] <- "ARADB23011_y" # Northern rough greensnake
 
 lu_sgcnXpu[lu_sgcnXpu=="IILEP42010_y"] <- "IILEP42011_y" # Arctic skipper
+lu_sgcnXpu[lu_sgcnXpu=="IILEPJ6040_y"] <- "IILEPJ6041_y" # Regal Fritillary
 
+# remove non breeding records for American Woodcock - we should probably fix this in an earlier step.
+lu_sgcnXpu <- lu_sgcnXpu[which(lu_sgcnXpu$ELSeason!="ABNNF19020_m"&lu_sgcnXpu$ELSeason!="ABNNF19020_w"),]
 
 # remove problematic bat records (little brown and indiana year-round - find out where these are coming from)
 lu_sgcnXpu <- lu_sgcnXpu[which(lu_sgcnXpu$ELSeason!="AMACC01100_y"&lu_sgcnXpu$ELSeason!="AMACC01010_y"),]
@@ -175,6 +178,8 @@ SGCN[SGCN=="PGC Woodcock Email Data"] <- "PGC"
 SGCN[SGCN=="PGC_captures"] <- "PGC"
 SGCN[SGCN=="PNHP CPP"] <- "PNHP Biotics"
 SGCN[SGCN=="PNHP ER"] <- "PNHP Biotics"
+SGCN[SGCN=="PGC Barn Owl Conservation Initiative"] <- "PGC"
+SGCN[SGCN=="PGC Woodcock Data 2023"] <- "PGC"
            
 unique(SGCN$DataSource)
 

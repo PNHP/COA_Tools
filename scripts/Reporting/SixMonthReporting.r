@@ -25,8 +25,8 @@ require(beepr)
 source(here::here("scripts","00_PathsAndSettings.r"))
 
 # progress report name
-ReportName <- "Annual Update Report - July 29, 2024"
-PDFName <- "YearlyReport"
+ReportName <- "Annual Update Report - July 11, 2025"
+PDFName <- "AnnualReport"
 
 replaceGraphs <- "yes"
 
@@ -62,7 +62,7 @@ loadSGCN()
 # assign the database names for the updates
 databasename_now <- here::here("_data","output",updateName,"coa_bridgetest.sqlite") # most recent update
 databasename_6m <- here::here("_data","output",updateName6m,"coa_bridgetest.sqlite") # update from six months ago
-databasename_prev <- here::here("_data","output",updateNameprev,"coa_bridgetest.sqlite") # update from previous update
+#databasename_prev <- here::here("_data","output",updateNameprev,"coa_bridgetest.sqlite") # update from previous update
 
 # load in the taxanomic groups
 db <- dbConnect(SQLite(), dbname=databasename_now)
@@ -188,6 +188,10 @@ SGCNxPU_Count <- merge(SGCNxPU_Count, lu_sgcn_now, by="ELSeason")
 # rename the invert
 SGCNxPU_Count[which(substr(SGCNxPU_Count$TaxaDisplay,1,12)=="Invertebrate"),]$TaxaDisplay <- "Invertebrate"
 
+# write SGCNxPU count to .csv
+write.csv(SGCNxPU_Count,paste(here::here("_data","output",updateName),"/SGCNxPU_Count.csv", sep="")) 
+
+
 SGCNxPU_Total_6m <- sum(SGCNxPU_Count$Count_6m, na.rm=TRUE)
 SGCNxPU_Total_now <- sum(SGCNxPU_Count$Count_Now, na.rm=TRUE)
 SGCNxPU_Total_diff <- SGCNxPU_Total_now - SGCNxPU_Total_6m
@@ -248,16 +252,15 @@ if(replaceGraphs=="yes"){
   ifelse(!dir.exists(here::here("_data","output",updateName,"figuresReporting")), dir.create(here::here("_data","output",updateName,"figuresReporting")), FALSE)
   
   # load the county basemap
-  county_shp <- arc.open(here::here("_data","output",updateName,"sws.gdb", "_county")) 
+  county_shp <- arc.open(here::here("_data","output",updateName,"sgcn.gdb", "CountyBuffer")) 
   county_shp <- arc.select(county_shp)
   county_sf <- arc.data2sf(county_shp)
   county_sf <- st_transform(county_sf, st_crs(SGCN_sf))
   
-
   
   for(i in 1:length(taxalist)){
     SGCN_sf_sub <- SGCN_sf[which(SGCN_sf$taxadisplay==taxalist[i]),]
-    SGCN_sf_sub$include <- factor(ifelse(SGCN_sf_sub$LastObs>=1997,"less than 25 years","older than 25 years"))
+    SGCN_sf_sub$include <- factor(ifelse(SGCN_sf_sub$LastObs>=2000,"less than 25 years","older than 25 years"))
     levels(SGCN_sf_sub$include) <- c("less than 25 years","older than 25 years")
     # make the histogram
     h <- ggplot(data=SGCN_sf_sub , aes(LastObs, fill=include)) +
@@ -305,7 +308,11 @@ if(replaceGraphs=="yes"){
 
 
 # make a species list looper 
-spabbv <- c("salamanders","frogs","birds","fish","mammals","turtles","lizards","snakes","crayfishes","beetles","mayflies","moths","dragonflies","stoneflies","caddisflies","spiders","mussels","caves","bees","butterflies","craneflies","sawflies","fsnails","tsnails")
+spabbv <- c("salamanders","frogs","birds","fish","mammals","turtles","lizards",
+            "snakes","crayfishes","beetles","mayflies","moths","dragonflies",
+            "grasshoppers","stoneflies","caddisflies","spiders","mussels",
+            "caves","bees","butterflies","craneflies","sawflies","fsnails",
+            "tsnails")
 specieslooper <- data.frame(taxalist,spabbv)
 specieslooper$taxalist <- as.character(specieslooper$taxalist)
 specieslooper$spabbv <- as.character(specieslooper$spabbv)

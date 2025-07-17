@@ -21,18 +21,15 @@ require(stringr)
 # load the arcgis license
 arc.check_product() 
 
-updateName <- "eBird_test_20240903"
-updateNameprev <- "_update2023q2"
-
 # update name
-#updateName <- "_update2024q2"
-#updateNameprev <- "_update2024q1"
-#updateName6m <- "_update2023q2"
+updateName <- "_update2025q2"
+updateNameprev <- "_update2025q1"
+updateName6m <- "_update2024q2"
 # for annual reporting
-updateName_q3 <- "_update2023q3"
-updateName_q4 <- "_update2023q4"
-updateName_q1 <- "_update2024q1"
-updateName_q2 <- "_update2024q2"
+updateName_q3 <- "_update2024q3"
+updateName_q4 <- "_update2024q4"
+updateName_q1 <- "_update2025q1"
+updateName_q2 <- "_update2025q2"
   
 # create a directory for this update unless it already exists
 ifelse(!dir.exists(here::here("_data","output",updateName)), dir.create(here::here("_data","output",updateName)), FALSE)
@@ -48,11 +45,11 @@ trackingdatabasename <- here::here("_data","output",updateName,paste0("coa_track
 
 # paths to biotics shapefiles
 biotics_path <- "W:/Heritage/Heritage_Data/Biotics_datasets.gdb"
-bioticsFeatServ_path <- "https://maps.waterlandlife.org/arcgis/rest/services/PNHP/Biotics/FeatureServer"
+bioticsFeatServ_path <- "https://gis.waterlandlife.org/server/rest/services/PNHP/Biotics_READ_ONLY/FeatureServer"
 biotics_crosswalk <- here::here("_data","input","crosswalk_BioticsSWAP.csv") # note that nine species are not in Biotics at all
 
 # paths to to server path to access cpp shapefiles, we connect to the cpp file in '02_SGCNcollector_BioticsCPP.r'
-serverPath <- paste("C:/Users/",Sys.getenv("USERNAME"),"/AppData/Roaming/ESRI/ArcGISPro/Favorites/PNHP_Working_PGH-gis0.sde/",sep="")
+serverPath <- paste("C:/Users/",Sys.getenv("USERNAME"),"/AppData/Roaming/ESRI/ArcGISPro/Favorites/PNHP_Working_PGH-gis1.sde/",sep="")
 
 # cutoff year for records
 cutoffyear <- as.integer(substr(updateName, 8, 11)) - 25  # keep data that's only within 25 years

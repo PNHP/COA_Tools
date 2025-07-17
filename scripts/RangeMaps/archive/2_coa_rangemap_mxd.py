@@ -10,7 +10,7 @@
 
 #!!!!!!!!!!!CHANGE PATH BELOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # set folder where sws gdb and .mxds are included
-folder = r'H:\Scripts\COA_Tools\_data\output\_update2024q2'
+folder = r'H:\Scripts\COA_Tools\_data\output\_update2024q4'
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 desiredFields = ['COUNTY_NAM','NAME','TaxaDisplay', 'SCOMNAME', 'SNAME', 'y', 'b', 'm', 'w', 'Occurrence', 'GRANK', 'SRANK', 'USESA', 'SPROT', 'PBSSTATUS', 'PrimMacro', 'OBJECTID', 'Shape']
 ######################################################################################################################################################
@@ -170,33 +170,28 @@ def format_mxd(mxd,df_name,fc,alltaxa):
             arcpy.mapping.AddLayerToGroup(df, targetGroupLayer, addLayer, "AUTO_ARRANGE")
             n+=1
 
-    group_lyrs = [lyr for lyr in arcpy.mapping.ListLayers(mxd) if lyr.isGroupLayer]
-    for group_lyr in group_lyrs:
-        print(group_lyr)
-        lyr_names = sorted(lyr.name for lyr in arcpy.mapping.ListLayers(group_lyr) if lyr.isFeatureLayer)
-        if lyr_names:
-            ref_lyr = arcpy.mapping.ListLayers(group_lyr, lyr_names[0])[0]
-            for name in lyr_names:
-                if name != ref_lyr.name:
-                    arcpy.mapping.MoveLayer(df,ref_lyr,arcpy.mapping.ListLayers(group_lyr,name)[0], "AFTER")
-                    ref_lyr = arcpy.mapping.ListLayers(group_lyr,name)[0]
+    for layer in map_doc.listLayers():
+        if layer.isFeatureLayer:  # Process only feature layers
+            print(f"Processing layer: {layer.name}")
 
-            for name in lyr_names:
-                LayerNeedsFieldsTurnedOff = arcpy.mapping.ListLayers(mxd,name,df)[0]
-                field_info = arcpy.Describe(LayerNeedsFieldsTurnedOff).fieldInfo
-                for i in range(0, field_info.count):
-                    if field_info.getfieldname(i) not in desiredFields:
-                        field_info.setvisible(i,'HIDDEN')
-                arcpy.MakeFeatureLayer_management(LayerNeedsFieldsTurnedOff,'temp_layer','','',field_info)
-                refLyr = arcpy.mapping.Layer("temp_layer")
-                arcpy.ApplySymbologyFromLayer_management(refLyr,LayerNeedsFieldsTurnedOff)
-                arcpy.mapping.UpdateLayer(df,LayerNeedsFieldsTurnedOff,refLyr,False)
-                refLyr.name = name
-                refLyr.visible = False
-                arcpy.Delete_management('temp_layer')
-                del LayerNeedsFieldsTurnedOff,refLyr
-        else:
-            pass
+            # Describe the layer to get field information
+            field_info = arcpy.Describe(layer).fieldInfo
+
+            # Modify field visibility
+            for i in range(0, field_info.count):
+                field_name = field_info.getFieldName(i)
+                if field_name not in desired_fields:
+                    field_info.setVisible(i, 'HIDDEN')
+
+            # Apply the updated field info to the layer using MakeFeatureLayer
+            arcpy.management.MakeFeatureLayer(
+                layer.dataSource,
+                layer.name,
+                "",
+                "",
+                field_info
+            )
+            print(f"Updated fields for layer: {layer.name}")
 
     mxd.save()
 

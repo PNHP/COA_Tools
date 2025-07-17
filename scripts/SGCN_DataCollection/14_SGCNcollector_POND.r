@@ -28,10 +28,9 @@ arc.check_portal()
 loadSGCN()
 
 #paths to POND feature service layers
-pond_sde <- "C://Users//mmoore//AppData//Roaming//Esri//ArcGISPro//Favorites//PNHP_Working_pgh-gis0.sde"
-pond_pts <- paste(pond_sde,"PNHP.DBO.POND//PNHP.DBO.pools",sep="/")
-pond_species <- paste(pond_sde,"PNHP.DBO.species",sep="/")
-pond_surveys <- paste(pond_sde,"PNHP.DBO.surveys",sep="/")
+pond_pts <- "https://gis.waterlandlife.org/server/rest/services/PNHP/POND_EDIT/FeatureServer/0"
+pond_species <- "https://gis.waterlandlife.org/server/rest/services/PNHP/POND_EDIT/FeatureServer/3"
+pond_surveys <- "https://gis.waterlandlife.org/server/rest/services/PNHP/POND_EDIT/FeatureServer/4"
 
 #import all species records from POND
 species_fields <- c('refcode','species_type','sname','species_found')

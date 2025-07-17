@@ -29,21 +29,24 @@ arc.check_portal()
 # read in SGCN data
 loadSGCN()
 
-# load the Biotics Crosswalk
-biotics_crosswalk <- read.csv(biotics_crosswalk, stringsAsFactors=FALSE)
-lu_sgcnBiotics <- biotics_crosswalk$SNAME
-# lu_sgcnBioticsELCODE <- biotics_crosswalk$ELCODE
+# load the Biotics ET data to get ELCODE and ELSUBID for selection - this is more stable than SNAME
+sgcn_elcode <- lu_sgcn$ELCODE
+
+ET <- arc.open(paste(biotics_path,"ET",sep="/")) 
+sgcn_ET <- arc.select(ET) %>%
+  filter(ELCODE %in% lu_sgcn$ELCODE)
+sgcn_ELSUBID <- sgcn_ET$ELSUBID
 
 ########################################################################################
 # load in ER Polygons
 # CHANGE THIS EVERY TIME NEW ER DATASET IS AVAILABLE
 # make sure ER dataset is in custom albers projection
-er_layer <- "PA_ERPOLY_ALL_20240220_albers"
+er_layer <- "PA_ERPOLY_ALL_20250123_albers"
 er_gdb <- "W:/Heritage/Heritage_Data/Environmental_Review/_ER_POLYS/ER_Polys.gdb"
 er_poly <- arc.open(paste(er_gdb,er_layer, sep="/"))
-er_poly <- arc.select(er_poly, c("SNAME","EOID","BUF_TYPE"), where_clause="BUF_TYPE ='I' AND EOID <> 0") 
+er_poly <- arc.select(er_poly, c("SNAME","ELCODE","EOID","BUF_TYPE"), where_clause="BUF_TYPE ='I' AND EOID <> 0") 
 er_sf <- arc.data2sf(er_poly)
-er_sf <- er_sf[which(er_sf$SNAME %in% unique(biotics_crosswalk$SNAME)),]
+er_sf <- er_sf[which(er_sf$ELCODE %in% unique(sgcn_ET$ELCODE)),]
 names(er_sf)[names(er_sf) == 'EOID'] <- 'EO_ID'
 # clean up
 rm(er_poly)
@@ -58,13 +61,10 @@ rm(er_poly)
 # use this to hit the enterprise gdb server
 cpp_url <- "https://gis.waterlandlife.org/server/rest/services/PNHP/CPP_EDIT/FeatureServer/0"
 cppCore <- arc.open(cpp_url)
-
-
-#cppCore <- arc.open(cpps)
-cppCore <- arc.select(cppCore, c("SNAME","EO_ID","Status"), where_clause="Status ='c' OR Status ='r'") 
+cppCore <- arc.select(cppCore, c("SNAME","ELSUBID","EO_ID","Status"), where_clause="Type IS NULL") 
 cppCore_sf <- arc.data2sf(cppCore)
-#### cppCore_sf <- cppCore_sf[which(cppCore_sf$SNAME %in% unique(lu_sgcn$SNAME)),] # bad SGCN names
-cppCore_sf <- cppCore_sf[which(cppCore_sf$SNAME %in% unique(biotics_crosswalk$SNAME)),]
+# we're using ELSUBID to select records because SNAME isn't as stable
+cppCore_sf <- cppCore_sf[which(cppCore_sf$ELSUBID %in% unique(sgcn_ELSUBID)),]
 
 # clean up
 rm(cppCore)
@@ -74,9 +74,7 @@ rm(cppCore)
 
 # create a vector of field names for the arc.select statement below
 lu_srcfeature_names <- c("SF_ID","EO_ID","ELCODE","SNAME","SCOMNAME","ELSUBID","LU_TYPE","LU_DIST","LU_UNIT","USE_CLASS","EST_RA")
-## arc.check_portal()  # may need to update bridge to most recent version if it crashes: https://github.com/R-ArcGIS/r-bridge/issues/46
 # read in source points 
-##srcfeat_points <- arc.open(paste0(bioticsFeatServ_path,"/2"))  # 2 is the number of the EO points 
 srcfeat_points <- arc.open(paste(biotics_path,"eo_sourcept",sep="/")) 
 srcfeat_points <- arc.select(srcfeat_points, lu_srcfeature_names)
 srcfeat_points <- arc.data2sf(srcfeat_points)
@@ -197,7 +195,7 @@ srcf_combined$useCOA <- with(srcf_combined, ifelse(srcf_combined$LastObs>=cutoff
 srcf_combined$OccProb = with(srcf_combined, ifelse(LastObs>=cutoffyearK , "k", ifelse(LastObs<cutoffyearK & LastObs>=cutoffyearL, "l", "u")))
 
 # replace bad season codes
-sf_y2b <- c("Circus hudsonius","Cistothorus stellaris","Podilymbus podiceps","Botaurus lentiginosus","Ixobrychus exilis","Ardea alba","Nycticorax nycticorax","Nyctanassa violacea","Anas crecca","Anas rubripes","Anas discors","Pandion haliaetus","Haliaeetus leucocephalus","Circus cyaneus","Accipiter striatus","Accipiter gentilis","Buteo platypterus","Falco sparverius","Falco peregrinus","Bonasa umbellus","Rallus elegans","Rallus limicola","Porzana carolina","Gallinula galeata","Fulica americana","Charadrius melodus","Actitis macularius","Bartramia longicauda","Gallinago delicata","Scolopax minor","Sterna hirundo","Chlidonias niger","Tyto alba","Asio otus","Asio flammeus","Aegolius acadicus","Chordeiles minor","Antrostomus vociferus","Chaetura pelagica","Melanerpes erythrocephalus","Contopus cooperi","Empidonax flaviventris","Empidonax traillii","Progne subis","Riparia riparia","Certhia americana","Troglodytes hiemalis","Cistothorus platensis","Cistothorus palustris","Catharus ustulatus","Hylocichla mustelina","Dumetella carolinensis","Lanius ludovicianus","Vermivora cyanoptera","Vermivora chrysoptera","Oreothlypis ruficapilla","Setophaga caerulescens","Setophaga virens","Setophaga discolor","Setophaga striata","Setophaga cerulea","Mniotilta varia","Protonotaria citrea","Parkesia noveboracensis","Parkesia motacilla","Geothlypis formosa","Cardellina canadensis","Icteria virens","Piranga rubra","Piranga olivacea","Spiza americana","Spizella pusilla","Pooecetes gramineus","Passerculus sandwichensis","Ammodramus savannarum","Ammodramus henslowii","Zonotrichia albicollis","Dolichonyx oryzivorus","Sturnella magna","Loxia curvirostra","Spinus pinus","Lanius ludovicianus","Lanius ludovicianus migrans","Lasionycteris noctivagans")  
+sf_y2b <- c("Circus hudsonius","Cistothorus stellaris","Podilymbus podiceps","Botaurus lentiginosus","Ixobrychus exilis","Ardea alba","Nycticorax nycticorax","Nyctanassa violacea","Anas crecca","Anas rubripes","Anas discors","Pandion haliaetus","Haliaeetus leucocephalus","Circus cyaneus","Accipiter striatus","Accipiter gentilis","Accipiter atricapillus","Buteo platypterus","Falco sparverius","Falco peregrinus","Bonasa umbellus","Rallus elegans","Rallus limicola","Porzana carolina","Gallinula galeata","Fulica americana","Charadrius melodus","Actitis macularius","Bartramia longicauda","Gallinago delicata","Scolopax minor","Sterna hirundo","Chlidonias niger","Tyto alba","Asio otus","Asio flammeus","Aegolius acadicus","Chordeiles minor","Antrostomus vociferus","Chaetura pelagica","Melanerpes erythrocephalus","Contopus cooperi","Empidonax flaviventris","Empidonax traillii","Progne subis","Riparia riparia","Certhia americana","Troglodytes hiemalis","Cistothorus platensis","Cistothorus palustris","Catharus ustulatus","Hylocichla mustelina","Dumetella carolinensis","Lanius ludovicianus","Vermivora cyanoptera","Vermivora chrysoptera","Oreothlypis ruficapilla","Setophaga caerulescens","Setophaga virens","Setophaga discolor","Setophaga striata","Setophaga cerulea","Mniotilta varia","Protonotaria citrea","Parkesia noveboracensis","Parkesia motacilla","Geothlypis formosa","Cardellina canadensis","Icteria virens","Piranga rubra","Piranga olivacea","Spiza americana","Spizella pusilla","Pooecetes gramineus","Passerculus sandwichensis","Ammodramus savannarum","Ammodramus henslowii","Zonotrichia albicollis","Dolichonyx oryzivorus","Sturnella magna","Loxia curvirostra","Spinus pinus","Lanius ludovicianus","Lanius ludovicianus migrans","Lasionycteris noctivagans")  
 srcf_combined[which(srcf_combined$SNAME %in% sf_y2b),]$SeasonCode <- "b"
 sf_b2y <- c("Myotis leibii","Myotis septentrionalis","Sceloporus undulatus")
 srcf_combined[which(srcf_combined$SNAME %in% sf_b2y),]$SeasonCode <- "y"
@@ -205,6 +203,7 @@ sf_b2w <- c("Perimyotis subflavus")
 srcf_combined[which(srcf_combined$SNAME %in% sf_b2w),]$SeasonCode <- "w"
 sf_w2y <- c("Lithobates pipiens","Lithobates sphenocephalus utricularius","Plestiodon anthracinus anthracinus","Virginia valeriae pulchra")
 srcf_combined[which(srcf_combined$SNAME %in% sf_b2y),]$SeasonCode <- "y"
+
 
 srcf_combined$ELSeason <- paste(srcf_combined$ELCODE,srcf_combined$SeasonCode,sep="_")
 
@@ -214,9 +213,6 @@ rm(srcf_pt_sf1buf,srcf_ln_sf1buf,srcf_py_sf1buf)
 # remove the source features for which CPPs and ER polygons have been created
 final_srcf_combined <- srcf_combined[which(!srcf_combined$EO_ID %in% cppCore_sf$EO_ID & !srcf_combined$EO_ID %in% er_sf$EOID),]
 
-# old - delete after above ER code is implemented successfully
-#final_srcf_combined <- srcf_combined[which(!srcf_combined$EO_ID %in% cppCore_sf$EO_ID),]
-
 # remove the cpp polygons for which there are ER polygons
 cppCore_sf <- cppCore_sf[which(!cppCore_sf$EO_ID %in% er_sf$EO_ID),]
 
@@ -224,7 +220,7 @@ cppCore_sf <- cppCore_sf[which(!cppCore_sf$EO_ID %in% er_sf$EO_ID),]
 att_for_cpp <- srcf_combined[which(srcf_combined$EO_ID %in% cppCore_sf$EO_ID),] 
 
 # replace bad season codes
-cpp_y2b <- c("Circus hudsonius","Cistothorus stellaris","Podilymbus podiceps","Botaurus lentiginosus","Ixobrychus exilis","Ardea alba","Nycticorax nycticorax","Nyctanassa violacea","Anas crecca","Anas rubripes","Anas discors","Pandion haliaetus","Haliaeetus leucocephalus","Circus cyaneus","Accipiter striatus","Accipiter gentilis","Buteo platypterus","Falco sparverius","Falco peregrinus","Bonasa umbellus","Rallus elegans","Rallus limicola","Porzana carolina","Gallinula galeata","Fulica americana","Charadrius melodus","Actitis macularius","Bartramia longicauda","Gallinago delicata","Scolopax minor","Sterna hirundo","Chlidonias niger","Tyto alba","Asio otus","Asio flammeus","Aegolius acadicus","Chordeiles minor","Antrostomus vociferus","Chaetura pelagica","Melanerpes erythrocephalus","Contopus cooperi","Empidonax flaviventris","Empidonax traillii","Progne subis","Riparia riparia","Certhia americana","Troglodytes hiemalis","Cistothorus platensis","Cistothorus palustris","Catharus ustulatus","Hylocichla mustelina","Dumetella carolinensis","Lanius ludovicianus","Vermivora cyanoptera","Vermivora chrysoptera","Oreothlypis ruficapilla","Setophaga caerulescens","Setophaga virens","Setophaga discolor","Setophaga striata","Setophaga cerulea","Mniotilta varia","Protonotaria citrea","Parkesia noveboracensis","Parkesia motacilla","Geothlypis formosa","Cardellina canadensis","Icteria virens","Piranga rubra","Piranga olivacea","Spiza americana","Spizella pusilla","Pooecetes gramineus","Passerculus sandwichensis","Ammodramus savannarum","Ammodramus henslowii","Zonotrichia albicollis","Dolichonyx oryzivorus","Sturnella magna","Loxia curvirostra","Spinus pinus","Lanius ludovicianus","Lanius ludovicianus migrans","Lasionycteris noctivagans")       
+cpp_y2b <- c("Circus hudsonius","Cistothorus stellaris","Podilymbus podiceps","Botaurus lentiginosus","Ixobrychus exilis","Ardea alba","Nycticorax nycticorax","Nyctanassa violacea","Anas crecca","Anas rubripes","Anas discors","Pandion haliaetus","Haliaeetus leucocephalus","Circus cyaneus","Accipiter striatus","Accipiter gentilis","Accipiter atricapillus","Buteo platypterus","Falco sparverius","Falco peregrinus","Bonasa umbellus","Rallus elegans","Rallus limicola","Porzana carolina","Gallinula galeata","Fulica americana","Charadrius melodus","Actitis macularius","Bartramia longicauda","Gallinago delicata","Scolopax minor","Sterna hirundo","Chlidonias niger","Tyto alba","Asio otus","Asio flammeus","Aegolius acadicus","Chordeiles minor","Antrostomus vociferus","Chaetura pelagica","Melanerpes erythrocephalus","Contopus cooperi","Empidonax flaviventris","Empidonax traillii","Progne subis","Riparia riparia","Certhia americana","Troglodytes hiemalis","Cistothorus platensis","Cistothorus palustris","Catharus ustulatus","Hylocichla mustelina","Dumetella carolinensis","Lanius ludovicianus","Vermivora cyanoptera","Vermivora chrysoptera","Oreothlypis ruficapilla","Setophaga caerulescens","Setophaga virens","Setophaga discolor","Setophaga striata","Setophaga cerulea","Mniotilta varia","Protonotaria citrea","Parkesia noveboracensis","Parkesia motacilla","Geothlypis formosa","Cardellina canadensis","Icteria virens","Piranga rubra","Piranga olivacea","Spiza americana","Spizella pusilla","Pooecetes gramineus","Passerculus sandwichensis","Ammodramus savannarum","Ammodramus henslowii","Zonotrichia albicollis","Dolichonyx oryzivorus","Sturnella magna","Loxia curvirostra","Spinus pinus","Lanius ludovicianus","Lanius ludovicianus migrans","Lasionycteris noctivagans")       
 att_for_cpp[which(att_for_cpp$SNAME %in% cpp_y2b),]$SeasonCode <- "b"
 cpp_b2y <- c("Lithobates pipiens","Lithobates sphenocephalus utricularius","Plestiodon anthracinus anthracinus","Sorex palustris albibarbis","Virginia pulchra","Myotis leibii","Myotis septentrionalis","Sceloporus undulatus")
 att_for_cpp[which(att_for_cpp$SNAME %in% cpp_b2y),]$SeasonCode <- "y"
@@ -254,7 +250,7 @@ cppCore_sf_final <- cppCore_sf_final[which(!is.na(cppCore_sf_final$LastObs)),]
 att_for_er <- srcf_combined[which(srcf_combined$EO_ID %in% er_sf$EO_ID),] 
 
 # replace bad season codes
-er_y2b <- c("Circus hudsonius","Cistothorus stellaris","Podilymbus podiceps","Botaurus lentiginosus","Ixobrychus exilis","Ardea alba","Nycticorax nycticorax","Nyctanassa violacea","Anas crecca","Anas rubripes","Anas discors","Pandion haliaetus","Haliaeetus leucocephalus","Circus cyaneus","Accipiter striatus","Accipiter gentilis","Buteo platypterus","Falco sparverius","Falco peregrinus","Bonasa umbellus","Rallus elegans","Rallus limicola","Porzana carolina","Gallinula galeata","Fulica americana","Charadrius melodus","Actitis macularius","Bartramia longicauda","Gallinago delicata","Scolopax minor","Sterna hirundo","Chlidonias niger","Tyto alba","Asio otus","Asio flammeus","Aegolius acadicus","Chordeiles minor","Antrostomus vociferus","Chaetura pelagica","Melanerpes erythrocephalus","Contopus cooperi","Empidonax flaviventris","Empidonax traillii","Progne subis","Riparia riparia","Certhia americana","Troglodytes hiemalis","Cistothorus platensis","Cistothorus palustris","Catharus ustulatus","Hylocichla mustelina","Dumetella carolinensis","Lanius ludovicianus","Vermivora cyanoptera","Vermivora chrysoptera","Oreothlypis ruficapilla","Setophaga caerulescens","Setophaga virens","Setophaga discolor","Setophaga striata","Setophaga cerulea","Mniotilta varia","Protonotaria citrea","Parkesia noveboracensis","Parkesia motacilla","Geothlypis formosa","Cardellina canadensis","Icteria virens","Piranga rubra","Piranga olivacea","Spiza americana","Spizella pusilla","Pooecetes gramineus","Passerculus sandwichensis","Ammodramus savannarum","Ammodramus henslowii","Zonotrichia albicollis","Dolichonyx oryzivorus","Sturnella magna","Loxia curvirostra","Spinus pinus","Lanius ludovicianus","Lanius ludovicianus migrans","Lasionycteris noctivagans")       
+er_y2b <- c("Circus hudsonius","Cistothorus stellaris","Podilymbus podiceps","Botaurus lentiginosus","Ixobrychus exilis","Ardea alba","Nycticorax nycticorax","Nyctanassa violacea","Anas crecca","Anas rubripes","Anas discors","Pandion haliaetus","Haliaeetus leucocephalus","Circus cyaneus","Accipiter striatus","Accipiter gentilis","Accipiter atricapillus","Buteo platypterus","Falco sparverius","Falco peregrinus","Bonasa umbellus","Rallus elegans","Rallus limicola","Porzana carolina","Gallinula galeata","Fulica americana","Charadrius melodus","Actitis macularius","Bartramia longicauda","Gallinago delicata","Scolopax minor","Sterna hirundo","Chlidonias niger","Tyto alba","Asio otus","Asio flammeus","Aegolius acadicus","Chordeiles minor","Antrostomus vociferus","Chaetura pelagica","Melanerpes erythrocephalus","Contopus cooperi","Empidonax flaviventris","Empidonax traillii","Progne subis","Riparia riparia","Certhia americana","Troglodytes hiemalis","Cistothorus platensis","Cistothorus palustris","Catharus ustulatus","Hylocichla mustelina","Dumetella carolinensis","Lanius ludovicianus","Vermivora cyanoptera","Vermivora chrysoptera","Oreothlypis ruficapilla","Setophaga caerulescens","Setophaga virens","Setophaga discolor","Setophaga striata","Setophaga cerulea","Mniotilta varia","Protonotaria citrea","Parkesia noveboracensis","Parkesia motacilla","Geothlypis formosa","Cardellina canadensis","Icteria virens","Piranga rubra","Piranga olivacea","Spiza americana","Spizella pusilla","Pooecetes gramineus","Passerculus sandwichensis","Ammodramus savannarum","Ammodramus henslowii","Zonotrichia albicollis","Dolichonyx oryzivorus","Sturnella magna","Loxia curvirostra","Spinus pinus","Lanius ludovicianus","Lanius ludovicianus migrans","Lasionycteris noctivagans")       
 att_for_er[which(att_for_er$SNAME %in% er_y2b),]$SeasonCode <- "b"
 er_b2y <- c("Lithobates pipiens","Lithobates sphenocephalus utricularius","Plestiodon anthracinus anthracinus","Sorex palustris albibarbis","Virginia pulchra","Myotis leibii","Myotis septentrionalis","Sceloporus undulatus")
 att_for_er[which(att_for_er$SNAME %in% er_b2y),]$SeasonCode <- "y"
@@ -278,13 +274,14 @@ att_for_er$EST_RA <-NULL
 
 att_for_er <- unique(att_for_er)
 
-er_sf_final <- merge(er_sf, att_for_er, by.x="EO_ID", all.x=TRUE)
+er_sf_final <- merge(er_sf, att_for_er, by.x="EO_ID", by.y="EO_ID", all.x=TRUE)
 er_sf_final <- er_sf_final[which(!is.na(er_sf_final$LastObs)),]
 
 # clean up
 rm(srcf_combined)
 
 # replace the ET names with those from the SWAP
+biotics_crosswalk <- read.csv(biotics_crosswalk, stringsAsFactors=FALSE)
 cppCore_sf_final1 <- merge(cppCore_sf_final, biotics_crosswalk[c("SNAME","SGCN_NAME")], by="SNAME")
 cppCore_sf_final1$SNAME <- cppCore_sf_final1$SGCN_NAME
 cppCore_sf_final1$SGCN_NAME <- NULL
@@ -313,6 +310,7 @@ final_er_sf$DataSource <- "PNHP ER"
 # field alignment
 final_cppCore_sf <- final_cppCore_sf[final_fields]
 final_srcf_combined <- final_srcf_combined[final_fields]
+final_er_sf$ELCODE <- final_er_sf$ELCODE.x
 final_er_sf <- final_er_sf[final_fields]
 
 #final_srcf_combined$useCOA <- with(final_srcf_combined, ifelse(final_srcf_combined$LastObs>=cutoffyearL, "y", "n"))

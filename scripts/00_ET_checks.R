@@ -18,7 +18,7 @@ SGCNlist_file <- list.files(path=here::here("_data","input"), pattern="^lu_SGCN"
 SGCNlist_file
 #look at the output and choose which file you want to run
 #enter its location in the list (first = 1, second = 2, etc)
-n <- 18 # this should  the "lu_SGCN.csv" from the previous quarter!
+n <- 22 # this should  the "lu_SGCN.csv" from the previous quarter!
 SGCNlist_file <- here::here("_data","input",SGCNlist_file[n])
 SGCN <- read.csv(SGCNlist_file, stringsAsFactors=FALSE)
 

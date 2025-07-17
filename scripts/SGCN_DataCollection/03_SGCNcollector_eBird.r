@@ -48,9 +48,10 @@ fileList <- dir(path=here::here("_data","input","SGCN_data","eBird"), pattern = 
 fileList
 #look at the output and choose which text file you want to run. enter its location in the list (first = 1, second = 2, etc)
 
-n <- 8
+n <- 6
 
 trackfiles("SGCN ebird", here::here("_data","input","SGCN_data","eBird",fileList[[n]])) # write to file tracker
+
 
 # # read in the file using auk
 ## Note: it's good to run each of these in turn, as it can fail if you do all of them at once.
@@ -62,6 +63,31 @@ ebd_filtered <- auk_filter(ebd_filters, file=f_out, overwrite=TRUE)
 ebd_df <- read_ebd(ebd_filtered)
 
 ebd_df_backup <- ebd_df
+
+#### LOADING IN THE SENSITIVE SPECIES FROM EBIRD - WE GET THESE SEPARATELY ON SPECIAL REQUEST FROM EBIRD
+#get a list of what's in the directory
+fileList <- dir(path=here::here("_data","input","SGCN_data","eBird"), pattern = ".csv$")
+fileList
+print("Select sensitive species .csv:")
+n <- 1
+trackfiles("SGCN sensitive ebird", here::here("_data","input","SGCN_data","eBird",fileList[[n]])) # write to file tracker
+
+f_in <- here::here("_data","input","SGCN_data","eBird",fileList[[n]])
+sensitive_ebird <- read.csv(f_in,fileEncoding = "latin1")
+
+# make dataframe column headers lower case and replace period with underscore to match the ebd dataset
+sensitive_ebird <- sensitive_ebird %>% rename_with(str_to_lower)
+names(sensitive_ebird) <- gsub(".", "_", names(sensitive_ebird), fixed = TRUE)
+
+# change character date field to date field for observation date
+sensitive_ebird$observation_date <- as.Date(sensitive_ebird$observation_date, format =  "%m/%d/%Y")
+
+# find common columns and rbind ebd_df and sensitive species .csv
+common_cols <- intersect(colnames(ebd_df), colnames(sensitive_ebird))
+ebd_df <- rbind(
+  subset(ebd_df, select = common_cols), 
+  subset(sensitive_ebird, select = common_cols)
+)
 
 # change the species we had to change for the 2020 ebird taxomony back to our SGCN names
 ebd_df[which(ebd_df$scientific_name=="Spatula discors"),]$scientific_name <- "Anas discors"
@@ -79,6 +105,7 @@ ebd_df <- ebd_df[which(ebd_df$locality_type=="P"|ebd_df$locality_type=="H"),]
 #ebd_df <- ebd_df[which(ebd_df$locality_type=="P"),] # just keep personal location, exclude hot spots
 ebd_df <- ebd_df[which(ebd_df$protocol_type=="Banding"|
            ebd_df$protocol_type=="Stationary"|
+           (ebd_df$protocol_type=="Traveling"&ebd_df$effort_distance_km<0.25)|
            ebd_df$protocol_type=="eBird - Stationary Count"|
            ebd_df$protocol_type=="Incidental"|
            ebd_df$protocol_type=="eBird - Casual Observation"|
@@ -150,7 +177,7 @@ names(ebd_df1)[names(ebd_df1)=='season'] <- 'SeasonCode'
 # this 
 write.csv(ebd_df1, "eBirdBACKUPOct.csv", row.names=FALSE) 
 ebd_df1 <- read.csv("eBirdBACKUPOct.csv", stringsAsFactors = FALSE)
-
+ 
 # create a spatial layer
 ebird_sf <- st_as_sf(ebd_df1, coords=c("longitude","latitude"), crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
 ebird_sf <- st_transform(ebird_sf, crs=customalbers) # reproject to the custom albers

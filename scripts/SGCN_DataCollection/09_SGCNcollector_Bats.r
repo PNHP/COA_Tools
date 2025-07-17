@@ -127,7 +127,7 @@ names(bats)[names(bats) == "LON"] <- "Longitude"
 names(bats)[names(bats) == "LAT"] <- "Latitude"
 
 #################################################################################
-# 2021-2022 bat data from PGC
+# 2021-2024 bat capture data for Big Brown and Silver-haired from PGC
 #################################################################################
 
 bat_file <- list.files(path=here::here("_data/input/SGCN_data/PGC_bats"), pattern=".csv")  # --- make sure your excel file is not open.
@@ -136,12 +136,16 @@ bat_file
 #enter its location in the list (first = 1, second = 2, etc)
 n <- 1
 bat_file_22 <- here::here("_data/input/SGCN_data/PGC_bats",bat_file[n])
-n <- 2
+n <- 3
 bat_file_23 <- here::here("_data/input/SGCN_data/PGC_bats",bat_file[n])
+n <- 2
+bat_file_24 <- here::here("_data/input/SGCN_data/PGC_bats",bat_file[n])
+
 
 # load in 21-22 PGC bat data
 bats1 <- read.csv(bat_file_22)
 bats2 <- read.csv(bat_file_23)
+bats3 <- read.csv(bat_file_24)
 
 # set up PGC species code to ELCODE crosswalk
 PGC_crosswalk <- data.frame("PGC_code"=c("MYLU", "MYSO", "EPFU", "MYLE", "MYSE", "PESU", "LANO"),"ELCODE"=c("AMACC01010","AMACC01100","AMACC04010","AMACC01130","AMACC01150","AMACC03020","AMACC02010"), stringsAsFactors=FALSE)
@@ -153,20 +157,28 @@ bats1 <- bats1 %>%
   left_join(PGC_crosswalk, by = c("Species.Code" = "PGC_code"))
 bats2 <- bats2 %>%
   left_join(species_crosswalk, by = c("Species" = "Species"))
+bats3 <- bats3 %>%
+  left_join(species_crosswalk, by = c("Species" = "Species"))
 
 
 bats2$Survey.Date <- paste(bats2$Month,bats2$Day,bats2$Year, sep="/")
 
 colnames(bats2)[colnames(bats2)=="LAT"] <- "LATITUDE"
 colnames(bats2)[colnames(bats2)=="LONG"] <- "LONGITUDE"
+colnames(bats3)[colnames(bats3)=="LAT"] <- "LATITUDE"
+colnames(bats3)[colnames(bats3)=="LONG"] <- "LONGITUDE"
+colnames(bats3)[colnames(bats3)=="Date.Combined"] <- "Survey.Date"
 
-common_cols <- intersect(colnames(bats1), colnames(bats2))
+common_cols <- intersect(names(bats1), names(bats2))
 
 bat_cap <- rbind(
   subset(bats1, select = common_cols), 
-  subset(bats2, select = common_cols)
+  subset(bats2, select = common_cols),
+  subset(bats3, select = common_cols)
 )
 
+# remove duplicates
+bat_cap <- bat_cap %>% distinct()
 
 # fill season code based on bat safe dates
 # add day of year to bat survey date
