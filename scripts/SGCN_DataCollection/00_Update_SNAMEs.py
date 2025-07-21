@@ -1,11 +1,20 @@
-### This code snippet updates SNAMEs in CPPs and ER polygons to current Biotics dataset based on matching EO_IDs
+"""
+---------------------------------------------------------------------------------------------------------------------
+Name: 00_Update_SNAMEs.py
+Purpose: This code snippet updates SNAMEs in CPPs and ER polygons to current Biotics dataset based on matching EO_IDs
+Created: 04/12/2025
+Updates:
+------------------------------------------------------------------------------------------------------------------------
+"""
 
+# import packages
 import arcpy
 
+# define paths to datasets - ER dataset path will change when new update is released!!!!!
 eo_ptreps = r"https://gis.waterlandlife.org/server/rest/services/PNHP/Biotics_READ_ONLY/FeatureServer/0"
 cpp_core = r"https://gis.waterlandlife.org/server/rest/services/PNHP/CPP_EDIT/FeatureServer/0"
 cpp_supporting = r"https://gis.waterlandlife.org/server/rest/services/PNHP/CPP_EDIT/FeatureServer/1"
-current_er = r"W:\Heritage\Heritage_Data\Environmental_Review\_ER_POLYS\ER_Polys.gdb\PA_ERPOLY_ALL_20250123_albers"
+current_er = r"W://Heritage/Heritage_Data/Environmental_Review/_ER_POLYS/ER_Polys.gdb/PA_ERPOLY_ALL_20250123_albers"
 
 # create dictionary of EOID and SNAME from current biotics layer
 eo_dict = {row[0]: row[1] for row in arcpy.da.SearchCursor(eo_ptreps, ["EO_ID", "SNAME"]) if

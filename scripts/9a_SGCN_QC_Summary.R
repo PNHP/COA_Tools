@@ -1,6 +1,8 @@
 #---------------------------------------------------------------------------------------------
-# Name: 21_SummaryTable.r
-# Purpose: Check difference in numbers of SGCN from last quarter to this quarter.
+# Name: 9a_SGCN_QC_Summary.r
+# Purpose: This is a really great QC script to check number of SGCN x dataset,
+# get difference in number of records between the current and previous quarters
+# 
 # Author: Molly Moore
 # Created: 2025-07-14
 #---------------------------------------------------------------------------------------------

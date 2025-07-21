@@ -59,7 +59,7 @@
 \catcode`\_=11
 
 \begin{center}
-  \Large \textbf{State Wildlife Action Plan Implementation: Conservation Action Mapping} \\
+  \Large \textbf{Pennsylvania Wildlife Action Plan Implementation: Conservation Opportunity Area Tool} \\
   \large \Sexpr{ReportName} \\
   \large Western Pennsylvania Conservancy \\
 \end{center}

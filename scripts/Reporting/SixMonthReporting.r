@@ -25,7 +25,7 @@ require(beepr)
 source(here::here("scripts","00_PathsAndSettings.r"))
 
 # progress report name
-ReportName <- "Annual Update Report - July 11, 2025"
+ReportName <- "Annual Report: July 1, 2024 - June 30, 2025"
 PDFName <- "AnnualReport"
 
 replaceGraphs <- "yes"
